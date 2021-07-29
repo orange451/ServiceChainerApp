@@ -29,7 +29,7 @@ public class ServiceChainEditor extends BorderPane {
 		Button newB = new Button("New Service Definition");
 		newB.setOnAction((event)->{
 			GraphObject g = new GraphObject(this.editPane);
-			g.setFill(Color.AQUAMARINE);
+			g.setFill(Color.DARKCYAN);
 			g.setCornerRadius(8);
 			g.setName("Service Definition");
 			g.setPrefSize(220, 60);
