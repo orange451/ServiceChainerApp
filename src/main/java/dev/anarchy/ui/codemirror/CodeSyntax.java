@@ -1,8 +1,9 @@
 package dev.anarchy.ui.codemirror;
 
 public enum CodeSyntax {
-	JAVA("text/x-java"),
-	VELOCITY("text/velocity"),
+	JAVA("ace/mode/java"),
+	VELOCITY("ace/mode/velocity"),
+	JSON("ace/mode/json"),
 	;
 	
 	private String type;
