@@ -31,7 +31,7 @@ public class ApplicationData {
 		this.addCollection(UNORGANIZED);
 	}
 	
-	public DServiceChain newServiceChain(DCollection collection) {
+	public DServiceChain newServiceChain(DFolder collection) {
 		DServiceChain chain = new DServiceChain();
 		String baseName = chain.getName();
 		
@@ -46,6 +46,23 @@ public class ApplicationData {
 		collection.addChild(chain);
 		
 		return chain;
+	}
+
+	public DFolder newFolder(DFolder internal) {
+		DFolder folder = new DFolder();
+		String baseName = folder.getName();
+		
+		int index = 0;
+		String checkName = baseName;
+		while(internal.getChild(checkName) != null) {
+			index += 1;
+			checkName = baseName + " (" + index + ")"; 
+		}
+		
+		folder.setName(checkName);
+		internal.addChild(folder);
+		
+		return folder;
 	}
 
 	public List<DCollection> getCollectionsUnmodifyable() {

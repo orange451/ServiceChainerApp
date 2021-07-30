@@ -3,14 +3,14 @@ package dev.anarchy;
 import dev.anarchy.event.Event;
 import dev.anarchy.event.NameChangeEvent;
 
-public class DServiceChain {
+public class DServiceChain implements DFolderElement {
 	private String name;
 	
 	private NameChangeEvent onNameChangeEvent;
 	
 	private Event onParentChangeEvent;
 	
-	private DCollection parent;
+	private DFolder parent;
 	
 	public DServiceChain() {
 		this.setName("New Service Chain");
@@ -37,15 +37,15 @@ public class DServiceChain {
 		return this.onParentChangeEvent;
 	}
 	
-	public void setParent(DCollection parent) {
-		DCollection oldParent = this.parent;
+	public void setParent(DFolder parent) {
+		DFolder oldParent = this.parent;
 		this.parent = parent;
 		
 		if ( onParentChangeEvent != null )
 			onParentChangeEvent.fire(parent, oldParent);
 	}
 	
-	public DCollection getParent() {
+	public DFolder getParent() {
 		return this.parent;
 	}
 }

@@ -1,6 +1,8 @@
 package dev.anarchy.ui.control;
 
 import dev.anarchy.DCollection;
+import dev.anarchy.DFolder;
+import dev.anarchy.DFolderElement;
 import dev.anarchy.DServiceChain;
 import dev.anarchy.ui.AnarchyApp;
 import javafx.beans.value.ChangeListener;
@@ -12,14 +14,14 @@ import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 
-public class ServiceChain extends Label {
+public class ServiceChain extends Label implements FolderElement {
 	private DServiceChain internal;
 	
 	private TextField textField;
 	
 	private final int height = 16;
 
-	public ServiceChain(DCollection collection, DServiceChain internal) {
+	public ServiceChain(DFolder collection, DServiceChain internal) {
 		super(internal.getName());
 		this.internal = internal;
 		
@@ -106,6 +108,11 @@ public class ServiceChain extends Label {
 	}
 
 	public DServiceChain getServiceChain() {
+		return this.internal;
+	}
+
+	@Override
+	public DFolderElement getFolderElement() {
 		return this.internal;
 	}
 }
