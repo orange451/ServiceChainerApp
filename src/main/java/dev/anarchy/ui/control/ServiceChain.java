@@ -32,7 +32,7 @@ public class ServiceChain extends Label implements FolderElement {
 		this.setGraphicTextGap(0);
 
 		this.setCursor(Cursor.HAND);
-		this.setPadding(new Insets(height/2f, 8, height/2f, 32));
+		this.setPadding(new Insets(height/2f, 8, height/2f, 24));
 		this.hoverProperty().addListener(new ChangeListener<Boolean>() {
 			@Override
 			public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean hovered) {

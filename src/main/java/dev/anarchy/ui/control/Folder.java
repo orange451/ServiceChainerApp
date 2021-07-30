@@ -33,7 +33,7 @@ public class Folder extends VBox implements FolderElement {
 
 	private final DFolder internal;
 
-	private final HBox rootPane;
+	protected final HBox rootPane;
 
 	private final TextField textField;
 
@@ -105,7 +105,7 @@ public class Folder extends VBox implements FolderElement {
 		rootPane.setPadding(new Insets(0, 4, 0, 8));
 		rootPane.setAlignment(Pos.CENTER_LEFT);
 		rootPane.setStyle("-fx-background-color:rgb(245, 245, 245);");
-		rootPane.setPrefSize(128, 64);
+		rootPane.setPrefSize(128, 32);
 		rootPane.setMaxHeight(rootPane.getPrefHeight());
 		rootPane.setMinHeight(rootPane.getPrefHeight());
 		rootPane.setOnMouseClicked((event) -> {
@@ -161,7 +161,9 @@ public class Folder extends VBox implements FolderElement {
 
 			childrenLabel = new Label("0 children");
 			childrenLabel.setTextFill(Color.color(0.3, 0.3, 0.4, 0.66));
-			t.getChildren().add(childrenLabel);
+			if ( this instanceof Collection ) {
+				t.getChildren().add(childrenLabel);
+			}
 
 			HBox.setHgrow(t, Priority.ALWAYS);
 		}
@@ -210,6 +212,7 @@ public class Folder extends VBox implements FolderElement {
 
 		// Child Box
 		childrenBox = new VBox();
+		childrenBox.setPadding(new Insets(0,0,0,8));
 		internal.getOnChildAddedEvent().connect((args)->{
 			onChildAdded((DFolderElement) args[0]);
 		});
