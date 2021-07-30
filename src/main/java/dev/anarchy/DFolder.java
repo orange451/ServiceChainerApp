@@ -105,6 +105,8 @@ public class DFolder implements DFolderElement {
 		
 		for (DFolderElement chain : this.children) {
 			chain.setParent(null);
+			if ( chain instanceof DFolder )
+				((DFolder)chain).delete();
 		}
 		
 		if ( this.getParent() != null )
