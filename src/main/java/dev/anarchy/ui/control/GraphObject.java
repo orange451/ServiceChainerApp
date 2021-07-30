@@ -27,7 +27,7 @@ public class GraphObject extends StackPane {
 		shadow.setRadius(4.0);
 		shadow.setOffsetX(0.0);
 		shadow.setOffsetY(2.0);
-		shadow.setColor(Color.color(0.4, 0.5, 0.5));
+		shadow.setColor(Color.color(0.2, 0.25, 0.25));
 		this.setEffect(shadow);
 		
 		this.setFill(Color.color(0.196, 0.6274, 0.235));

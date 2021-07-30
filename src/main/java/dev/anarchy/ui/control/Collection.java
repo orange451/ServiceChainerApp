@@ -24,6 +24,8 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
 
 public class Collection extends VBox {
 	private final Label label;
@@ -52,20 +54,24 @@ public class Collection extends VBox {
 
 		// Delete context
 		{
-			MenuItem option = new MenuItem("Delete");
-			option.setOnAction((event) -> {
-				AnarchyApp.get().getData().removeCollection(this.internal);
-			});
-			context.getItems().add(option);
+			if ( internal.isDeletable() ) {
+				MenuItem option = new MenuItem("Delete");
+				option.setOnAction((event) -> {
+					this.internal.delete();
+				});
+				context.getItems().add(option);
+			}
 		}
 
 		// Rename context
 		{
-			MenuItem option = new MenuItem("Rename");
-			option.setOnAction((event) -> {
-				rename();
-			});
-			context.getItems().add(option);
+			if ( internal.isDeletable() ) {
+				MenuItem option = new MenuItem("Rename");
+				option.setOnAction((event) -> {
+					rename();
+				});
+				context.getItems().add(option);
+			}
 		}
 
 		// Add Service Chain
@@ -73,10 +79,7 @@ public class Collection extends VBox {
 			MenuItem option = new MenuItem("Add Service Chain");
 			option.setOnAction((event) -> {
 				setOpen(true);
-				
-				DServiceChain chain = new DServiceChain();
-				chain.setName("New Service Chain");
-				internal.addChild(chain);
+				AnarchyApp.get().getData().newServiceChain(internal);
 			});
 			context.getItems().add(option);
 		}
@@ -281,6 +284,7 @@ public class Collection extends VBox {
 	}
 
 	public void setName(String name) {
+		label.setFont(Font.font(Font.getDefault().getFamily(), internal.isDeletable()?FontPosture.REGULAR:FontPosture.ITALIC, label.getFont().getSize()));
 		label.setText(name);
 	}
 

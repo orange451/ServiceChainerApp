@@ -3,7 +3,9 @@ package dev.anarchy.ui.control;
 import java.util.HashMap;
 import java.util.Map;
 
+import dev.anarchy.DCollection;
 import dev.anarchy.DServiceChain;
+import dev.anarchy.ui.AnarchyApp;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -22,14 +24,13 @@ public class Workspace extends BorderPane {
 		this.setCenter(tabs);
 	}
 
-	private Tab newTab() {
+	private Tab newTab() {		
 		ButtonTab newTab = new ButtonTab(new Label("\u2795"));
 		newTab.setClosable(false);
 		
 		newTab.setOnMouseClicked((event) ->{
-			Tab tab = new Tab("Test 123");
-			tabs.getTabs().add(tabs.getTabs().size()-1, tab);
-			tabs.getSelectionModel().select(tab);
+			DServiceChain chain = AnarchyApp.get().getData().newServiceChain(AnarchyApp.get().getData().UNORGANIZED);
+			open(chain);
 		});
 		
 		return newTab;
@@ -47,6 +48,11 @@ public class Workspace extends BorderPane {
 			});
 			
 			tab.setContent(new ServiceChainEditor(internal));
+			
+			Tab finalTab = tab;
+			internal.getOnNameChangeEvent().connect((args)->{
+				finalTab.setText(args[0].toString());
+			});
 		}
 		
 		tabs.getSelectionModel().select(tab);
