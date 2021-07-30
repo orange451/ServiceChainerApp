@@ -1,10 +1,10 @@
 package dev.anarchy.ui.control;
 
-import dev.anarchy.DCollection;
 import dev.anarchy.DFolder;
 import dev.anarchy.DFolderElement;
 import dev.anarchy.DServiceChain;
 import dev.anarchy.ui.AnarchyApp;
+import dev.anarchy.ui.util.IconHelper;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
@@ -12,6 +12,7 @@ import javafx.scene.Cursor;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TextField;
 
 public class ServiceChain extends Label implements FolderElement {
@@ -52,14 +53,16 @@ public class ServiceChain extends Label implements FolderElement {
 			}
 		});
 
-		// Delete context
+		// Edit context
 		{
-			MenuItem option = new MenuItem("Delete");
+			MenuItem option = new MenuItem("Edit", IconHelper.EDIT.create());
 			option.setOnAction((event) -> {
-				collection.removeChild(internal);
+				AnarchyApp.get().edit(internal);
 			});
 			context.getItems().add(option);
 		}
+		
+		context.getItems().add(new SeparatorMenuItem());
 
 		// Rename context
 		{
@@ -70,11 +73,11 @@ public class ServiceChain extends Label implements FolderElement {
 			context.getItems().add(option);
 		}
 
-		// Edit context
+		// Delete context
 		{
-			MenuItem option = new MenuItem("Edit");
+			MenuItem option = new MenuItem("Delete", IconHelper.DELETE.create());
 			option.setOnAction((event) -> {
-				AnarchyApp.get().edit(internal);
+				collection.removeChild(internal);
 			});
 			context.getItems().add(option);
 		}

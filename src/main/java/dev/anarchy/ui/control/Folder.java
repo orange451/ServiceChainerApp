@@ -6,6 +6,7 @@ import dev.anarchy.DFolder;
 import dev.anarchy.DFolderElement;
 import dev.anarchy.DServiceChain;
 import dev.anarchy.ui.AnarchyApp;
+import dev.anarchy.ui.util.IconHelper;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -14,6 +15,7 @@ import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseButton;
@@ -51,16 +53,27 @@ public class Folder extends VBox implements FolderElement {
 		ContextMenu context = new ContextMenu();
 		context.setAutoHide(true);
 
-		// Delete context
+		// Add Service Chain
 		{
-			if ( internal.isDeletable() ) {
-				MenuItem option = new MenuItem("Delete");
-				option.setOnAction((event) -> {
-					this.internal.delete();
-				});
-				context.getItems().add(option);
-			}
+			MenuItem option = new MenuItem("Add Service Chain", IconHelper.CHAIN.create());
+			option.setOnAction((event) -> {
+				setOpen(true);
+				AnarchyApp.get().getData().newServiceChain(internal);
+			});
+			context.getItems().add(option);
 		}
+
+		// Add Folder
+		{
+			MenuItem option = new MenuItem("Add Folder", IconHelper.FOLDER.create());
+			option.setOnAction((event) -> {
+				setOpen(true);
+				AnarchyApp.get().getData().newFolder(internal);
+			});
+			context.getItems().add(option);
+		}
+		
+		context.getItems().add(new SeparatorMenuItem());
 
 		// Rename context
 		{
@@ -73,24 +86,15 @@ public class Folder extends VBox implements FolderElement {
 			}
 		}
 
-		// Add Service Chain
+		// Delete context
 		{
-			MenuItem option = new MenuItem("Add Service Chain");
-			option.setOnAction((event) -> {
-				setOpen(true);
-				AnarchyApp.get().getData().newServiceChain(internal);
-			});
-			context.getItems().add(option);
-		}
-
-		// Add Folder
-		{
-			MenuItem option = new MenuItem("Add Folder");
-			option.setOnAction((event) -> {
-				setOpen(true);
-				AnarchyApp.get().getData().newFolder(internal);
-			});
-			context.getItems().add(option);
+			if ( internal.isDeletable() ) {
+				MenuItem option = new MenuItem("Delete", IconHelper.DELETE.create());
+				option.setOnAction((event) -> {
+					this.internal.delete();
+				});
+				context.getItems().add(option);
+			}
 		}
 
 		rootPane = new HBox();
