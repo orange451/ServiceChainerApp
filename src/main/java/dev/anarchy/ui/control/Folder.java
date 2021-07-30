@@ -93,13 +93,6 @@ public class Folder extends VBox implements FolderElement {
 			context.getItems().add(option);
 		}
 
-		DropShadow dropShadow = new DropShadow();
-		dropShadow.setRadius(5.0);
-		dropShadow.setOffsetX(0.0);
-		dropShadow.setOffsetY(1.0);
-		dropShadow.setColor(Color.color(0.4, 0.5, 0.5, 0.5));
-		this.setEffect(dropShadow);
-
 		rootPane = new HBox();
 		rootPane.setSpacing(8);
 		rootPane.setPadding(new Insets(0, 4, 0, 8));
