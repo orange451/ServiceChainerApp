@@ -1,20 +1,32 @@
 package dev.anarchy;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import dev.anarchy.event.Event;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 
 public class ApplicationData {
+	@JsonIgnore
 	public final DCollection UNORGANIZED = new DCollection();
-
-	private ObservableList<DCollection> collections = FXCollections.observableArrayList();
 	
+	@JsonProperty("Collections")
+	private List<DCollection> collections = new ArrayList<>();
+
+	@JsonIgnore
 	private Event onCollectionAddedEvent = new Event();
 	
+	@JsonIgnore
 	private Event onCollectionRemovedEvent = new Event();
 	
 	public ApplicationData() {
@@ -23,12 +35,9 @@ public class ApplicationData {
 		UNORGANIZED.setName("Unorganized");
 	}
 	
-	public void loadData() {
-		DServiceChain chain = new DServiceChain();
-		chain.setName("VVTP07 - DHL Integration");
-		UNORGANIZED.addChild(chain);
-		
-		this.addCollection(UNORGANIZED);
+	public void load() {
+		if ( this.collections.size() == 0 )
+			this.addCollection(UNORGANIZED);
 	}
 	
 	public DServiceChain newServiceChain(DFolder collection) {
@@ -44,6 +53,8 @@ public class ApplicationData {
 		
 		chain.setName(checkName);
 		collection.addChild(chain);
+		
+		save();
 		
 		return chain;
 	}
@@ -62,9 +73,12 @@ public class ApplicationData {
 		folder.setName(checkName);
 		internal.addChild(folder);
 		
+		save();
+		
 		return folder;
 	}
 
+	@JsonIgnore
 	public List<DCollection> getCollectionsUnmodifyable() {
 		DCollection[] arr = new DCollection[this.collections.size()];
 		for (int i = 0; i < collections.size(); i++) {
@@ -77,12 +91,16 @@ public class ApplicationData {
 		if ( collections.add(collection) ) {
 			onCollectionAddedEvent.fire(collection);
 		}
+		
+		save();
 	}
 	
 	public void removeCollection(DCollection collection) {
 		if ( collections.remove(collection) ) {
 			onCollectionRemovedEvent.fire(collection);
 		}
+		
+		save();
 	}
 	
 	public Event getOnCollectionAddedEvent() {
@@ -91,5 +109,29 @@ public class ApplicationData {
 	
 	public Event getOnCollectionRemovedEvent() {
 		return this.onCollectionRemovedEvent;
+	}
+	
+	public void save() {
+		String json = this.serializeJSON();
+		System.out.println(json);
+		
+		try {
+		    BufferedWriter writer = new BufferedWriter(new FileWriter("APPDATA.json"));
+		    writer.write(json);
+		    writer.close();
+		} catch(Exception e) {
+			//
+		}
+	}
+	
+	private String serializeJSON() {
+		ObjectMapper objectMapper = new ObjectMapper();
+		try {
+			return objectMapper.writeValueAsString(this);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		
+		return "{}";
 	}
 }

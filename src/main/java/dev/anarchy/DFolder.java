@@ -1,7 +1,11 @@
 package dev.anarchy;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import dev.anarchy.event.Event;
 import dev.anarchy.event.NameChangeEvent;
@@ -9,22 +13,31 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class DFolder implements DFolderElement {
+	@JsonProperty("_Name")
 	private String name;
-	
+
+	@JsonProperty("ExtensionHandler")
+	private List<DFolderElement> children = new ArrayList<>();
+
+	@JsonProperty("_Deletable")
 	private boolean deletable = true;
-	
+
+	@JsonIgnore
 	private boolean archivable = true;
-	
-	private ObservableList<DFolderElement> children = FXCollections.observableArrayList();
-	
+
+	@JsonIgnore
 	private NameChangeEvent onNameChangeEvent = new NameChangeEvent();
-	
+
+	@JsonIgnore
 	private Event onChildAddedEvent = new Event();
-	
+
+	@JsonIgnore
 	private Event onChildRemovedEvent = new Event();
 	
+	@JsonIgnore
 	private Event onParentChangeEvent = new Event();
 	
+	@JsonIgnore
 	private DFolder parent;
 	
 	public DFolder() {
@@ -62,7 +75,8 @@ public class DFolder implements DFolderElement {
 		
 		return null;
 	}
-	
+
+	@JsonIgnore
 	public List<DFolderElement> getChildrenUnmodifyable() {
 		DFolderElement[] arr = new DFolderElement[this.children.size()];
 		for (int i = 0; i < children.size(); i++) {

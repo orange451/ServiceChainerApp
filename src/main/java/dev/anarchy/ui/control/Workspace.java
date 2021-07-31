@@ -3,7 +3,6 @@ package dev.anarchy.ui.control;
 import java.util.HashMap;
 import java.util.Map;
 
-import dev.anarchy.DCollection;
 import dev.anarchy.DServiceChain;
 import dev.anarchy.ui.AnarchyApp;
 import javafx.beans.value.ChangeListener;
@@ -77,6 +76,7 @@ public class Workspace extends BorderPane {
 
 			tab.setOnClosed((event) -> {
 				openTabs.remove(internal);
+				AnarchyApp.get().getData().save();
 			});
 
 			tab.setContent(new ServiceChainEditor(internal));
