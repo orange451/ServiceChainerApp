@@ -20,6 +20,8 @@ import javafx.scene.paint.Color;
 public class ServiceChainEditor extends BorderPane {
 
 	private Pane editPane;
+	
+	private GraphObject selectedNode;
 
 	public ServiceChainEditor(DServiceChain internal) {
 		Pane topBar = new StackPane();
@@ -65,6 +67,10 @@ public class ServiceChainEditor extends BorderPane {
 				+ "linear-gradient(from 0.0px 0.5px to  0.0px 10.5px, repeat, rgba(102, 128, 128, 0.33) 5%, transparent 5%);");
 		scroll.setContent(this.editPane);
 		
+		this.editPane.setOnMousePressed((event)->{
+			setSelectedNode(null);
+		});
+		
 		// Entry node
 		GraphObject entryNode = newRouteElementNode(internal, internal);
 		entryNode.setCornerAsPercent();
@@ -98,7 +104,7 @@ public class ServiceChainEditor extends BorderPane {
 	}
 
 	private GraphObject newRouteElementNode(DServiceChain parent, DRouteElementBase routeElement) {
-		GraphObject g = new GraphObject(parent, routeElement);
+		GraphObject g = new GraphObject(this, parent, routeElement);
 		g.setCornerRadius(8);
 		
 		updateRouteElement(routeElement, g);
@@ -125,5 +131,18 @@ public class ServiceChainEditor extends BorderPane {
 
 	private double round(double x) {
 		return Math.floor(x / 20d) * 20d;
+	}
+	
+	public void setSelectedNode(GraphObject newNode) {
+		GraphObject oldNode = selectedNode;
+		selectedNode = newNode;
+		
+		if ( oldNode != null ) {
+			oldNode.setStyle("-fx-border-style: none;");
+		}
+		
+		if ( newNode != null ) {
+			newNode.setStyle("-fx-border-color:orange; -fx-border-width: 3; -fx-border-style: segments(10, 10) line-cap square;");
+		}
 	}
 }

@@ -4,6 +4,8 @@ import dev.anarchy.DRouteElement;
 import dev.anarchy.DRouteElementBase;
 import dev.anarchy.DServiceChain;
 import dev.anarchy.ui.util.IconHelper;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ContextMenu;
@@ -27,10 +29,13 @@ public class GraphObject extends StackPane {
 	
 	private DRouteElementBase routeElement;
 	
-	public GraphObject(DServiceChain holder, DRouteElementBase routeElement) {
+	private ServiceChainEditor editor;
+	
+	public GraphObject(ServiceChainEditor editor, DServiceChain holder, DRouteElementBase routeElement) {
 		this.setAlignment(Pos.CENTER);
 		this.setPrefSize(140, 80);
 		
+		this.editor = editor;
 		this.routeElement = routeElement;
 
 		DropShadow shadow = new DropShadow();
@@ -46,6 +51,11 @@ public class GraphObject extends StackPane {
 		label = new Label("Node");
 		this.getChildren().add(label);
 
+		this.setOnMousePressed((event)->{
+			editor.setSelectedNode(this);
+			event.consume();
+		});
+		
 		this.setOnMouseDragged(event -> {
 			if ( event.getButton() != MouseButton.PRIMARY )
 				return;
