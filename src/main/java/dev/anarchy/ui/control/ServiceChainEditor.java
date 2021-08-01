@@ -105,7 +105,14 @@ public class ServiceChainEditor extends BorderPane {
 		});
 		
 		Platform.runLater(()->{
-			connectNodes();		
+			connectNodes();
+			
+			new Thread(()->{
+				try {Thread.sleep(50);} catch (InterruptedException e) {}
+				Platform.runLater(()->{
+					connectNodes();
+				});
+			}).start();
 		});
 	}
 	
