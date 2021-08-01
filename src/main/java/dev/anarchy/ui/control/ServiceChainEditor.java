@@ -1,6 +1,7 @@
 package dev.anarchy.ui.control;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import dev.anarchy.common.DRouteElement;
@@ -104,14 +105,23 @@ public class ServiceChainEditor extends BorderPane {
 		internal.getOnRouteRemovedEvent().connect((args) -> {
 			removeRouteElementNode(internal, (DRouteElement) args[0]);
 		});
-
-		connectNodes();
+		
+		new Thread(()->{
+			try {Thread.sleep(50);} catch (InterruptedException e) {}
+			Platform.runLater(()->{
+				connectNodes();
+			});
+		}).start();
 	}
 
 	protected void clearCurves() {
 		for (Node node : this.editPane.getChildrenUnmodifiable()) {
-			if (curves.contains(node) || node instanceof CubicCurve)
+			if (node instanceof CubicCurve)
 				this.editPane.getChildren().remove(node);
+		}
+		
+		for (Node node : this.curves) {
+			this.editPane.getChildren().remove(node);
 		}
 
 		curves.clear();
@@ -136,7 +146,6 @@ public class ServiceChainEditor extends BorderPane {
 	}
 
 	private void connectNode(GraphObject from, GraphObject to) {
-		System.out.println("Connecting " + from + " to " + to);
 
 		CubicCurve curve = new CubicCurve();
 		curve.setStroke(Color.FORESTGREEN);
@@ -280,8 +289,22 @@ public class ServiceChainEditor extends BorderPane {
 					"-fx-border-color:orange; -fx-border-width: 3; -fx-border-style: segments(10, 10) line-cap square;");
 		}
 	}
+	
+	public List<GraphObject> getGraphObjectsUnmodifyable() {
+		return Arrays.asList(nodes.toArray(new GraphObject[nodes.size()]));
+	}
+	
+	public List<DRouteElementI> getGraphObjectRoutesUnmodifyable() {
+		List<DRouteElementI> routes = new ArrayList<DRouteElementI>();
+		for (GraphObject g : nodes) {
+			if ( g.getRouteElement() != null )
+				routes.add(g.getRouteElement());
+		}
+		
+		return Arrays.asList(routes.toArray(new DRouteElementI[routes.size()]));
+	}
 
-	public GraphObject getGraphObjectFromRoute(DRouteElement routeElement) {
+	public GraphObject getGraphObjectFromRoute(DRouteElementI routeElement) {
 		if ( routeElement == null )
 			return null;
 		

@@ -91,8 +91,9 @@ public class GraphObject extends StackPane {
 			if ( event.getGestureSource() instanceof LinkNode ) {
 				LinkNode droppedFrom = (LinkNode)event.getGestureSource();
 				if ( this.getRouteElement() instanceof DRouteElement ) {
-					RouteHelper.linkRoutes(serviceChain.getRoutesUnmodifyable(), droppedFrom.getRouteElement(), (DRouteElement) this.getRouteElement());
+					RouteHelper.linkRoutes(editor.getGraphObjectRoutesUnmodifyable(), droppedFrom.getRouteElement(), (DRouteElement) this.getRouteElement());
 					droppedFrom.setLinkTo(this.linkerNode);
+					getEditor().connectNodes();
 				} else {
 					System.out.println("Cannot link " + droppedFrom.getRouteElement() + " to " + this.getRouteElement() + ". Element must be a RouteElement");
 				}

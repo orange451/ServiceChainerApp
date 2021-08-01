@@ -54,14 +54,14 @@ public class LinkNode extends StackPane {
 		});
 		
 		this.setOnMouseClicked((event)->{
-			RouteHelper.linkRoutes(serviceChain.getRoutesUnmodifyable(), this.routeElement, null);
+			RouteHelper.linkRoutes(parent.getEditor().getGraphObjectRoutesUnmodifyable(), this.routeElement, null);
 			this.setLinkTo(null);
+			parent.getEditor().connectNodes();
 		});
 
 		Platform.runLater(()->{
-			DRouteElement routeElementTo = RouteHelper.getLinkedTo(serviceChain.getRoutesUnmodifyable(), this.routeElement);
+			DRouteElementI routeElementTo = RouteHelper.getLinkedTo(parent.getEditor().getGraphObjectRoutesUnmodifyable(), this.routeElement);
 			this.linkTo = parent.getEditor().getGraphObjectFromRoute(routeElementTo);
-			System.out.println("Creating linked object linked to: " + this.linkTo + " / " + routeElementTo);
 			this.setLinkTo(this.linkTo);
 		});
 		
@@ -73,15 +73,10 @@ public class LinkNode extends StackPane {
 	}
 	
 	public void setLinkTo(Node newLink) {
+		if ( newLink != linkTo )
+			linkTo = newLink;
+		
 		update();
-		
-		if ( newLink == linkTo )
-			return;
-		
-		linkTo = newLink;
-		
-		if ( parent != null )
-			parent.getEditor().connectNodes();
 	}
 	
 	public Node getLinkTo() {

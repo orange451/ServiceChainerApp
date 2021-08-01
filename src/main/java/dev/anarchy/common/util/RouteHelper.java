@@ -7,18 +7,15 @@ import dev.anarchy.common.DRouteElementI;
 
 public class RouteHelper {
 
-	public static void linkRoutes(List<DRouteElement> allRoutes, DRouteElementI source, DRouteElement destination) {
+	public static void linkRoutes(List<DRouteElementI> allRoutes, DRouteElementI source, DRouteElement destination) {
 		// Unlink anything source is connected to
-		for (DRouteElement element : allRoutes) {
-			if ( element.getSourceId() != null && element.getSourceId().equals(source.getDestinationId()) ) {
-				element.setSource(null);
-				element.setSourceId(null);
-			}
+		for (DRouteElementI element : allRoutes) {
+			if ( !(element instanceof DRouteElement) )
+				continue;
 			
-			// Special case for entry point
-			if ( "ON_EVENT".equals(element.getSourceId()) && "ON_EVENT".equals(source.getDestinationId())) {
-				element.setSource(null);
-				element.setSourceId(null);
+			if ( element.getSourceId() != null && element.getSourceId().equals(source.getDestinationId()) ) {
+				((DRouteElement)element).setSource(null);
+				((DRouteElement)element).setSourceId(null);
 			}
 		}
 		
@@ -29,8 +26,14 @@ public class RouteHelper {
 		}
 	}
 
-	public static DRouteElement getLinkedTo(List<DRouteElement> allRoutes, DRouteElementI source) {
-		for (DRouteElement element : allRoutes) {
+	/**
+	 * Return a route element that is linked TO this source element. Two elements are linked when the sources destination matches the destinations source.
+	 */
+	public static DRouteElementI getLinkedTo(List<DRouteElementI> allRoutes, DRouteElementI source) {
+		for (DRouteElementI element : allRoutes) {
+			if ( element == source )
+				continue;
+			
 			if ( element.getSourceId() != null && element.getSourceId().equals(source.getDestinationId()) ) {
 				return element;
 			}
