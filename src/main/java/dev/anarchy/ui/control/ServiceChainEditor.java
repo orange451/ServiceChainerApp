@@ -236,7 +236,6 @@ public class ServiceChainEditor extends BorderPane {
 	}
 
 	private void removeRouteElementNode(DServiceChain parent, DRouteElement routeElement) {
-		System.out.println("A");
 		List<Node> toRemove = new ArrayList<>();
 		
 		for (Node node : this.nodes) {

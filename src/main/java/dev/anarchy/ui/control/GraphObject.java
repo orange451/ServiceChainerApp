@@ -10,6 +10,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.TransferMode;
@@ -33,12 +34,17 @@ public class GraphObject extends StackPane {
 	
 	private LinkNode linkerNode;
 	
+	private DServiceChain serviceChain;
+	
+	private ContextMenu context;
+	
 	public GraphObject(ServiceChainEditor editor, DServiceChain serviceChain, DRouteElementI routeElement) {
 		this.setAlignment(Pos.CENTER);
 		this.setPrefSize(140, 80);
 		
 		this.editor = editor;
 		this.routeElement = routeElement;
+		this.serviceChain = serviceChain;
 
 		DropShadow shadow = new DropShadow();
 		shadow.setRadius(4.0);
@@ -100,23 +106,13 @@ public class GraphObject extends StackPane {
 			}
 		});
 		
-		ContextMenu context = new ContextMenu();
-		context.setAutoHide(true);
-		context.setHideOnEscape(true);
-
-		// Delete context
-		if ( !(routeElement instanceof DServiceChain) ) {
-			MenuItem option = new MenuItem("Delete", IconHelper.DELETE.create());
-			option.setOnAction((event) -> {
-				serviceChain.removeRoute((DRouteElement) routeElement);
-			});
-			context.getItems().add(option);
-		}
+		updateContext();
 
 		// Show context
 		this.setOnMouseClicked((event) -> {
 			if (event.getButton() == MouseButton.SECONDARY) {
 				if (!context.isShowing()) {
+					updateContext();
 					context.show(this, event.getScreenX(), event.getScreenY());
 				}
 			}
@@ -125,6 +121,41 @@ public class GraphObject extends StackPane {
 		update();
 	}
 	
+	private void updateContext() {
+		context = new ContextMenu();
+		context.setAutoHide(true);
+		context.setHideOnEscape(true);
+		
+		// Edit context
+		if ( routeElement instanceof DRouteElement ) {
+			MenuItem option = new MenuItem("Edit Input Template\t\tTest", IconHelper.EDIT.create());
+			option.setOnAction((event) -> {
+				new TemplateEditor(TemplateEditorType.INPUT, (DRouteElement) routeElement);
+			});
+			context.getItems().add(option);
+		}
+		
+		// Edit context
+		if ( routeElement instanceof DRouteElement ) {
+			MenuItem option = new MenuItem("Edit Output Template\tTest", IconHelper.EDIT.create());
+			option.setOnAction((event) -> {
+				new TemplateEditor(TemplateEditorType.OUTPUT, (DRouteElement) routeElement);
+			});
+			context.getItems().add(option);
+		}
+		
+		context.getItems().add(new SeparatorMenuItem());
+		
+		// Delete context
+		if ( !(routeElement instanceof DServiceChain) ) {
+			MenuItem option = new MenuItem("Delete", IconHelper.DELETE.create());
+			option.setOnAction((event) -> {
+				serviceChain.removeRoute((DRouteElement) routeElement);
+			});
+			context.getItems().add(option);
+		}
+	}
+
 	public void setCornerRadius(double x) {
 		this.cornerRadius = x;
 		update();
