@@ -28,11 +28,11 @@ import javafx.scene.shape.StrokeLineCap;
 public class ServiceChainEditor extends BorderPane {
 
 	private Pane editPane;
-	
+
 	private GraphObject selectedNode;
-	
+
 	private List<CubicCurve> curves = new ArrayList<>();
-	
+
 	private List<GraphObject> nodes = new ArrayList<>();
 
 	public ServiceChainEditor(DServiceChain internal) {
@@ -44,7 +44,7 @@ public class ServiceChainEditor extends BorderPane {
 
 		HBox buttons = new HBox();
 		Button newB = new Button("New Service Definition");
-		newB.setOnAction((event)->{
+		newB.setOnAction((event) -> {
 			DServiceDefinition sDef = new DServiceDefinition();
 			sDef.setExtensionHandlerRouteId("Service Definition");
 			sDef.setColor(ColorHelper.toHexString(Color.DARKCYAN));
@@ -65,7 +65,8 @@ public class ServiceChainEditor extends BorderPane {
 		topBar.setEffect(dropShadow);
 
 		ScrollPane scroll = new ScrollPane();
-		scroll.setStyle("-fx-background: transparent; -fx-border-color: transparent; -fx-background-color:transparent;");
+		scroll.setStyle(
+				"-fx-background: transparent; -fx-border-color: transparent; -fx-background-color:transparent;");
 		scroll.setPadding(Insets.EMPTY);
 		scroll.setBorder(Border.EMPTY);
 		scroll.setHvalue(0.5);
@@ -78,64 +79,55 @@ public class ServiceChainEditor extends BorderPane {
 				+ "linear-gradient(from 0.5px 0.0px to 10.5px  0.0px, repeat, rgba(102, 128, 128, 0.33) 5%, transparent 5%),"
 				+ "linear-gradient(from 0.0px 0.5px to  0.0px 10.5px, repeat, rgba(102, 128, 128, 0.33) 5%, transparent 5%);");
 		scroll.setContent(this.editPane);
-		
-		this.editPane.setOnMousePressed((event)->{
+
+		this.editPane.setOnMousePressed((event) -> {
 			setSelectedNode(null);
 		});
-		
+
 		// Entry node
 		GraphObject entryNode = newRouteElementNode(internal, internal);
 		entryNode.setCornerAsPercent();
-		if ( internal.getX() == 0 && internal.getY() == 0 ) {
+		if (internal.getX() == 0 && internal.getY() == 0) {
 			internal.setSize(140, 80);
 			double x = round(editPane.getPrefWidth() / 2) - round(entryNode.getPrefWidth() / 2);
 			double y = round(editPane.getPrefWidth() / 2 * 0.9125) - round(entryNode.getPrefHeight() / 2);
 			internal.setPosition(x, y);
 		}
-		
+
 		// Service Defs
-		internal.getOnRouteAddedEvent().connect((args)->{
+		internal.getOnRouteAddedEvent().connect((args) -> {
 			newRouteElementNode(internal, (DRouteElement) args[0]);
 		});
 		for (DRouteElement element : internal.getRoutesUnmodifyable())
 			newRouteElementNode(internal, element);
-		
-		internal.getOnRouteRemovedEvent().connect((args)->{
+
+		internal.getOnRouteRemovedEvent().connect((args) -> {
 			removeRouteElementNode(internal, (DRouteElement) args[0]);
 		});
-		
-		Platform.runLater(()->{
-			connectNodes();
-			
-			new Thread(()->{
-				try {Thread.sleep(50);} catch (InterruptedException e) {}
-				Platform.runLater(()->{
-					connectNodes();
-				});
-			}).start();
-		});
+
+		connectNodes();
 	}
-	
+
 	protected void clearCurves() {
 		for (Node node : this.editPane.getChildrenUnmodifiable()) {
-			if ( curves.contains(node) )
+			if (curves.contains(node) || node instanceof CubicCurve)
 				this.editPane.getChildren().remove(node);
 		}
-		
+
 		curves.clear();
 	}
 
 	protected void connectNodes() {
 		clearCurves();
-		
+
 		for (GraphObject node : nodes) {
 			for (GraphObject conTo : nodes) {
-				if ( conTo == node )
+				if (conTo == node)
 					continue;
-				
+
 				String source = conTo.getRouteElement().getSourceId();
 				String dest = node.getRouteElement().getDestinationId();
-				if ( source != null && source.equals(dest) ) {
+				if (source != null && source.equals(dest)) {
 					connectNode(node, conTo);
 					continue;
 				}
@@ -145,69 +137,97 @@ public class ServiceChainEditor extends BorderPane {
 
 	private void connectNode(GraphObject from, GraphObject to) {
 		System.out.println("Connecting " + from + " to " + to);
+
+		CubicCurve curve = new CubicCurve();
+		curve.setStroke(Color.FORESTGREEN);
+		curve.setStrokeWidth(4);
+		curve.setStrokeLineCap(StrokeLineCap.ROUND);
+		curve.setFill(Color.TRANSPARENT);
+
+		updateCurve(curve, from, to);
+
+		from.widthProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> arg0, Number arg1, Number arg2) {
+				updateCurve(curve, from, to);
+			}
+		});
+
+		from.heightProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> arg0, Number arg1, Number arg2) {
+				updateCurve(curve, from, to);
+			}
+		});
+
+		from.translateXProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> arg0, Number arg1, Number arg2) {
+				updateCurve(curve, from, to);
+			}
+		});
+
+		from.translateYProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> arg0, Number arg1, Number arg2) {
+				updateCurve(curve, from, to);
+			}
+		});
 		
-	    CubicCurve curve = new CubicCurve();
-	    curve.setStroke(Color.FORESTGREEN);
-	    curve.setStrokeWidth(4);
-	    curve.setStrokeLineCap(StrokeLineCap.ROUND);
-	    curve.setFill(Color.TRANSPARENT);
-	    
-	    updateCurve(curve, from, to);
-	    
-	    from.translateXProperty().addListener(new ChangeListener<Number>() {
+		to.widthProperty().addListener(new ChangeListener<Number>() {
 			@Override
 			public void changed(ObservableValue<? extends Number> arg0, Number arg1, Number arg2) {
-				 updateCurve(curve, from, to);
+				updateCurve(curve, from, to);
 			}
-	    });
-	    
-	    from.translateYProperty().addListener(new ChangeListener<Number>() {
+		});
+
+		to.heightProperty().addListener(new ChangeListener<Number>() {
 			@Override
 			public void changed(ObservableValue<? extends Number> arg0, Number arg1, Number arg2) {
-				 updateCurve(curve, from, to);
+				updateCurve(curve, from, to);
 			}
-	    });
-	    
-	    to.translateXProperty().addListener(new ChangeListener<Number>() {
+		});
+
+		to.translateXProperty().addListener(new ChangeListener<Number>() {
 			@Override
 			public void changed(ObservableValue<? extends Number> arg0, Number arg1, Number arg2) {
-				 updateCurve(curve, from, to);
+				updateCurve(curve, from, to);
 			}
-	    });
-	    
-	    to.translateYProperty().addListener(new ChangeListener<Number>() {
+		});
+
+		to.translateYProperty().addListener(new ChangeListener<Number>() {
 			@Override
 			public void changed(ObservableValue<? extends Number> arg0, Number arg1, Number arg2) {
-				 updateCurve(curve, from, to);
+				updateCurve(curve, from, to);
 			}
-	    });
-	    
-	    from.getLinkNode().setLinkTo(to);
-	    
-	    this.editPane.getChildren().add(0, curve);
-	    curves.add(curve);
+		});
+
+		this.editPane.getChildren().add(0, curve);
+		curves.add(curve);
+
+		from.getLinkNode().update();
 	}
-	
+
 	private void updateCurve(CubicCurve curve, GraphObject from, GraphObject to) {
-		double x1 = from.getTranslateX() + from.getWidth()/2;
-		double y1 = from.getTranslateY() + from.getHeight()/2;
-		double x2 = to.getTranslateX() + to.getWidth()/2;
-		double y2 = to.getTranslateY() + to.getHeight()/2;
-		
-	    curve.setStartX(x1);
-	    curve.setStartY(y1);
-	    curve.setControlX1(x1);
-	    curve.setControlY1(y2);
-	    curve.setControlX2(x2);
-	    curve.setControlY2(y1);
-	    curve.setEndX(x2);
-	    curve.setEndY(y2);
+		double x1 = from.getTranslateX() + from.getWidth() / 2;
+		double y1 = from.getTranslateY() + from.getHeight() / 2;
+		double x2 = to.getTranslateX() + to.getWidth() / 2;
+		double y2 = to.getTranslateY() + to.getHeight() / 2;
+
+		curve.setStartX(x1);
+		curve.setStartY(y1);
+		curve.setControlX1(x1);
+		curve.setControlY1(y2);
+		curve.setControlX2(x2);
+		curve.setControlY2(y1);
+		curve.setEndX(x2);
+		curve.setEndY(y2);
 	}
 
 	private void removeRouteElementNode(DServiceChain parent, DRouteElement routeElement) {
 		for (Node node : this.editPane.getChildrenUnmodifiable()) {
-			if ( node instanceof GraphObject ) {
-				if (((GraphObject)node).getRouteElement().equals(routeElement) ) {
+			if (node instanceof GraphObject) {
+				if (((GraphObject) node).getRouteElement().equals(routeElement)) {
 					this.editPane.getChildren().remove(node);
 					this.nodes.remove(node);
 				}
@@ -218,45 +238,61 @@ public class ServiceChainEditor extends BorderPane {
 	private GraphObject newRouteElementNode(DServiceChain parent, DRouteElementI routeElement) {
 		GraphObject g = new GraphObject(this, parent, routeElement);
 		g.setCornerRadius(8);
-		
+
 		updateRouteElement(routeElement, g);
 		this.editPane.getChildren().add(g);
-		
-		routeElement.getOnChangedEvent().connect((args)->{
+
+		routeElement.getOnChangedEvent().connect((args) -> {
 			updateRouteElement(routeElement, g);
 		});
-		
+
 		nodes.add(g);
-		
+
 		return g;
 	}
-	
+
 	private void updateRouteElement(DRouteElementI routeElement, GraphObject g) {
 		g.setFill(ColorHelper.fromHexString(routeElement.getColor()));
 		g.setName(routeElement.getName());
 		g.setPrefSize(routeElement.getWidth(), routeElement.getHeight());
 		g.setTranslateX(routeElement.getX());
 		g.setTranslateY(routeElement.getY());
-		
-		if ( routeElement instanceof DServiceChain ) {
-			g.setName(((DServiceChain)routeElement).getHandlerId());
+
+		if (routeElement instanceof DServiceChain) {
+			g.setName(((DServiceChain) routeElement).getHandlerId());
 		}
 	}
 
 	private double round(double x) {
 		return Math.floor(x / 20d) * 20d;
 	}
-	
+
 	public void setSelectedNode(GraphObject newNode) {
 		GraphObject oldNode = selectedNode;
 		selectedNode = newNode;
-		
-		if ( oldNode != null ) {
+
+		if (oldNode != null) {
 			oldNode.setStyle("-fx-border-style: none;");
 		}
-		
-		if ( newNode != null ) {
-			newNode.setStyle("-fx-border-color:orange; -fx-border-width: 3; -fx-border-style: segments(10, 10) line-cap square;");
+
+		if (newNode != null) {
+			newNode.setStyle(
+					"-fx-border-color:orange; -fx-border-width: 3; -fx-border-style: segments(10, 10) line-cap square;");
 		}
+	}
+
+	public GraphObject getGraphObjectFromRoute(DRouteElement routeElement) {
+		if ( routeElement == null )
+			return null;
+		
+		for (Node node : this.editPane.getChildrenUnmodifiable()) {
+			if (node instanceof GraphObject) {
+				if (((GraphObject) node).getRouteElement().equals(routeElement)) {
+					return (GraphObject) node;
+				}
+			}
+		}
+		
+		return null;
 	}
 }

@@ -1,9 +1,11 @@
 package dev.anarchy.ui.control;
 
+import dev.anarchy.common.DRouteElement;
 import dev.anarchy.common.DRouteElementI;
 import dev.anarchy.common.DServiceChain;
 import dev.anarchy.common.util.RouteHelper;
 import dev.anarchy.ui.util.IconHelper;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Cursor;
@@ -55,9 +57,15 @@ public class LinkNode extends StackPane {
 			RouteHelper.linkRoutes(serviceChain.getRoutesUnmodifyable(), this.routeElement, null);
 			this.setLinkTo(null);
 		});
+
+		Platform.runLater(()->{
+			DRouteElement routeElementTo = RouteHelper.getLinkedTo(serviceChain.getRoutesUnmodifyable(), this.routeElement);
+			this.linkTo = parent.getEditor().getGraphObjectFromRoute(routeElementTo);
+			System.out.println("Creating linked object linked to: " + this.linkTo + " / " + routeElementTo);
+			this.setLinkTo(this.linkTo);
+		});
 		
 		this.setCursor(Cursor.HAND);
-		this.setLinkTo(null);
 	}
 	
 	public DRouteElementI getRouteElement() {
@@ -65,14 +73,25 @@ public class LinkNode extends StackPane {
 	}
 	
 	public void setLinkTo(Node newLink) {
+		update();
+		
 		if ( newLink == linkTo )
 			return;
 		
 		linkTo = newLink;
+		
+		if ( parent != null )
+			parent.getEditor().connectNodes();
+	}
+	
+	public Node getLinkTo() {
+		return this.linkTo;
+	}
 
+	protected void update() {
 		this.getChildren().clear();
 		
-		if ( newLink != null ) {
+		if ( linkTo != null ) {
 			icon = IconHelper.CHAIN.create();
 			this.getChildren().add(icon);
 		} else {
@@ -82,12 +101,5 @@ public class LinkNode extends StackPane {
 		
 		icon.setScaleX(3);
 		icon.setScaleY(3);
-		
-		if ( parent != null )
-			parent.getEditor().connectNodes();
-	}
-	
-	public Node getLinkTo() {
-		return this.linkTo;
 	}
 }

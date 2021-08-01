@@ -29,4 +29,14 @@ public class RouteHelper {
 		}
 	}
 
+	public static DRouteElement getLinkedTo(List<DRouteElement> allRoutes, DRouteElementI source) {
+		for (DRouteElement element : allRoutes) {
+			if ( element.getSourceId() != null && element.getSourceId().equals(source.getDestinationId()) ) {
+				return element;
+			}
+		}
+		
+		return null;
+	}
+
 }
