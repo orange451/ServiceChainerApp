@@ -182,6 +182,8 @@ public class ServiceChainEditor extends BorderPane {
 			}
 	    });
 	    
+	    from.getLinkNode().setLinkTo(to);
+	    
 	    this.editPane.getChildren().add(0, curve);
 	    curves.add(curve);
 	}

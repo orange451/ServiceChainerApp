@@ -159,4 +159,8 @@ public class GraphObject extends StackPane {
 	public ServiceChainEditor getEditor() {
 		return this.editor;
 	}
+
+	public LinkNode getLinkNode() {
+		return this.linkerNode;
+	}
 }

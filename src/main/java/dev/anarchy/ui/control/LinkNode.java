@@ -65,6 +65,9 @@ public class LinkNode extends StackPane {
 	}
 	
 	public void setLinkTo(Node newLink) {
+		if ( newLink == linkTo )
+			return;
+		
 		linkTo = newLink;
 
 		this.getChildren().clear();
