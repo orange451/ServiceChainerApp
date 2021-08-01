@@ -1,11 +1,10 @@
 package dev.anarchy.ui.control;
 
-import dev.anarchy.DRouteElement;
-import dev.anarchy.DRouteElementBase;
-import dev.anarchy.DServiceChain;
+import dev.anarchy.common.DRouteElement;
+import dev.anarchy.common.DRouteElementI;
+import dev.anarchy.common.DServiceChain;
+import dev.anarchy.common.util.RouteHelper;
 import dev.anarchy.ui.util.IconHelper;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ContextMenu;
@@ -13,6 +12,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -27,11 +27,13 @@ public class GraphObject extends StackPane {
 	
 	private double cornerRadius;
 	
-	private DRouteElementBase routeElement;
+	private DRouteElementI routeElement;
 	
 	private ServiceChainEditor editor;
 	
-	public GraphObject(ServiceChainEditor editor, DServiceChain holder, DRouteElementBase routeElement) {
+	private LinkNode linkerNode;
+	
+	public GraphObject(ServiceChainEditor editor, DServiceChain serviceChain, DRouteElementI routeElement) {
 		this.setAlignment(Pos.CENTER);
 		this.setPrefSize(140, 80);
 		
@@ -49,6 +51,7 @@ public class GraphObject extends StackPane {
 		this.setCornerRadius(256);
 
 		label = new Label("Node");
+		label.setMouseTransparent(true);
 		this.getChildren().add(label);
 
 		this.setOnMousePressed((event)->{
@@ -56,10 +59,15 @@ public class GraphObject extends StackPane {
 			event.consume();
 		});
 		
+		linkerNode = new LinkNode(routeElement, serviceChain, this);
+		
 		this.setOnMouseDragged(event -> {
 			if ( event.getButton() != MouseButton.PRIMARY )
 				return;
-			this.setManaged(false);
+			
+			if ( !event.getTarget().equals(this) )
+				return;
+			
 			double hWid = this.getWidth()/2;
 			double hHei = this.getHeight()/2;
 			double x = round(event.getX() + this.getTranslateX() - hWid);
@@ -70,6 +78,26 @@ public class GraphObject extends StackPane {
 			event.consume();
 		});
 		
+		this.setOnDragOver(event -> {
+			/* data is dragged over the target */
+			if (event.getGestureSource() != this ) {
+				event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+			}
+
+			event.consume();
+		});
+		
+		this.setOnDragDropped(event -> {
+			if ( event.getGestureSource() instanceof LinkNode ) {
+				LinkNode droppedFrom = (LinkNode)event.getGestureSource();
+				if ( this.getRouteElement() instanceof DRouteElement ) {
+					RouteHelper.linkRoutes(serviceChain.getRoutesUnmodifyable(), droppedFrom.getRouteElement(), (DRouteElement) this.getRouteElement());
+					droppedFrom.setLinkTo(this.linkerNode);
+				} else {
+					System.out.println("Cannot link " + droppedFrom.getRouteElement() + " to " + this.getRouteElement() + ". Element must be a RouteElement");
+				}
+			}
+		});
 		
 		ContextMenu context = new ContextMenu();
 		context.setAutoHide(true);
@@ -79,7 +107,7 @@ public class GraphObject extends StackPane {
 		if ( !(routeElement instanceof DServiceChain) ) {
 			MenuItem option = new MenuItem("Delete", IconHelper.DELETE.create());
 			option.setOnAction((event) -> {
-				holder.removeRoute((DRouteElement) routeElement);
+				serviceChain.removeRoute((DRouteElement) routeElement);
 			});
 			context.getItems().add(option);
 		}
@@ -92,6 +120,8 @@ public class GraphObject extends StackPane {
 				}
 			}
 		});
+		
+		update();
 	}
 	
 	public void setCornerRadius(double x) {
@@ -122,7 +152,11 @@ public class GraphObject extends StackPane {
 		this.label.setText(string);
 	}
 
-	public DRouteElementBase getRouteElement() {
+	public DRouteElementI getRouteElement() {
 		return routeElement;
+	}
+
+	public ServiceChainEditor getEditor() {
+		return this.editor;
 	}
 }

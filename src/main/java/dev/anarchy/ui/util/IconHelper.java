@@ -12,6 +12,7 @@ public enum IconHelper {
 	COPY(FontAwesomeIcon.COPY),
 	PASTE(FontAwesomeIcon.PASTE),
 	CHAIN(FontAwesomeIcon.LINK),
+	CHAIN_BROKEN(FontAwesomeIcon.UNLINK),
 	FOLDER(FontAwesomeIcon.FOLDER),
 	EDIT(FontAwesomeIcon.EDIT),
 	;

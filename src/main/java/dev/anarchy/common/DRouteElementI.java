@@ -1,8 +1,8 @@
-package dev.anarchy;
+package dev.anarchy.common;
 
 import dev.anarchy.event.Event;
 
-public interface DRouteElementBase {
+public interface DRouteElementI {
 	public void setSize(double width, double height);
 
 	public void setPosition(double x, double y);
@@ -24,4 +24,12 @@ public interface DRouteElementBase {
 	public void setName(String name);
 	
 	public Event getOnChangedEvent();
+	
+	public String getSource();
+	
+	public String getSourceId();
+	
+	public String getDestination();
+	
+	public String getDestinationId();
 }

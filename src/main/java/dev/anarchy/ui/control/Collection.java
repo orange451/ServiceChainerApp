@@ -1,6 +1,6 @@
 package dev.anarchy.ui.control;
 
-import dev.anarchy.DCollection;
+import dev.anarchy.common.DCollection;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.paint.Color;
 

@@ -1,8 +1,8 @@
 package dev.anarchy.ui.control;
 
-import dev.anarchy.DFolder;
-import dev.anarchy.DFolderElement;
-import dev.anarchy.DServiceChain;
+import dev.anarchy.common.DFolder;
+import dev.anarchy.common.DFolderElement;
+import dev.anarchy.common.DServiceChain;
 import dev.anarchy.ui.AnarchyApp;
 import dev.anarchy.ui.util.IconHelper;
 import javafx.beans.value.ChangeListener;

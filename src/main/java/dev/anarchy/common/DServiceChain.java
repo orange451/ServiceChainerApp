@@ -1,4 +1,4 @@
-package dev.anarchy;
+package dev.anarchy.common;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,7 +12,7 @@ import dev.anarchy.event.NameChangeEvent;
 import dev.anarchy.ui.util.ColorHelper;
 import javafx.scene.paint.Color;
 
-public class DServiceChain implements DFolderElement,DRouteElementBase {
+public class DServiceChain implements DFolderElement,DRouteElementI {
 	
 	@JsonProperty("ExtensionhandlerId")
 	private String handlerId;
@@ -22,6 +22,9 @@ public class DServiceChain implements DFolderElement,DRouteElementBase {
 
 	@JsonProperty("RegisteredExtensionPoints")
 	private List<DExtensionPoint> extensionPoints = new ArrayList<>();
+
+	@JsonProperty("Produces")
+	private String produces = "JSON";
 	
 	@JsonProperty("_Name")
 	private String name;
@@ -182,5 +185,25 @@ public class DServiceChain implements DFolderElement,DRouteElementBase {
 
 	public Event getOnChangedEvent() {
 		return this.onChangedEvent;
+	}
+
+	@Override
+	public String getSource() {
+		return "ON_EVENT";
+	}
+
+	@Override
+	public String getSourceId() {
+		return "ON_EVENT";
+	}
+
+	@Override
+	public String getDestination() {
+		return "ON_EVENT";
+	}
+
+	@Override
+	public String getDestinationId() {
+		return "ON_EVENT";
 	}
 }

@@ -1,4 +1,6 @@
-package dev.anarchy;
+package dev.anarchy.common;
+
+import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -11,7 +13,7 @@ import dev.anarchy.event.Event;
 
 @JsonTypeInfo(use=Id.DEDUCTION)
 @JsonSubTypes({@Type(DServiceDefinition.class)})
-public class DRouteElement implements DRouteElementBase {
+public class DRouteElement implements DRouteElementI {
 	
 	@JsonProperty("Source")
 	private String source;
@@ -48,6 +50,11 @@ public class DRouteElement implements DRouteElementBase {
 	
 	@JsonIgnore()
 	private Event onChangedEvent = new Event();
+	
+	public DRouteElement() {
+		this.setDesination("RouteElement");
+		this.setDesinationId(UUID.randomUUID().toString());
+	}
 	
 	public void setName(String name) {
 		this.name = name;
@@ -97,5 +104,49 @@ public class DRouteElement implements DRouteElementBase {
 
 	public Event getOnChangedEvent() {
 		return this.onChangedEvent;
+	}
+
+	@JsonIgnore()
+	public void setSource(String source) {
+		this.source = source;
+	}
+
+	@JsonIgnore()
+	@Override
+	public String getSource() {
+		return this.source;
+	}
+
+	@JsonIgnore()
+	public void setSourceId(String sourceId) {
+		this.sourceId = sourceId;
+	}
+
+	@JsonIgnore()
+	@Override
+	public String getSourceId() {
+		return this.sourceId;
+	}
+
+	@JsonIgnore()
+	public void setDesination(String destination) {
+		this.destination = destination;
+	}
+
+	@JsonIgnore()
+	@Override
+	public String getDestination() {
+		return this.destination;
+	}
+
+	@JsonIgnore()
+	private void setDesinationId(String destinationId) {
+		this.destinationId = destinationId;
+	}
+
+	@JsonIgnore()
+	@Override
+	public String getDestinationId() {
+		return this.destinationId;
 	}
 }

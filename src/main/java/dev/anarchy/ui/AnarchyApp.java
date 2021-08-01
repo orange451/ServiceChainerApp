@@ -7,7 +7,7 @@ import java.nio.file.Paths;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dev.anarchy.ApplicationData;
-import dev.anarchy.DServiceChain;
+import dev.anarchy.common.DServiceChain;
 import dev.anarchy.ui.control.Workspace;
 import javafx.application.Application;
 import javafx.stage.Stage;

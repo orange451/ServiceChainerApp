@@ -3,7 +3,7 @@ package dev.anarchy.ui.control;
 import java.util.HashMap;
 import java.util.Map;
 
-import dev.anarchy.DServiceChain;
+import dev.anarchy.common.DServiceChain;
 import dev.anarchy.ui.AnarchyApp;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;

@@ -1,4 +1,4 @@
-package dev.anarchy;
+package dev.anarchy.common;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;

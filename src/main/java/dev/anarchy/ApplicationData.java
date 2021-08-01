@@ -14,6 +14,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import dev.anarchy.common.DCollection;
+import dev.anarchy.common.DFolder;
+import dev.anarchy.common.DServiceChain;
 import dev.anarchy.event.Event;
 
 public class ApplicationData {

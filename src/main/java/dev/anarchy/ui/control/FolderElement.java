@@ -1,6 +1,6 @@
 package dev.anarchy.ui.control;
 
-import dev.anarchy.DFolderElement;
+import dev.anarchy.common.DFolderElement;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.Property;
 import javafx.scene.paint.Paint;

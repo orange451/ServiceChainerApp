@@ -1,4 +1,4 @@
-package dev.anarchy;
+package dev.anarchy.common;
 
 import java.util.ArrayList;
 import java.util.Arrays;

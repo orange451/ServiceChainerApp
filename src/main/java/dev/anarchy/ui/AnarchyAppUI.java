@@ -1,6 +1,6 @@
 package dev.anarchy.ui;
 
-import dev.anarchy.DCollection;
+import dev.anarchy.common.DCollection;
 import dev.anarchy.ui.control.Collection;
 import dev.anarchy.ui.control.SearchBar;
 import dev.anarchy.ui.control.Workspace;
