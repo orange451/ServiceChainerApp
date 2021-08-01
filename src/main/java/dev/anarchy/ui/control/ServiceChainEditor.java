@@ -130,6 +130,8 @@ public class ServiceChainEditor extends BorderPane {
 	protected void connectNodes() {
 		clearCurves();
 
+		System.out.println("Reconnecting nodes");
+		
 		for (GraphObject node : nodes) {
 			for (GraphObject conTo : nodes) {
 				if (conTo == node)
@@ -234,14 +236,24 @@ public class ServiceChainEditor extends BorderPane {
 	}
 
 	private void removeRouteElementNode(DServiceChain parent, DRouteElement routeElement) {
-		for (Node node : this.editPane.getChildrenUnmodifiable()) {
+		System.out.println("A");
+		List<Node> toRemove = new ArrayList<>();
+		
+		for (Node node : this.nodes) {
 			if (node instanceof GraphObject) {
-				if (((GraphObject) node).getRouteElement().equals(routeElement)) {
+				if (routeElement.equals(((GraphObject) node).getRouteElement())) {
 					this.editPane.getChildren().remove(node);
-					this.nodes.remove(node);
+					toRemove.add(node);
 				}
 			}
 		}
+		
+		for (Node node : toRemove)
+			nodes.remove(node);
+		
+		Platform.runLater(()->{
+			connectNodes();
+		});
 	}
 
 	private GraphObject newRouteElementNode(DServiceChain parent, DRouteElementI routeElement) {
