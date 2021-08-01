@@ -187,21 +187,25 @@ public class DServiceChain implements DFolderElement,DRouteElementI {
 		return this.onChangedEvent;
 	}
 
+	@JsonIgnore()
 	@Override
 	public String getSource() {
 		return "ON_EVENT";
 	}
 
+	@JsonIgnore()
 	@Override
 	public String getSourceId() {
 		return "ON_EVENT";
 	}
 
+	@JsonIgnore()
 	@Override
 	public String getDestination() {
 		return "ON_EVENT";
 	}
-
+	
+	@JsonIgnore()
 	@Override
 	public String getDestinationId() {
 		return "ON_EVENT";

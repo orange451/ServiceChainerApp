@@ -2,6 +2,7 @@ package dev.anarchy.common;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class DServiceDefinition extends DRouteElement {
@@ -37,14 +38,6 @@ public class DServiceDefinition extends DRouteElement {
 	@JsonProperty("ExtensionhandlerRouteId")
 	public String getExtensionHandlerRouteId() {
 		return this.routeId;
-	}
-
-	public String getRouteId() {
-		return routeId;
-	}
-
-	public void setRouteId(String routeId) {
-		this.routeId = routeId;
 	}
 
 	public String getTransformationType() {
