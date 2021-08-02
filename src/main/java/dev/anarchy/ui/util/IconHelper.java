@@ -15,6 +15,7 @@ public enum IconHelper {
 	CHAIN_BROKEN(FontAwesomeIcon.UNLINK),
 	FOLDER(FontAwesomeIcon.FOLDER),
 	EDIT(FontAwesomeIcon.EDIT),
+	GEAR(FontAwesomeIcon.GEARS),
 	;
 	
 	IconHelper(FontAwesomeIcon icon) {

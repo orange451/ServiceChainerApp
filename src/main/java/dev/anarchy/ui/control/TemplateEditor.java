@@ -1,7 +1,6 @@
 package dev.anarchy.ui.control;
 
 import dev.anarchy.common.DServiceDefinition;
-import dev.anarchy.ui.AnarchyApp;
 import dev.anarchy.ui.codemirror.CodeSyntax;
 import dev.anarchy.ui.codemirror.control.CodeEditor;
 import javafx.geometry.Pos;
@@ -10,17 +9,22 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-public class TemplateEditor {
+public class TemplateEditor extends ModalWindow {
+	
 	private TemplateEditorType type;
 	
 	private DServiceDefinition serviceDefinition;
 	
-	private Stage toolStage;
+	private Stage stage;
+	
+	private BorderPane layout;
 	
 	public TemplateEditor(TemplateEditorType type, DServiceDefinition serviceDefinition) {
+		this.type = type;
+		this.serviceDefinition = serviceDefinition;
+		
 		HBox topLayout = new HBox();
 		topLayout.setAlignment(Pos.CENTER_RIGHT);
 		
@@ -46,15 +50,10 @@ public class TemplateEditor {
 		topLayout.getChildren().add(new Label("Template Type:"));
 		topLayout.getChildren().add(comboBox);
 		
-		BorderPane layout = new BorderPane();
 		layout.setCenter(code);
 		layout.setTop(topLayout);
 		
-        toolStage = new Stage();
-        toolStage.initOwner(AnarchyApp.get().getStage());
-        toolStage.initModality(Modality.APPLICATION_MODAL);
-        toolStage.setAlwaysOnTop(true);
-        toolStage.setOnCloseRequest((event)->{
+		stage.setOnCloseRequest((event)->{
         	serviceDefinition.setTemplateContent(code.getText());
         	
         	if ( "none".equalsIgnoreCase(comboBox.getValue()) )
@@ -62,14 +61,15 @@ public class TemplateEditor {
         	else
         		serviceDefinition.setTransformationType(comboBox.getValue().toLowerCase());
         });
-        
-        Scene toolScene = new Scene(layout, 640, 480);
-        toolStage.setScene(toolScene);
 	}
-	
-	public void show() {
-        toolStage.centerOnScreen();
-        toolStage.show();
+
+	@Override
+	protected void start(Stage stage) {
+		this.stage = stage;
+		
+		layout = new BorderPane();
+        Scene toolScene = new Scene(layout, 640, 480);
+        stage.setScene(toolScene);
 	}
 }
 

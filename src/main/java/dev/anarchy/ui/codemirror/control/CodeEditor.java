@@ -63,11 +63,6 @@ public class CodeEditor extends Control {
 			if (newState == State.SUCCEEDED) {
 				refresh();
 				applyCode(true);
-
-				webview.getEngine().executeScript("console.log(editor);");
-				webview.getEngine().executeScript("console.log(editor.searchBox);");
-				webview.getEngine().executeScript("editor.execCommand('find');");
-				//webview.getEngine().executeScript("editor.searchBox.show();");
 			}
 		});
 		

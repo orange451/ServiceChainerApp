@@ -122,8 +122,6 @@ public class GraphObject extends StackPane {
 		update();
 	}
 	
-	private TemplateEditor templateEditor;
-	
 	private void updateContext() {
 		context = new ContextMenu();
 		context.setAutoHide(true);
@@ -138,13 +136,21 @@ public class GraphObject extends StackPane {
 				inputType = "[" + type + "]";
 		}
 		
+		// options context
+		if ( routeElement instanceof DServiceDefinition ) {
+			MenuItem option = new MenuItem("Configure", IconHelper.GEAR.create());
+			option.setOnAction((event) -> {
+				ModalWindow window = new ServiceDefinitionEditor((DServiceDefinition) routeElement);
+				window.show();
+			});
+			context.getItems().add(option);
+		}
+		
 		// Edit context
 		if ( routeElement instanceof DServiceDefinition ) {
 			MenuItem option = new MenuItem("Edit Input Template\t\t" + inputType, IconHelper.EDIT.create());
 			option.setOnAction((event) -> {
-				if ( templateEditor == null )
-					templateEditor = new TemplateEditor(TemplateEditorType.INPUT, (DServiceDefinition) routeElement);
-				
+				TemplateEditor templateEditor = new TemplateEditor(TemplateEditorType.INPUT, (DServiceDefinition) routeElement);
 				templateEditor.show();
 			});
 			context.getItems().add(option);
