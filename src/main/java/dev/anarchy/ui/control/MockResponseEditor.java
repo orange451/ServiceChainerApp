@@ -36,5 +36,7 @@ public class MockResponseEditor extends ModalWindow {
         
 		code = new CodeEditor();		
 		layout.setCenter(code);
+		
+		stage.setTitle("Mock Response Editor");
 	}
 }

@@ -101,6 +101,8 @@ public class ServiceDefinitionEditor extends ModalWindow {
 		stage.setOnCloseRequest((event)->{
 			close();
 		});
+		
+		stage.setTitle("Servive Definition Editor");
 	}
 
 	private void close() {
