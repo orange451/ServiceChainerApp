@@ -3,12 +3,20 @@ package dev.anarchy.ui.control;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dev.anarchy.common.DRouteElement;
 import dev.anarchy.common.DRouteElementI;
 import dev.anarchy.common.DServiceChain;
 import dev.anarchy.common.DServiceDefinition;
+import dev.anarchy.translate.runner.ServiceChainRunner;
+import dev.anarchy.translate.util.JSONUtils;
 import dev.anarchy.ui.util.ColorHelper;
+import dev.anarchy.ui.util.IconHelper;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -21,7 +29,6 @@ import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.CubicCurve;
 import javafx.scene.shape.StrokeLineCap;
@@ -37,26 +44,54 @@ public class ServiceChainEditor extends BorderPane {
 	private List<GraphObject> nodes = new ArrayList<>();
 
 	public ServiceChainEditor(DServiceChain internal) {
-		Pane topBar = new StackPane();
+		BorderPane topBar = new BorderPane();
 		topBar.setStyle("-fx-background-color: rgb(240,240,240);");
 		topBar.setPadding(new Insets(8, 8, 8, 8));
 		topBar.prefWidthProperty().bind(this.widthProperty());
 		this.setTop(topBar);
 
-		HBox buttons = new HBox();
-		Button newB = new Button("New Service Definition");
-		newB.setOnAction((event) -> {
-			DServiceDefinition sDef = new DServiceDefinition();
-			sDef.setExtensionHandlerRouteId("Service Definition");
-			sDef.setColor(ColorHelper.toHexString(Color.DARKCYAN));
-			sDef.setSize(220, 60);
-			double x = round(editPane.getPrefWidth() / 2) - round(sDef.getWidth() / 2);
-			double y = round(editPane.getPrefWidth() / 2) - round(sDef.getHeight() / 2);
-			sDef.setPosition(x, y);
-			internal.addRoute(sDef);
-		});
-		buttons.getChildren().add(newB);
-		topBar.getChildren().add(buttons);
+		// Left top bar
+		{
+			HBox buttons = new HBox();
+			buttons.setSpacing(6);
+			Button newB = new Button("New Service Definition");
+			newB.setOnAction((event) -> {
+				DServiceDefinition sDef = new DServiceDefinition();
+				sDef.setExtensionHandlerRouteId("Service Definition");
+				sDef.setColor(ColorHelper.toHexString(Color.DARKCYAN));
+				sDef.setSize(220, 60);
+				double x = round(editPane.getPrefWidth() / 2) - round(sDef.getWidth() / 2);
+				double y = round(editPane.getPrefWidth() / 2) - round(sDef.getHeight() / 2);
+				sDef.setPosition(x, y);
+				internal.addRoute(sDef);
+			});
+			buttons.getChildren().add(newB);
+			topBar.setLeft(buttons);
+		}
+
+		// Right top bar
+		{
+			HBox buttons2 = new HBox();
+			buttons2.setSpacing(6);
+			
+			Button play = new Button("", IconHelper.PLAY.create());
+			play.setOnMouseClicked((event)->{
+				Map<String, Object> inputPayload;
+				try {
+					inputPayload = new ObjectMapper().readValue("{\"name\":\"mkyong\", \"age\":\"37\"}", Map.class);
+					Map<String, Object> result = new ServiceChainRunner(internal).run(inputPayload);
+					System.out.println("Ran and got result: " + JSONUtils.mapToJsonPretty(result));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			});
+			buttons2.getChildren().add(play);
+			
+			Button edit = new Button("", IconHelper.GEAR.create());
+			buttons2.getChildren().add(edit);
+			
+			topBar.setRight(buttons2);
+		}
 
 		DropShadow dropShadow = new DropShadow();
 		dropShadow.setRadius(5.0);
@@ -99,7 +134,7 @@ public class ServiceChainEditor extends BorderPane {
 		internal.getOnRouteAddedEvent().connect((args) -> {
 			newRouteElementNode(internal, (DRouteElement) args[0]);
 		});
-		for (DRouteElement element : internal.getRoutesUnmodifyable())
+		for (DRouteElementI element : internal.getRoutesUnmodifyable())
 			newRouteElementNode(internal, element);
 
 		internal.getOnRouteRemovedEvent().connect((args) -> {

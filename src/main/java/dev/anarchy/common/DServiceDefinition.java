@@ -1,9 +1,17 @@
 package dev.anarchy.common;
 
 import java.util.List;
+import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.apache.commons.lang.StringUtils;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import dev.anarchy.translate.util.TranslateMapService;
+import dev.anarchy.translate.util.TranslateType;
 
 public class DServiceDefinition extends DRouteElement {
 	
@@ -78,5 +86,20 @@ public class DServiceDefinition extends DRouteElement {
 
 	public void setCondition(String condition) {
 		this.condition = condition;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Map<String, Object> translate(Map<String, Object> inputPayload) {
+		// Try to transform the data
+		if ( !StringUtils.isEmpty(this.getTemplateContent()) && !StringUtils.isEmpty(this.getTransformationType()) ) {
+			TranslateType tType = TranslateType.match(this.getTransformationType());
+			String json = null; try { json = new ObjectMapper().writeValueAsString(inputPayload); } catch (Exception e) { e.printStackTrace(); }
+			String output = new TranslateMapService().translate(tType, this.getTemplateContent(), json);
+			Map<String, Object> map = null; try { map = new ObjectMapper().readValue(output, Map.class); } catch (Exception e) { e.printStackTrace(); }
+			return map;
+		} else {
+			return inputPayload;
+		}
 	}
 }

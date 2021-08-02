@@ -5,11 +5,11 @@ import java.util.Map;
 import org.json.simple.JSONValue;
 
 public class JSONUtils {
-	public static String mapToJson(Map<Object, Object> map) {
+	public static String mapToJson(Map<String, Object> map) {
 		return JSONValue.toJSONString(map);
 	}
 	
-	public static String mapToJsonPretty(Map<Object, Object> jsonObject) {
+	public static String mapToJsonPretty(Map<String, Object> jsonObject) {
 		String str = mapToJson(jsonObject);
 		str = str.replace("{", "{\n");
 		str = str.replace("[", "[\n");

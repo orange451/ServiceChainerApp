@@ -1,5 +1,7 @@
 package dev.anarchy.common;
 
+import java.util.Map;
+
 import dev.anarchy.event.Event;
 
 public interface DRouteElementI {
@@ -32,4 +34,6 @@ public interface DRouteElementI {
 	public String getDestination();
 	
 	public String getDestinationId();
+
+	public Map<String, Object> translate(Map<String, Object> inputPayload);
 }

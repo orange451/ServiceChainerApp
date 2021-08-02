@@ -13,7 +13,7 @@ import dev.anarchy.event.Event;
 
 @JsonTypeInfo(use=Id.DEDUCTION)
 @JsonSubTypes({@Type(DServiceDefinition.class)})
-public class DRouteElement implements DRouteElementI {
+public abstract class DRouteElement implements DRouteElementI {
 	
 	@JsonProperty("Source")
 	private String source;

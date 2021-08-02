@@ -3,6 +3,7 @@ package dev.anarchy.common;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -43,6 +44,9 @@ public class DServiceChain implements DFolderElement,DRouteElementI {
 
 	@JsonProperty("_Color")
 	private String color = ColorHelper.toHexString(Color.color(0.196, 0.6274, 0.235));
+
+	@JsonProperty("_LastInput")
+	private String lastInput;
 	
 	@JsonIgnore()
 	private Event onChangedEvent = new Event();
@@ -133,7 +137,7 @@ public class DServiceChain implements DFolderElement,DRouteElementI {
 	}
 
 	@JsonIgnore
-	public List<DRouteElement> getRoutesUnmodifyable() {
+	public List<DRouteElementI> getRoutesUnmodifyable() {
 		DRouteElement[] arr = new DRouteElement[this.routes.size()];
 		for (int i = 0; i < routes.size(); i++) {
 			arr[i] = routes.get(i);
@@ -209,5 +213,20 @@ public class DServiceChain implements DFolderElement,DRouteElementI {
 	@Override
 	public String getDestinationId() {
 		return "ON_EVENT";
+	}
+
+	@JsonIgnore()
+	public String getLastInput() {
+		return lastInput;
+	}
+
+	@JsonIgnore()
+	public void setLastInput(String lastInput) {
+		this.lastInput = lastInput;
+	}
+
+	@Override
+	public Map<String, Object> translate(Map<String, Object> inputPayload) {
+		return inputPayload;
 	}
 }

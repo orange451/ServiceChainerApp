@@ -16,6 +16,7 @@ public enum IconHelper {
 	FOLDER(FontAwesomeIcon.FOLDER),
 	EDIT(FontAwesomeIcon.EDIT),
 	GEAR(FontAwesomeIcon.GEARS),
+	PLAY(FontAwesomeIcon.PLAY),
 	;
 	
 	IconHelper(FontAwesomeIcon icon) {
