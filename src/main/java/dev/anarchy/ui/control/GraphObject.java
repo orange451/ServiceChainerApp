@@ -114,10 +114,9 @@ public class GraphObject extends StackPane {
 	        if(event.getButton().equals(MouseButton.PRIMARY)){
 	            if(event.getClickCount() == 2){
 	            	if ( routeElement instanceof DServiceDefinition ) {
-		        		ModalWindow window = new ServiceDefinitionEditor((DServiceDefinition) routeElement);
-		        		window.show();
+		        		new ServiceDefinitionEditor((DServiceDefinition) routeElement).show();
 	            	} else if ( routeElement instanceof DServiceChain ) {
-	            		// TODO implement service chain config
+	            		new ServiceChainRunner((DServiceChain) routeElement).show();
 	            	}
 	            }
 	        } else if (event.getButton() == MouseButton.SECONDARY) {

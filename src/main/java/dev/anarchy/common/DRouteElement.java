@@ -131,6 +131,7 @@ public abstract class DRouteElement implements DRouteElementI {
 	@JsonIgnore()
 	public void setDesination(String destination) {
 		this.destination = destination;
+		this.setName(destination);
 	}
 
 	@JsonIgnore()

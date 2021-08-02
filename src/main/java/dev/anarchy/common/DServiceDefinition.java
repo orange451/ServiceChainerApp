@@ -44,7 +44,6 @@ public class DServiceDefinition extends DRouteElement {
 	
 	public void setExtensionHandlerRouteId(String routeId) {
 		this.routeId = routeId;
-		this.setName(routeId);
 	}
 
 	@JsonProperty("ExtensionhandlerRouteId")
