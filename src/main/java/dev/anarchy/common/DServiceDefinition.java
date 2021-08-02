@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import dev.anarchy.common.util.RouteHelper;
 import dev.anarchy.translate.util.TranslateMapService;
 import dev.anarchy.translate.util.TranslateType;
 
@@ -33,9 +34,13 @@ public class DServiceDefinition extends DRouteElement {
 	@JsonProperty("Condition")
 	private String condition;
 	
+	@JsonProperty("_MockResponse")
+	private String mockResponse;
+	
 	public DServiceDefinition() {
 		super();
 		this.setDesination("ServiceDefinition");
+		this.setMockResponse("{}");
 	}
 	
 	public void setExtensionHandlerRouteId(String routeId) {
@@ -88,16 +93,19 @@ public class DServiceDefinition extends DRouteElement {
 		this.condition = condition;
 	}
 
-	@SuppressWarnings("unchecked")
+	public String getMockResponse() {
+		return mockResponse;
+	}
+
+	public void setMockResponse(String mockResponse) {
+		this.mockResponse = mockResponse;
+	}
+
 	@Override
-	public Map<String, Object> translate(Map<String, Object> inputPayload) {
+	public Map<String, Object> transform(Map<String, Object> inputPayload) {
 		// Try to transform the data
 		if ( !StringUtils.isEmpty(this.getTemplateContent()) && !StringUtils.isEmpty(this.getTransformationType()) ) {
-			TranslateType tType = TranslateType.match(this.getTransformationType());
-			String json = null; try { json = new ObjectMapper().writeValueAsString(inputPayload); } catch (Exception e) { e.printStackTrace(); }
-			String output = new TranslateMapService().translate(tType, this.getTemplateContent(), json);
-			Map<String, Object> map = null; try { map = new ObjectMapper().readValue(output, Map.class); } catch (Exception e) { e.printStackTrace(); }
-			return map;
+			return RouteHelper.transform(this, inputPayload);
 		} else {
 			return inputPayload;
 		}

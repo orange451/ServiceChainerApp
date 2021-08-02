@@ -1,6 +1,9 @@
 package dev.anarchy.ui.control;
 
+import org.controlsfx.control.textfield.CustomTextField;
+
 import dev.anarchy.common.DServiceDefinition;
+import dev.anarchy.ui.util.IconHelper;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -18,13 +21,18 @@ public class ServiceDefinitionEditor extends ModalWindow {
 
 	private DServiceDefinition serviceDefinition;
 
-	private TextField nameField;
+	private TextField augmentField;
+
+	private CustomTextField routeField;
 	
 	public ServiceDefinitionEditor(DServiceDefinition serviceDefinition) {
 		this.serviceDefinition = serviceDefinition;
 		
+		if ( serviceDefinition.getDestination() != null )
+			routeField.setText(serviceDefinition.getDestination());
+		
 		if ( serviceDefinition.getAugmentPayload() != null )
-			nameField.setText(serviceDefinition.getAugmentPayload());
+			augmentField.setText(serviceDefinition.getAugmentPayload());
 	}
 
 	@Override
@@ -42,18 +50,39 @@ public class ServiceDefinitionEditor extends ModalWindow {
 	    columnOneConstraints.setHalignment(HPos.RIGHT);
 
 	    // columnTwoConstraints will be applied to all the nodes placed in column two.
-	    ColumnConstraints columnTwoConstrains = new ColumnConstraints(100, 100, Double.MAX_VALUE);
+	    ColumnConstraints columnTwoConstrains = new ColumnConstraints(200, 200, Double.MAX_VALUE);
 	    columnTwoConstrains.setHgrow(Priority.ALWAYS);
 
 	    gridPane.getColumnConstraints().addAll(columnOneConstraints, columnTwoConstrains);
-		
-	    // Add Name Label
-	    Label nameLabel = new Label("Augment Payload:");
-	    gridPane.add(nameLabel, 0,1);
+	    
+	    int y = 1; // Current line
+
+	    // Add Route Id
+	    {
+		    Label nameLabel = new Label("Service Id:");
+		    gridPane.add(nameLabel, 0,y);
+		    
+		    routeField = new CustomTextField();
+		    gridPane.add(routeField, 1, y++);
+		    
+		    Button mockButton = new Button("", IconHelper.GEAR.create());
+		    mockButton.setPrefSize(16, 16);
+		    mockButton.setPadding(new Insets(2,4,2,4));
+		    routeField.setRight(mockButton);
+		    
+		    mockButton.setOnAction((event)->{
+		    	new MockResponseEditor(serviceDefinition).show();
+		    });
+	    }
 
 	    // Add Name Text Field
-	    nameField = new TextField();
-	    gridPane.add(nameField, 1,1);
+	    {
+		    Label nameLabel = new Label("Augment Payload:");
+		    gridPane.add(nameLabel, 0,y);
+		    
+		    augmentField = new TextField();
+		    gridPane.add(augmentField, 1,y++);
+	    }
 	    
 	    layout.setCenter(gridPane);
 	    
@@ -64,7 +93,7 @@ public class ServiceDefinitionEditor extends ModalWindow {
 	    	stage.close();
 	    	close();
 	    });
-	    gridPane.add(b6, 0, 2, 2, 1);
+	    gridPane.add(b6, 0, y++, 2, 1);
 		
 		stage.setScene(new Scene(layout));
 		this.show();
@@ -75,6 +104,7 @@ public class ServiceDefinitionEditor extends ModalWindow {
 	}
 
 	private void close() {
-		serviceDefinition.setAugmentPayload(nameField.getText());
+		serviceDefinition.setAugmentPayload(augmentField.getText());
+		serviceDefinition.setDesination(routeField.getText());
 	}
 }

@@ -4,7 +4,22 @@ import java.util.Map;
 
 import org.json.simple.JSONValue;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class JSONUtils {
+	
+	@SuppressWarnings("unchecked")
+	public static Map<String, Object> jsonToMap(String json) {
+		try {
+			return new ObjectMapper().readValue(json, Map.class);
+		} catch (JsonProcessingException e) {
+			//
+		}
+		
+		return null;
+	}
+	
 	public static String mapToJson(Map<String, Object> map) {
 		return JSONValue.toJSONString(map);
 	}

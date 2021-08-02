@@ -29,6 +29,11 @@ public class CodeEditor extends Control {
 	 * Syntax of the code editor
 	 */
 	private CodeSyntax type;
+	
+	/**
+	 * Whether or not the webview has finished loading.
+	 */
+	private boolean webViewReady;
 
 	/**
 	 * Create a new code editor.
@@ -61,6 +66,7 @@ public class CodeEditor extends Control {
 
 		this.webview.getEngine().getLoadWorker().stateProperty().addListener((observable, oldState, newState) -> {
 			if (newState == State.SUCCEEDED) {
+				webViewReady = true;
 				refresh();
 				applyCode(true);
 			}
@@ -76,7 +82,8 @@ public class CodeEditor extends Control {
 	 */
 	public void setSyntax(CodeSyntax syntax) {
 		this.type = syntax;
-		this.applySyntax();
+		if ( webViewReady )
+			this.applySyntax();
 	}
 
 	/**
@@ -92,7 +99,8 @@ public class CodeEditor extends Control {
 	 */
 	public void setText(String newCode) {
 		this.editingCode = newCode;
-		this.applyCode(false);
+		if ( webViewReady )
+			this.applyCode(false);
 	}
 
 	/**
@@ -111,11 +119,17 @@ public class CodeEditor extends Control {
 	}
 
 	private void refresh() {
+		if ( !webViewReady )
+			return;
+		
 		applyCode(false);
 		applySyntax();
 	}
 
 	public static String toJavaScriptString(String value) {
+		if ( value == null )
+			return value;
+		
 		value = value.replace("\u0000", "\\0").replace("'", "\\'").replace("\\", "\\\\").replace("\"", "\\\"")
 				.replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t");
 		return "\"" + value + "\"";
@@ -140,7 +154,7 @@ public class CodeEditor extends Control {
 			String js = ("editor.session.setMode(\"${val}\");").replace("${val}", this.type.getType());
 			webview.getEngine().executeScript(js);
 		} catch (Exception e) {
-			//e.printStackTrace();
+			e.printStackTrace();
 		}
 	}
 

@@ -1,9 +1,15 @@
 package dev.anarchy.common.util;
 
 import java.util.List;
+import java.util.Map;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dev.anarchy.common.DRouteElement;
 import dev.anarchy.common.DRouteElementI;
+import dev.anarchy.common.DServiceDefinition;
+import dev.anarchy.translate.util.TranslateMapService;
+import dev.anarchy.translate.util.TranslateType;
 
 public class RouteHelper {
 
@@ -40,6 +46,17 @@ public class RouteHelper {
 		}
 		
 		return null;
+	}
+
+	/**
+	 * Transform the input payload based on a service definitions configuration
+	 */
+	public static Map<String, Object> transform(DServiceDefinition serviceDefinition, Map<String, Object> inputPayload) {
+		TranslateType tType = TranslateType.match(serviceDefinition.getTransformationType());
+		String json = null; try { json = new ObjectMapper().writeValueAsString(inputPayload); } catch (Exception e) { e.printStackTrace(); }
+		String output = new TranslateMapService().translate(tType, serviceDefinition.getTemplateContent(), json);
+		Map<String, Object> map = null; try { map = new ObjectMapper().readValue(output, Map.class); } catch (Exception e) { e.printStackTrace(); }
+		return map;
 	}
 
 }

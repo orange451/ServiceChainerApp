@@ -13,6 +13,7 @@ import dev.anarchy.common.DRouteElement;
 import dev.anarchy.common.DRouteElementI;
 import dev.anarchy.common.DServiceChain;
 import dev.anarchy.common.DServiceDefinition;
+import dev.anarchy.translate.runner.BasicServiceChainRunner;
 import dev.anarchy.translate.runner.ServiceChainRunner;
 import dev.anarchy.translate.util.JSONUtils;
 import dev.anarchy.ui.util.ColorHelper;
@@ -76,10 +77,9 @@ public class ServiceChainEditor extends BorderPane {
 			
 			Button play = new Button("", IconHelper.PLAY.create());
 			play.setOnMouseClicked((event)->{
-				Map<String, Object> inputPayload;
 				try {
-					inputPayload = new ObjectMapper().readValue("{\"name\":\"mkyong\", \"age\":\"37\"}", Map.class);
-					Map<String, Object> result = new ServiceChainRunner(internal).run(inputPayload);
+					Map<String, Object> inputPayload = JSONUtils.jsonToMap("{\"name\":\"mkyong\", \"age\":\"37\"}");
+					Map<String, Object> result = new BasicServiceChainRunner(internal).run(inputPayload);
 					System.out.println("Ran and got result: " + JSONUtils.mapToJsonPretty(result));
 				} catch (Exception e) {
 					e.printStackTrace();

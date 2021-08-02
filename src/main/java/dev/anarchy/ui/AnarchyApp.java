@@ -49,7 +49,7 @@ public class AnarchyApp extends Application {
 			ObjectMapper objectMapper = new ObjectMapper();
 			return objectMapper.readValue(json, ApplicationData.class);
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			return new ApplicationData();
 		}
 	}

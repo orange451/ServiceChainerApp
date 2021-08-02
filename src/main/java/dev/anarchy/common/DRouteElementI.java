@@ -35,5 +35,5 @@ public interface DRouteElementI {
 	
 	public String getDestinationId();
 
-	public Map<String, Object> translate(Map<String, Object> inputPayload);
+	public Map<String, Object> transform(Map<String, Object> inputPayload);
 }
