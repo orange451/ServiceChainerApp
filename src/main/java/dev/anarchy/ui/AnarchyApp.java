@@ -11,6 +11,7 @@ import dev.anarchy.common.DServiceChain;
 import dev.anarchy.ui.control.Workspace;
 import javafx.application.Application;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
 public class AnarchyApp extends Application {
 	
@@ -20,10 +21,13 @@ public class AnarchyApp extends Application {
 	
 	private Workspace workspace;
 	
+	private Stage stage;
+	
 	@Override
 	public void start(Stage stage) {
 		data = loadData();
 		app = this;
+		this.stage = stage;
 		
 		workspace = new Workspace();
 		AnarchyAppUI.build(stage);
@@ -68,5 +72,9 @@ public class AnarchyApp extends Application {
 
 	public static void main(String[] args) {
 		launch(args);
+	}
+
+	public Window getStage() {
+		return stage;
 	}
 }

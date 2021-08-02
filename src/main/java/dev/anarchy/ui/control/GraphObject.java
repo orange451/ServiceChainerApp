@@ -3,6 +3,7 @@ package dev.anarchy.ui.control;
 import dev.anarchy.common.DRouteElement;
 import dev.anarchy.common.DRouteElementI;
 import dev.anarchy.common.DServiceChain;
+import dev.anarchy.common.DServiceDefinition;
 import dev.anarchy.common.util.RouteHelper;
 import dev.anarchy.ui.util.IconHelper;
 import javafx.geometry.Insets;
@@ -121,25 +122,30 @@ public class GraphObject extends StackPane {
 		update();
 	}
 	
+	private TemplateEditor templateEditor;
+	
 	private void updateContext() {
 		context = new ContextMenu();
 		context.setAutoHide(true);
 		context.setHideOnEscape(true);
 		
-		// Edit context
-		if ( routeElement instanceof DRouteElement ) {
-			MenuItem option = new MenuItem("Edit Input Template\t\tTest", IconHelper.EDIT.create());
-			option.setOnAction((event) -> {
-				new TemplateEditor(TemplateEditorType.INPUT, (DRouteElement) routeElement);
-			});
-			context.getItems().add(option);
+		String inputType = "[None]";
+		if ( routeElement instanceof DServiceDefinition ) {
+			DServiceDefinition serviceDef = (DServiceDefinition)routeElement;
+			String type = serviceDef.getTransformationType();
+			
+			if ( serviceDef.getTemplateContent() != null && serviceDef.getTemplateContent().length() > 1 )
+				inputType = "[" + type + "]";
 		}
 		
 		// Edit context
-		if ( routeElement instanceof DRouteElement ) {
-			MenuItem option = new MenuItem("Edit Output Template\tTest", IconHelper.EDIT.create());
+		if ( routeElement instanceof DServiceDefinition ) {
+			MenuItem option = new MenuItem("Edit Input Template\t\t" + inputType, IconHelper.EDIT.create());
 			option.setOnAction((event) -> {
-				new TemplateEditor(TemplateEditorType.OUTPUT, (DRouteElement) routeElement);
+				if ( templateEditor == null )
+					templateEditor = new TemplateEditor(TemplateEditorType.INPUT, (DServiceDefinition) routeElement);
+				
+				templateEditor.show();
 			});
 			context.getItems().add(option);
 		}
@@ -151,9 +157,14 @@ public class GraphObject extends StackPane {
 			MenuItem option = new MenuItem("Delete", IconHelper.DELETE.create());
 			option.setOnAction((event) -> {
 				serviceChain.removeRoute((DRouteElement) routeElement);
+				delete();
 			});
 			context.getItems().add(option);
 		}
+	}
+	
+	private void delete() {
+		
 	}
 
 	public void setCornerRadius(double x) {

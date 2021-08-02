@@ -1,5 +1,7 @@
 package dev.anarchy.ui.codemirror.control;
 
+import com.sun.javafx.webkit.WebConsoleListener;
+
 import dev.anarchy.ui.codemirror.CodeSyntax;
 import javafx.concurrent.Worker.State;
 import javafx.geometry.Insets;
@@ -39,6 +41,9 @@ public class CodeEditor extends Control {
 	 * Create a new code editor.
 	 */
 	public CodeEditor(String editingCode) {
+		if ( editingCode == null )
+			editingCode = "";
+		
 		this.editingCode = editingCode;
 		this.type = CodeSyntax.JAVA;
 		
@@ -58,7 +63,16 @@ public class CodeEditor extends Control {
 			if (newState == State.SUCCEEDED) {
 				refresh();
 				applyCode(true);
+
+				webview.getEngine().executeScript("console.log(editor);");
+				webview.getEngine().executeScript("console.log(editor.searchBox);");
+				webview.getEngine().executeScript("editor.execCommand('find');");
+				//webview.getEngine().executeScript("editor.searchBox.show();");
 			}
+		});
+		
+		WebConsoleListener.setDefaultListener((webview, message, lineNumber, sourceId) -> {
+		    System.out.println(message + "[at " + lineNumber + "]");
 		});
 	}
 
@@ -131,7 +145,7 @@ public class CodeEditor extends Control {
 			String js = ("editor.session.setMode(\"${val}\");").replace("${val}", this.type.getType());
 			webview.getEngine().executeScript(js);
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 	}
 
