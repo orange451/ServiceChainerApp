@@ -12,7 +12,6 @@ public abstract class ModalWindow {
         toolStage = new Stage();
         toolStage.initOwner(AnarchyApp.get().getStage());
         toolStage.initModality(Modality.APPLICATION_MODAL);
-        //toolStage.setAlwaysOnTop(true);
         
         start(toolStage);
 	}

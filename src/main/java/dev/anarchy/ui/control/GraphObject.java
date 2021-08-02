@@ -6,6 +6,7 @@ import dev.anarchy.common.DServiceChain;
 import dev.anarchy.common.DServiceDefinition;
 import dev.anarchy.common.util.RouteHelper;
 import dev.anarchy.ui.util.IconHelper;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ContextMenu;
@@ -14,6 +15,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -111,7 +113,12 @@ public class GraphObject extends StackPane {
 
 		// Show context
 		this.setOnMouseClicked((event) -> {
-			if (event.getButton() == MouseButton.SECONDARY) {
+	        if(event.getButton().equals(MouseButton.PRIMARY) && routeElement instanceof DServiceDefinition){
+	            if(event.getClickCount() == 2){
+	        		ModalWindow window = new ServiceDefinitionEditor((DServiceDefinition) routeElement);
+	        		window.show();
+	            }
+	        } else if (event.getButton() == MouseButton.SECONDARY) {
 				if (!context.isShowing()) {
 					updateContext();
 					context.show(this, event.getScreenX(), event.getScreenY());
