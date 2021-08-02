@@ -98,6 +98,9 @@ public class CodeEditor extends Control {
 	 * code which can be reverted to.
 	 */
 	public void setText(String newCode) {
+		if ( newCode == null )
+			newCode = "";
+		
 		this.editingCode = newCode;
 		if ( webViewReady )
 			this.applyCode(false);
@@ -141,7 +144,11 @@ public class CodeEditor extends Control {
 			if (resetHistory)
 				js = "editor.session.setValue(${val});";
 
-			String encoded = js.replace("${val}", toJavaScriptString(this.editingCode));
+			String encoded = toJavaScriptString(this.editingCode);
+			if ( encoded == null )
+				return;
+			
+			encoded = js.replace("${val}", encoded);
 
 			webview.getEngine().executeScript(encoded);
 		} catch (Exception e) {

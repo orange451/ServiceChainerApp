@@ -51,6 +51,7 @@ public class RouteHelper {
 	/**
 	 * Transform the input payload based on a service definitions configuration
 	 */
+	@SuppressWarnings("unchecked")
 	public static Map<String, Object> transform(DServiceDefinition serviceDefinition, Map<String, Object> inputPayload) {
 		TranslateType tType = TranslateType.match(serviceDefinition.getTransformationType());
 		String json = null; try { json = new ObjectMapper().writeValueAsString(inputPayload); } catch (Exception e) { e.printStackTrace(); }

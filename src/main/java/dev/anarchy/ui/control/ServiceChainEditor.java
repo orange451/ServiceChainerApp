@@ -3,19 +3,10 @@ package dev.anarchy.ui.control;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import dev.anarchy.common.DRouteElement;
 import dev.anarchy.common.DRouteElementI;
 import dev.anarchy.common.DServiceChain;
 import dev.anarchy.common.DServiceDefinition;
-import dev.anarchy.translate.runner.BasicServiceChainRunner;
-import dev.anarchy.translate.runner.ServiceChainRunner;
-import dev.anarchy.translate.util.JSONUtils;
 import dev.anarchy.ui.util.ColorHelper;
 import dev.anarchy.ui.util.IconHelper;
 import javafx.application.Platform;
@@ -77,13 +68,7 @@ public class ServiceChainEditor extends BorderPane {
 			
 			Button play = new Button("", IconHelper.PLAY.create());
 			play.setOnMouseClicked((event)->{
-				try {
-					Map<String, Object> inputPayload = JSONUtils.jsonToMap("{\"name\":\"mkyong\", \"age\":\"37\"}");
-					Map<String, Object> result = new BasicServiceChainRunner(internal).run(inputPayload);
-					System.out.println("Ran and got result: " + JSONUtils.mapToJsonPretty(result));
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+				new ServiceChainRunner(internal).show();
 			});
 			buttons2.getChildren().add(play);
 			

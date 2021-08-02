@@ -72,6 +72,7 @@ public class DServiceChain implements DFolderElement,DRouteElementI {
 	public DServiceChain() {
 		this.setName("New Service Chain");
 		this.setHandlerId("Entry Point");
+		this.setLastInput("{}");
 	}
 	
 	public String getName() {

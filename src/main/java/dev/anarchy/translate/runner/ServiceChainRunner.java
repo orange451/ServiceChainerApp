@@ -8,6 +8,7 @@ import dev.anarchy.common.DRouteElementI;
 import dev.anarchy.common.DServiceChain;
 import dev.anarchy.common.DServiceDefinition;
 import dev.anarchy.common.util.RouteHelper;
+import dev.anarchy.translate.util.JSONUtils;
 
 public abstract class ServiceChainRunner {
 	private DServiceChain serviceChain;
@@ -22,6 +23,7 @@ public abstract class ServiceChainRunner {
 		currentElement = this.serviceChain;
 		
 		while(currentElement != null) {
+
 			// Transform w/ template
 			Map<String, Object> output = currentElement.transform(inputPayload);
 			

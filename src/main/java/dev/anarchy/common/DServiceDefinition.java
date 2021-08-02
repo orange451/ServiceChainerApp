@@ -40,7 +40,6 @@ public class DServiceDefinition extends DRouteElement {
 	public DServiceDefinition() {
 		super();
 		this.setDesination("ServiceDefinition");
-		this.setMockResponse("{}");
 	}
 	
 	public void setExtensionHandlerRouteId(String routeId) {
