@@ -1,5 +1,6 @@
 package dev.anarchy.translate.runner;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -8,7 +9,6 @@ import dev.anarchy.common.DRouteElementI;
 import dev.anarchy.common.DServiceChain;
 import dev.anarchy.common.DServiceDefinition;
 import dev.anarchy.common.util.RouteHelper;
-import dev.anarchy.translate.util.JSONUtils;
 
 public abstract class ServiceChainRunner {
 	private DServiceChain serviceChain;
@@ -20,6 +20,9 @@ public abstract class ServiceChainRunner {
 	}
 	
 	public Map<String, Object> run(Map<String, Object> inputPayload) {
+		if ( inputPayload == null )
+			inputPayload = new HashMap<>();
+		
 		currentElement = this.serviceChain;
 		
 		while(currentElement != null) {
