@@ -72,6 +72,12 @@
 		</dependency>
 		
 		<dependency>
+		    <groupId>com.github.orange451</groupId>
+		    <artifactId>AceFX</artifactId>
+		    <version>main-SNAPSHOT</version>
+		</dependency>
+		
+		<dependency>
 		    <groupId>javafx</groupId>
 		    <artifactId>jfxrt</artifactId>
 		    <version>8.0</version>

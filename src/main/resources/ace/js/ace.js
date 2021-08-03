@@ -1783,6 +1783,8 @@ var TextInput = function(parentNode, host) {
                 isCut ? host.onCut() : host.onCopy();
             });
         }
+        
+        java.copy(data);
     };
     
     var onCut = function(e) {
@@ -1790,11 +1792,13 @@ var TextInput = function(parentNode, host) {
     };
     
     var onCopy = function(e) {
-        doCopy(e, false);
+        //doCopy(e, false);
+    	java.copy();
     };
     
     var onPaste = function(e) {
-        var data = handleClipboardData(e);
+        java.paste();
+        /*var data = handleClipboardData(e);
         if (clipboard.pasteCancelled())
             return;
         if (typeof data == "string") {
@@ -1807,7 +1811,7 @@ var TextInput = function(parentNode, host) {
         else {
             text.value = "";
             pasted = true;
-        }
+        }*/
     };
 
     event.addCommandKeyListener(text, host.onCommandKey.bind(host), host);
@@ -13156,14 +13160,14 @@ Editor.$uid = 0;
         return e.text;
     };
     this.onCopy = function() {
-        this.commands.exec("copy", this);
+        //this.commands.exec("copy", this);
     };
     this.onCut = function() {
         this.commands.exec("cut", this);
     };
     this.onPaste = function(text, event) {
-        var e = {text: text, event: event};
-        this.commands.exec("paste", this, e);
+        //var e = {text: text, event: event};
+        //this.commands.exec("paste", this, e);
     };
     
     this.$handlePaste = function(e) {

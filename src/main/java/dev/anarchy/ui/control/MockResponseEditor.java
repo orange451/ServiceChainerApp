@@ -1,8 +1,7 @@
 package dev.anarchy.ui.control;
 
 import dev.anarchy.common.DServiceDefinition;
-import dev.anarchy.ui.ace.CodeSyntax;
-import dev.anarchy.ui.ace.control.CodeEditor;
+import dev.anarchy.ace.control.CodeEditor;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;

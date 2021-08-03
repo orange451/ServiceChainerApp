@@ -1,8 +1,7 @@
 package dev.anarchy.ui.control;
 
+import dev.anarchy.ace.control.CodeEditor;
 import dev.anarchy.common.DServiceDefinition;
-import dev.anarchy.ui.ace.CodeSyntax;
-import dev.anarchy.ui.ace.control.CodeEditor;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;

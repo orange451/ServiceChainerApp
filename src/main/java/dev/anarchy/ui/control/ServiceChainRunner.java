@@ -5,7 +5,7 @@ import java.util.Map;
 import dev.anarchy.common.DServiceChain;
 import dev.anarchy.translate.runner.BasicServiceChainRunner;
 import dev.anarchy.translate.util.JSONUtils;
-import dev.anarchy.ui.ace.control.CodeEditor;
+import dev.anarchy.ace.control.CodeEditor;
 import dev.anarchy.ui.util.IconHelper;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Insets;
