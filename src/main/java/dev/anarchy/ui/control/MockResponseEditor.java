@@ -1,7 +1,8 @@
 package dev.anarchy.ui.control;
 
 import dev.anarchy.common.DServiceDefinition;
-import dev.anarchy.ace.control.CodeEditor;
+import dev.anarchy.ace.AceEditor;
+import dev.anarchy.ace.Modes;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
@@ -12,13 +13,13 @@ public class MockResponseEditor extends ModalWindow {
 	
 	private Stage stage;
 	
-	private CodeEditor code;
+	private AceEditor code;
 	
 	public MockResponseEditor(DServiceDefinition serviceDefinition) {
 		this.serviceDefinition = serviceDefinition;
 		
 		code.setText(serviceDefinition.getMockResponse());
-		//code.setSyntax(CodeSyntax.JSON);
+		code.setMode(Modes.JSON);
 		
 		stage.setOnCloseRequest((event)->{
         	serviceDefinition.setMockResponse(code.getText());
@@ -33,7 +34,7 @@ public class MockResponseEditor extends ModalWindow {
         Scene toolScene = new Scene(layout, 640, 480);
         stage.setScene(toolScene);
         
-		code = new CodeEditor();		
+		code = new AceEditor();
 		layout.setCenter(code);
 		
 		stage.setTitle("Mock Response Editor");

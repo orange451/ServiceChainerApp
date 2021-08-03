@@ -1,6 +1,7 @@
 package dev.anarchy.ui.control;
 
-import dev.anarchy.ace.control.CodeEditor;
+import dev.anarchy.ace.AceEditor;
+import dev.anarchy.ace.Modes;
 import dev.anarchy.common.DServiceDefinition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -52,11 +53,11 @@ public class TemplateEditor extends ModalWindow {
 			if ( item.equalsIgnoreCase(serviceDefinition.getTransformationType()) )
 				comboBox.setValue(item);
 		
-		CodeEditor code = new CodeEditor(serviceDefinition.getTemplateContent());
+		AceEditor code = new AceEditor(serviceDefinition.getTemplateContent());
 		if ( "velocity".equalsIgnoreCase(serviceDefinition.getTransformationType()) ) {
-			//code.setSyntax(CodeSyntax.VELOCITY);
+			code.setMode(Modes.Velocity);
 		} else {
-			//code.setSyntax(CodeSyntax.JSON);
+			code.setMode(Modes.JSON);
 		}
 		
 		topLayout.getChildren().add(new Label("Template Type:"));

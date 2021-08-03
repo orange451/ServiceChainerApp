@@ -5,7 +5,8 @@ import java.util.Map;
 import dev.anarchy.common.DServiceChain;
 import dev.anarchy.translate.runner.BasicServiceChainRunner;
 import dev.anarchy.translate.util.JSONUtils;
-import dev.anarchy.ace.control.CodeEditor;
+import dev.anarchy.ace.AceEditor;
+import dev.anarchy.ace.Modes;
 import dev.anarchy.ui.util.IconHelper;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Insets;
@@ -26,7 +27,7 @@ public class ServiceChainRunner extends ModalWindow {
 	
 	private DServiceChain serviceChain;
 	
-	private CodeEditor code;
+	private AceEditor code;
 	
 	private SplitPane split;
 	
@@ -36,6 +37,7 @@ public class ServiceChainRunner extends ModalWindow {
 		this.serviceChain = serviceChain;
 		
 		code.setText(serviceChain.getLastInput());
+		code.setMode(Modes.JSON);
 	}
 	
 	private void addResult(String title, String text) {
@@ -43,9 +45,13 @@ public class ServiceChainRunner extends ModalWindow {
 		resultTab.setText(title);
 		resultPane.getTabs().add(resultTab);
 		
-		CodeEditor layout = new CodeEditor(text);
-		layout.setReadOnly(true);
+		AceEditor layout = new AceEditor(text);
+		layout.setMode(Modes.JSON);
 		resultTab.setContent(layout);
+		
+		layout.setOnLoad((event)->{
+			layout.getEditor().setReadOnly(true);
+		});
 		
 		if ( !split.getItems().contains(resultPane) )
 			split.getItems().add(resultPane);
@@ -95,7 +101,7 @@ public class ServiceChainRunner extends ModalWindow {
 		dropShadow.setColor(Color.color(0.4, 0.5, 0.5));
 		topLayout.setEffect(dropShadow);
 		
-		code = new CodeEditor();
+		code = new AceEditor();
 		layout.setCenter(code);
 		layout.setTop(topLayout);
 
