@@ -53,4 +53,19 @@ public class JSONUtils {
 		
 		return finalString.toString();
 	}
+	
+	public static String escape(String value) {
+		if ( value == null )
+			return value;
+		
+		value = value.replace("\u0000", "\\0")
+				.replace("'", "\\'")
+				.replace("\\", "\\\\")
+				.replace("\"", "\\\"")
+				.replace("\n", "\\n")
+				.replace("\r", "\\r")
+				.replace("\t", "\\t");
+		
+		return "\"" + value + "\"";
+	}
 }

@@ -36,6 +36,11 @@ public class CodeEditor extends Control {
 	 * Whether or not the webview has finished loading.
 	 */
 	private boolean webViewReady;
+	
+	/**
+	 * Whether or not the editor is read only
+	 */
+	private boolean readOnly;
 
 	/**
 	 * Create a new code editor.
@@ -76,15 +81,6 @@ public class CodeEditor extends Control {
 		
 		WebConsoleListener.setDefaultListener((webview, message, lineNumber, sourceId) -> {
 		    System.out.println(message + "[at " + lineNumber + "]");
-		});
-		
-		this.disabledProperty().addListener(new ChangeListener<Boolean>() {
-			@Override
-			public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
-				if ( !webViewReady )
-					return;
-				applyDisabled(arg2.booleanValue());
-			}
 		});
 	}
 
@@ -132,13 +128,24 @@ public class CodeEditor extends Control {
 		return text;
 	}
 
+	public boolean isReadOnly() {
+		return readOnly;
+	}
+	
+	public void setReadOnly(boolean value) {
+		this.readOnly = value;
+		
+		if ( this.webViewReady )
+			this.applyReadOnly(value);
+	}
+	
 	private void refresh() {
 		if ( !webViewReady )
 			return;
 		
 		applyCode(false);
 		applySyntax();
-		applyDisabled(this.isDisabled());
+		applyReadOnly(this.isReadOnly());
 	}
 
 	public static String toJavaScriptString(String value) {
@@ -168,7 +175,7 @@ public class CodeEditor extends Control {
 		}
 	}
 	
-	private void applyDisabled(boolean value) {
+	private void applyReadOnly(boolean value) {
 		try {
 			String js = ("editor.setReadOnly(${val})").replace("${val}", "" + value);
 			webview.getEngine().executeScript(js);

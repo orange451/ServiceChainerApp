@@ -44,7 +44,7 @@ public class ServiceChainRunner extends ModalWindow {
 		resultPane.getTabs().add(resultTab);
 		
 		CodeEditor layout = new CodeEditor(text);
-		layout.setDisable(true);
+		layout.setReadOnly(true);
 		resultTab.setContent(layout);
 		
 		if ( !split.getItems().contains(resultPane) )
