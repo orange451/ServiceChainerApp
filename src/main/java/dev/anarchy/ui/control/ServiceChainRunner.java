@@ -69,9 +69,7 @@ public class ServiceChainRunner extends ModalWindow {
 		run.setOnMouseClicked((event)->{
 			try {
 				serviceChain.setLastInput(code.getText());
-				System.out.println("INPUT PAYLOAD: " + code.getText());
 				Map<String, Object> inputPayload = JSONUtils.jsonToMap(code.getText());
-				System.out.println(inputPayload);
 				Map<String, Object> result = new BasicServiceChainRunner(serviceChain).run(inputPayload);
 				String prettyResult = JSONUtils.mapToJsonPretty(result);
 				addResult("Test Result [ok]", prettyResult);
