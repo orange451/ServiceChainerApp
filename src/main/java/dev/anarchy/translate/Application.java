@@ -8,15 +8,17 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-import org.json.simple.parser.JSONParser;
+import org.apache.velocity.runtime.parser.ParseException;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dev.anarchy.translate.util.TranslateMapService;
 import dev.anarchy.translate.util.TranslateType;
+import freemarker.template.TemplateException;
 
 public class Application {
 	private static TranslateMapService translateMapService;
@@ -64,7 +66,12 @@ public class Application {
 
 		// Translate
 		translateMapService = new TranslateMapService();
-		String output = translateMapService.translate(tType, template, dataModel);
+		String output = null;
+		try {
+			output = translateMapService.translate(tType, template, dataModel);
+		} catch (ParseException | IOException | TemplateException e1) {
+			e1.printStackTrace();
+		}
 		if ( output == null || "null".equals(output) )
 			output = "Something went wrong. Please see console for error details.";
 		
@@ -83,8 +90,7 @@ public class Application {
 		
 		// Check if valid JSON
 		try {
-			JSONParser parser = new JSONParser();
-			parser.parse(output);
+			new ObjectMapper().readValue(output, Map.class);
 		} catch(Exception e) {
 			System.out.println("WARNING: Output is NOT in valid JSON format. Please verify your template file is correct.");
 			System.out.println(e.toString());

@@ -1,8 +1,8 @@
 package dev.anarchy.ui.control;
 
 import dev.anarchy.common.DServiceDefinition;
-import dev.anarchy.ui.codemirror.CodeSyntax;
-import dev.anarchy.ui.codemirror.control.CodeEditor;
+import dev.anarchy.ui.ace.CodeSyntax;
+import dev.anarchy.ui.ace.control.CodeEditor;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
@@ -19,7 +19,7 @@ public class MockResponseEditor extends ModalWindow {
 		this.serviceDefinition = serviceDefinition;
 		
 		code.setText(serviceDefinition.getMockResponse());
-		code.setSyntax(CodeSyntax.JSON);
+		//code.setSyntax(CodeSyntax.JSON);
 		
 		stage.setOnCloseRequest((event)->{
         	serviceDefinition.setMockResponse(code.getText());

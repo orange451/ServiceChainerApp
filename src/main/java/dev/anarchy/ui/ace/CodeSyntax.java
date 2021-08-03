@@ -1,4 +1,4 @@
-package dev.anarchy.ui.codemirror;
+package dev.anarchy.ui.ace;
 
 public enum CodeSyntax {
 	JAVA("ace/mode/java"),

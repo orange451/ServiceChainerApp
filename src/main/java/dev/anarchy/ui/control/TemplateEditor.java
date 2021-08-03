@@ -1,8 +1,8 @@
 package dev.anarchy.ui.control;
 
 import dev.anarchy.common.DServiceDefinition;
-import dev.anarchy.ui.codemirror.CodeSyntax;
-import dev.anarchy.ui.codemirror.control.CodeEditor;
+import dev.anarchy.ui.ace.CodeSyntax;
+import dev.anarchy.ui.ace.control.CodeEditor;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -55,9 +55,9 @@ public class TemplateEditor extends ModalWindow {
 		
 		CodeEditor code = new CodeEditor(serviceDefinition.getTemplateContent());
 		if ( "velocity".equalsIgnoreCase(serviceDefinition.getTransformationType()) ) {
-			code.setSyntax(CodeSyntax.VELOCITY);
+			//code.setSyntax(CodeSyntax.VELOCITY);
 		} else {
-			code.setSyntax(CodeSyntax.JSON);
+			//code.setSyntax(CodeSyntax.JSON);
 		}
 		
 		topLayout.getChildren().add(new Label("Template Type:"));

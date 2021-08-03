@@ -1,15 +1,20 @@
 package dev.anarchy.common.util;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.velocity.runtime.parser.ParseException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dev.anarchy.common.DRouteElement;
 import dev.anarchy.common.DRouteElementI;
 import dev.anarchy.common.DServiceDefinition;
+import dev.anarchy.translate.util.JSONUtils;
 import dev.anarchy.translate.util.TranslateMapService;
 import dev.anarchy.translate.util.TranslateType;
+import freemarker.template.TemplateException;
 
 public class RouteHelper {
 
@@ -50,14 +55,15 @@ public class RouteHelper {
 
 	/**
 	 * Transform the input payload based on a service definitions configuration
+	 * @throws TemplateException 
+	 * @throws IOException 
+	 * @throws ParseException 
 	 */
-	@SuppressWarnings("unchecked")
-	public static Map<String, Object> transform(DServiceDefinition serviceDefinition, Map<String, Object> inputPayload) {
+	public static Map<String, Object> transform(DServiceDefinition serviceDefinition, Map<String, Object> inputPayload) throws Exception {
 		TranslateType tType = TranslateType.match(serviceDefinition.getTransformationType());
-		String json = null; try { json = new ObjectMapper().writeValueAsString(inputPayload); } catch (Exception e) { e.printStackTrace(); }
+		String json = JSONUtils.mapToJson(inputPayload);
 		String output = new TranslateMapService().translate(tType, serviceDefinition.getTemplateContent(), json);
-		Map<String, Object> map = null; try { map = new ObjectMapper().readValue(output, Map.class); } catch (Exception e) { e.printStackTrace(); }
-		return map;
+		return JSONUtils.jsonToMap(output);
 	}
 
 }

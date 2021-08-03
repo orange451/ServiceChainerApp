@@ -28,10 +28,21 @@ public abstract class ServiceChainRunner {
 		while(currentElement != null) {
 
 			// Transform w/ template
-			Map<String, Object> output = currentElement.transform(inputPayload);
-			
-			// Perhaps another transform is wanted
-			output = onCallRouteElement(currentElement, output);
+			Map<String, Object> output;
+			try {
+				output = currentElement.transform(inputPayload);
+				
+				// Perhaps another transform is wanted
+				output = onCallRouteElement(currentElement, output);
+			} catch (Exception e) {
+				return new HashMap<String, Object>() {
+					private static final long serialVersionUID = 1L;
+					{
+						this.put("Node", currentElement.getDestination());
+						this.put("Error", e.getMessage());
+					}
+				};
+			}
 			
 			// Augment maybe
 			if ( currentElement instanceof DServiceDefinition && !StringUtils.isEmpty(((DServiceDefinition)currentElement).getAugmentPayload()) ) {
@@ -46,5 +57,5 @@ public abstract class ServiceChainRunner {
 		return inputPayload;
 	}
 
-	protected abstract Map<String, Object> onCallRouteElement(DRouteElementI routeElement, Map<String, Object> input);
+	protected abstract Map<String, Object> onCallRouteElement(DRouteElementI routeElement, Map<String, Object> input) throws Exception;
 }

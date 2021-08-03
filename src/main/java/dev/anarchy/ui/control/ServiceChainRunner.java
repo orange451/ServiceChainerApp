@@ -5,13 +5,17 @@ import java.util.Map;
 import dev.anarchy.common.DServiceChain;
 import dev.anarchy.translate.runner.BasicServiceChainRunner;
 import dev.anarchy.translate.util.JSONUtils;
-import dev.anarchy.ui.codemirror.CodeSyntax;
-import dev.anarchy.ui.codemirror.control.CodeEditor;
+import dev.anarchy.ui.ace.control.CodeEditor;
 import dev.anarchy.ui.util.IconHelper;
+import javafx.collections.ListChangeListener;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.SplitPane;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -24,15 +28,33 @@ public class ServiceChainRunner extends ModalWindow {
 	
 	private CodeEditor code;
 	
+	private SplitPane split;
+	
+	private TabPane resultPane;
+	
 	public ServiceChainRunner(DServiceChain serviceChain) {
 		this.serviceChain = serviceChain;
 		
-		code.setSyntax(CodeSyntax.JSON);
 		code.setText(serviceChain.getLastInput());
+	}
+	
+	private void addResult(String title, String text) {
+		Tab resultTab = new Tab();
+		resultTab.setText(title);
+		resultPane.getTabs().add(resultTab);
+		
+		CodeEditor layout = new CodeEditor(text);
+		layout.setDisable(true);
+		resultTab.setContent(layout);
+		
+		if ( !split.getItems().contains(resultPane) )
+			split.getItems().add(resultPane);
 	}
 
 	@Override
 	protected void start(Stage stage) {
+		split = new SplitPane();
+		split.setOrientation(Orientation.VERTICAL);
 		BorderPane layout = new BorderPane();
 		
 		HBox topLayout = new HBox();
@@ -41,17 +63,30 @@ public class ServiceChainRunner extends ModalWindow {
 		topLayout.setSpacing(8);
 		topLayout.setAlignment(Pos.CENTER);
 		
-		Button run = new Button("", IconHelper.PLAY.create());
+		Button run = new Button("Test", IconHelper.PLAY.create());
 		topLayout.getChildren().add(run);
 		
 		run.setOnMouseClicked((event)->{
 			try {
 				serviceChain.setLastInput(code.getText());
+				System.out.println("INPUT PAYLOAD: " + code.getText());
 				Map<String, Object> inputPayload = JSONUtils.jsonToMap(code.getText());
+				System.out.println(inputPayload);
 				Map<String, Object> result = new BasicServiceChainRunner(serviceChain).run(inputPayload);
-				System.out.println("Ran and got result: \n" + JSONUtils.mapToJsonPretty(result));
+				String prettyResult = JSONUtils.mapToJsonPretty(result);
+				addResult("Test Result [ok]", prettyResult);
 			} catch (Exception e) {
 				e.printStackTrace();
+				addResult("Test Result [err]", e.toString());
+			}
+		});
+		
+		resultPane = new TabPane();
+		resultPane.getTabs().addListener(new ListChangeListener<Tab>() {
+			@Override
+			public void onChanged(Change<? extends Tab> tab) {
+				if ( resultPane.getTabs().size() < 1 )
+					split.getItems().remove(resultPane);
 			}
 		});
 		
@@ -65,8 +100,9 @@ public class ServiceChainRunner extends ModalWindow {
 		code = new CodeEditor();
 		layout.setCenter(code);
 		layout.setTop(topLayout);
-		
-        Scene toolScene = new Scene(layout, 640, 480);
+
+        split.getItems().add(layout);
+        Scene toolScene = new Scene(split, 640, 480);
         stage.setScene(toolScene);
         
         stage.setTitle("Service Chain Runner");

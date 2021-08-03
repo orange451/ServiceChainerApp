@@ -16,7 +16,7 @@ public class BasicServiceChainRunner extends ServiceChainRunner{
 	}
 
 	@Override
-	protected Map<String, Object> onCallRouteElement(DRouteElementI routeElement, Map<String, Object> input) {
+	protected Map<String, Object> onCallRouteElement(DRouteElementI routeElement, Map<String, Object> input) throws Exception {
 		if ( routeElement instanceof DServiceDefinition ) {
 			DServiceDefinition serviceDef = (DServiceDefinition)routeElement;
 			if ( !StringUtils.isEmpty(serviceDef.getMockResponse()) ) {

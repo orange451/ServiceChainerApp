@@ -1,8 +1,10 @@
-package dev.anarchy.ui.codemirror.control;
+package dev.anarchy.ui.ace.control;
 
 import com.sun.javafx.webkit.WebConsoleListener;
 
-import dev.anarchy.ui.codemirror.CodeSyntax;
+import dev.anarchy.ui.ace.CodeSyntax;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker.State;
 import javafx.geometry.Insets;
 import javafx.scene.control.Control;
@@ -75,6 +77,15 @@ public class CodeEditor extends Control {
 		WebConsoleListener.setDefaultListener((webview, message, lineNumber, sourceId) -> {
 		    System.out.println(message + "[at " + lineNumber + "]");
 		});
+		
+		this.disabledProperty().addListener(new ChangeListener<Boolean>() {
+			@Override
+			public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) {
+				if ( !webViewReady )
+					return;
+				applyDisabled(arg2.booleanValue());
+			}
+		});
 	}
 
 	/**
@@ -127,6 +138,7 @@ public class CodeEditor extends Control {
 		
 		applyCode(false);
 		applySyntax();
+		applyDisabled(this.isDisabled());
 	}
 
 	public static String toJavaScriptString(String value) {
@@ -151,6 +163,15 @@ public class CodeEditor extends Control {
 			encoded = js.replace("${val}", encoded);
 
 			webview.getEngine().executeScript(encoded);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void applyDisabled(boolean value) {
+		try {
+			String js = ("editor.setReadOnly(${val})").replace("${val}", "" + value);
+			webview.getEngine().executeScript(js);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
