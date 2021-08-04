@@ -43,7 +43,9 @@ public class ServiceChainRunner extends ModalWindow {
 	private void addResult(String title, String text) {
 		Tab resultTab = new Tab();
 		resultTab.setText(title);
+		
 		resultPane.getTabs().add(resultTab);
+		resultPane.getSelectionModel().select(resultTab);
 		
 		AceEditor layout = new AceEditor(text);
 		layout.setMode(Modes.JSON);

@@ -3,6 +3,8 @@ package dev.anarchy.ui.control;
 import dev.anarchy.ace.AceEditor;
 import dev.anarchy.ace.Modes;
 import dev.anarchy.common.DServiceDefinition;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -54,11 +56,20 @@ public class TemplateEditor extends ModalWindow {
 				comboBox.setValue(item);
 		
 		AceEditor code = new AceEditor(serviceDefinition.getTemplateContent());
-		if ( "velocity".equalsIgnoreCase(serviceDefinition.getTransformationType()) ) {
-			code.setMode(Modes.Velocity);
-		} else {
-			code.setMode(Modes.JSON);
-		}
+		updateMode(code);
+		
+		// Update transformation type
+		comboBox.valueProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+	        	if ( "none".equalsIgnoreCase(comboBox.getValue()) )
+	        		serviceDefinition.setTransformationType(null);
+	        	else
+	        		serviceDefinition.setTransformationType(comboBox.getValue().toLowerCase());
+	        	
+				updateMode(code);
+			}
+		});
 		
 		topLayout.getChildren().add(new Label("Template Type:"));
 		topLayout.getChildren().add(comboBox);
@@ -68,12 +79,15 @@ public class TemplateEditor extends ModalWindow {
 		
 		stage.setOnCloseRequest((event)->{
         	serviceDefinition.setTemplateContent(code.getText());
-        	
-        	if ( "none".equalsIgnoreCase(comboBox.getValue()) )
-        		serviceDefinition.setTransformationType(null);
-        	else
-        		serviceDefinition.setTransformationType(comboBox.getValue().toLowerCase());
         });
+	}
+
+	private void updateMode(AceEditor code) {
+		if ( "velocity".equalsIgnoreCase(serviceDefinition.getTransformationType()) ) {
+			code.setMode(Modes.Velocity);
+		} else {
+			code.setMode(Modes.FTL);
+		}
 	}
 
 	@Override
