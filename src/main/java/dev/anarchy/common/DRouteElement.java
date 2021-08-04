@@ -26,7 +26,7 @@ public abstract class DRouteElement implements DRouteElementI {
 	
 	@JsonProperty("DestinationId")
 	private String destinationId;
-	
+
 	@JsonProperty("IsSync")
 	private String isSync;
 	
@@ -54,6 +54,7 @@ public abstract class DRouteElement implements DRouteElementI {
 	public DRouteElement() {
 		this.setDesination("RouteElement");
 		this.setDesinationId(UUID.randomUUID().toString());
+		this.setIsSync("true");
 	}
 	
 	public void setName(String name) {
@@ -149,5 +150,15 @@ public abstract class DRouteElement implements DRouteElementI {
 	@Override
 	public String getDestinationId() {
 		return this.destinationId;
+	}
+
+	@JsonIgnore()
+	public String getIsSync() {
+		return isSync;
+	}
+
+	@JsonIgnore()
+	public void setIsSync(String isSync) {
+		this.isSync = isSync;
 	}
 }

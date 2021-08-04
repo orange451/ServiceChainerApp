@@ -3,6 +3,7 @@ package dev.anarchy.ui.control;
 import dev.anarchy.common.DFolder;
 import dev.anarchy.common.DFolderElement;
 import dev.anarchy.common.DServiceChain;
+import dev.anarchy.common.util.RouteHelper;
 import dev.anarchy.ui.AnarchyApp;
 import dev.anarchy.ui.util.IconHelper;
 import javafx.beans.value.ChangeListener;
@@ -58,6 +59,15 @@ public class ServiceChain extends Label implements FolderElement {
 			MenuItem option = new MenuItem("Edit", IconHelper.EDIT.create());
 			option.setOnAction((event) -> {
 				AnarchyApp.get().edit(internal);
+			});
+			context.getItems().add(option);
+		}
+
+		// Export
+		{
+			MenuItem option = new MenuItem("Export", IconHelper.EXPORT.create());
+			option.setOnAction((event) -> {
+				RouteHelper.export(internal);
 			});
 			context.getItems().add(option);
 		}

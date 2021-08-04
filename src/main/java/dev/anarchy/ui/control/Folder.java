@@ -5,6 +5,7 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import dev.anarchy.common.DFolder;
 import dev.anarchy.common.DFolderElement;
 import dev.anarchy.common.DServiceChain;
+import dev.anarchy.common.util.RouteHelper;
 import dev.anarchy.ui.AnarchyApp;
 import dev.anarchy.ui.util.IconHelper;
 import javafx.application.Platform;
@@ -69,6 +70,17 @@ public class Folder extends VBox implements FolderElement {
 			option.setOnAction((event) -> {
 				setOpen(true);
 				AnarchyApp.get().getData().newFolder(internal);
+			});
+			context.getItems().add(option);
+		}
+		
+		context.getItems().add(new SeparatorMenuItem());
+
+		// Export
+		{
+			MenuItem option = new MenuItem("Export", IconHelper.EXPORT.create());
+			option.setOnAction((event) -> {
+				RouteHelper.export(Folder.this.internal);
 			});
 			context.getItems().add(option);
 		}

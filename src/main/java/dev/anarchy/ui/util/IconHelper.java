@@ -17,6 +17,7 @@ public enum IconHelper {
 	EDIT(FontAwesomeIcon.EDIT),
 	GEAR(FontAwesomeIcon.GEARS),
 	PLAY(FontAwesomeIcon.PLAY),
+	EXPORT(FontAwesomeIcon.DOWNLOAD),
 	;
 	
 	IconHelper(FontAwesomeIcon icon) {

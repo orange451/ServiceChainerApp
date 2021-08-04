@@ -24,7 +24,7 @@ public class DServiceChain implements DFolderElement,DRouteElementI {
 	@JsonProperty("RegisteredExtensionPoints")
 	private List<DExtensionPoint> extensionPoints = new ArrayList<>();
 
-	@JsonProperty("Produces")
+	@JsonProperty("_Produces")
 	private String produces = "JSON";
 	
 	@JsonProperty("_Name")
