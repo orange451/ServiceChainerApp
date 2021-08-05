@@ -25,7 +25,7 @@ public class ServiceDefinitionRunner extends RunnerWindowBase {
 		try {
 			serviceDefinition.setLastInput(code.getText());
 			Map<String, Object> inputPayload = JSONUtils.jsonToMap(code.getText());
-			Map<String, Object> result = new BasicServiceChainRunner(null).transformSingle(serviceDefinition, inputPayload);
+			Map<String, Object> result = new BasicServiceChainRunner(null).transformSingle(serviceDefinition, inputPayload, false);
 			String prettyResult = JSONUtils.mapToJsonPretty(result);
 			addResult("Test Result [ok]", prettyResult);
 		} catch (Exception e) {

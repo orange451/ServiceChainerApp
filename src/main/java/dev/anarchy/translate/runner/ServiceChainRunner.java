@@ -29,7 +29,7 @@ public abstract class ServiceChainRunner {
 		while(currentElement != null) {
 
 			// Transformations
-			Map<String, Object> output = transformSingle(currentElement, inputPayload);
+			Map<String, Object> output = transformSingle(currentElement, inputPayload, true);
 			
 			// Augment maybe
 			if ( currentElement instanceof DServiceDefinition && !StringUtils.isEmpty(((DServiceDefinition)currentElement).getAugmentPayload()) ) {
@@ -44,7 +44,7 @@ public abstract class ServiceChainRunner {
 		return inputPayload;
 	}
 
-	public Map<String, Object> transformSingle(DRouteElementI currentElement, Map<String, Object> inputPayload) {
+	public Map<String, Object> transformSingle(DRouteElementI currentElement, Map<String, Object> inputPayload, boolean canUseMockResponese) {
 		Map<String, Object> output;
 		try {
 			// Template
@@ -54,7 +54,7 @@ public abstract class ServiceChainRunner {
 			output = onInvokeRouteElement(currentElement, output);
 			
 			// Mock (highest priority)
-			if ( currentElement instanceof DServiceDefinition ) {
+			if ( canUseMockResponese && currentElement instanceof DServiceDefinition ) {
 				DServiceDefinition serviceDef = (DServiceDefinition)currentElement;
 				if ( !StringUtils.isEmpty(serviceDef.getMockResponse()) ) {
 					Map<String, Object> mockOutput = JSONUtils.jsonToMap(serviceDef.getMockResponse());
