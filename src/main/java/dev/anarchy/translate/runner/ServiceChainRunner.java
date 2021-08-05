@@ -29,32 +29,7 @@ public abstract class ServiceChainRunner {
 		while(currentElement != null) {
 
 			// Transformations
-			Map<String, Object> output;
-			try {
-				// Template
-				output = currentElement.transform(inputPayload);
-				
-				// Perhaps another transform is wanted
-				output = onInvokeRouteElement(currentElement, output);
-				
-				// Mock (highest priority)
-				if ( currentElement instanceof DServiceDefinition ) {
-					DServiceDefinition serviceDef = (DServiceDefinition)currentElement;
-					if ( !StringUtils.isEmpty(serviceDef.getMockResponse()) ) {
-						Map<String, Object> mockOutput = JSONUtils.jsonToMap(serviceDef.getMockResponse());
-						if ( mockOutput != null )
-							output = mockOutput;
-					}
-				}
-			} catch (Exception e) {
-				return new HashMap<String, Object>() {
-					private static final long serialVersionUID = 1L;
-					{
-						this.put("Node", currentElement.getDestination());
-						this.put("Error", e.getMessage());
-					}
-				};
-			}
+			Map<String, Object> output = transformSingle(currentElement, inputPayload);
 			
 			// Augment maybe
 			if ( currentElement instanceof DServiceDefinition && !StringUtils.isEmpty(((DServiceDefinition)currentElement).getAugmentPayload()) ) {
@@ -67,6 +42,37 @@ public abstract class ServiceChainRunner {
 		}
 		
 		return inputPayload;
+	}
+
+	public Map<String, Object> transformSingle(DRouteElementI currentElement, Map<String, Object> inputPayload) {
+		Map<String, Object> output;
+		try {
+			// Template
+			output = currentElement.transform(inputPayload);
+			
+			// Perhaps another transform is wanted
+			output = onInvokeRouteElement(currentElement, output);
+			
+			// Mock (highest priority)
+			if ( currentElement instanceof DServiceDefinition ) {
+				DServiceDefinition serviceDef = (DServiceDefinition)currentElement;
+				if ( !StringUtils.isEmpty(serviceDef.getMockResponse()) ) {
+					Map<String, Object> mockOutput = JSONUtils.jsonToMap(serviceDef.getMockResponse());
+					if ( mockOutput != null )
+						output = mockOutput;
+				}
+			}
+		} catch (Exception e) {
+			return new HashMap<String, Object>() {
+				private static final long serialVersionUID = 1L;
+				{
+					this.put("Node", currentElement.getDestination());
+					this.put("Error", e.getMessage());
+				}
+			};
+		}
+		
+		return output;
 	}
 
 	protected abstract Map<String, Object> onInvokeRouteElement(DRouteElementI routeElement, Map<String, Object> input) throws Exception;

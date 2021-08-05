@@ -25,7 +25,6 @@ import dev.anarchy.translate.util.JSONUtils;
 import dev.anarchy.translate.util.TranslateMapService;
 import dev.anarchy.translate.util.TranslateType;
 import dev.anarchy.ui.AnarchyApp;
-import dev.anarchy.ui.control.Folder;
 import freemarker.template.TemplateException;
 import javafx.stage.FileChooser;
 
@@ -113,7 +112,7 @@ public class RouteHelper {
 		}
 		
 		data = removeInternalData(data);
-		return JSONUtils.mapToJson(data);
+		return JSONUtils.mapToJsonPretty(data);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -130,7 +129,7 @@ public class RouteHelper {
 				List<Object> newList = new ArrayList<>();
 				for (Object o : (List<Object>)entry.getValue()) {
 					if ( o instanceof Map )
-						newList.add(removeInternalData((Map)o));
+						newList.add(removeInternalData((Map<String, Object>)o));
 						else
 					newList.add(o);
 				}

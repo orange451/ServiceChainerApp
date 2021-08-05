@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.anarchy.common.util.RouteHelper;
 
@@ -29,6 +31,9 @@ public class DServiceDefinition extends DRouteElement {
 	
 	@JsonProperty("_MockResponse")
 	private String mockResponse;
+
+	@JsonProperty("_LastInput")
+	private String lastInput;
 	
 	public DServiceDefinition() {
 		super();
@@ -37,6 +42,7 @@ public class DServiceDefinition extends DRouteElement {
 	
 	public void setExtensionHandlerRouteId(String routeId) {
 		this.routeId = routeId;
+		this.onChangedEvent.fire();
 	}
 
 	@JsonProperty("ExtensionhandlerRouteId")
@@ -50,6 +56,7 @@ public class DServiceDefinition extends DRouteElement {
 
 	public void setTransformationType(String transformationType) {
 		this.transformationType = transformationType;
+		this.onChangedEvent.fire();
 	}
 
 	public String getTemplateContent() {
@@ -58,6 +65,7 @@ public class DServiceDefinition extends DRouteElement {
 
 	public void setTemplateContent(String templateContent) {
 		this.templateContent = templateContent;
+		this.onChangedEvent.fire();
 	}
 
 	public List<DDesinationParams> getDestinationParams() {
@@ -66,6 +74,7 @@ public class DServiceDefinition extends DRouteElement {
 
 	public void setDestinationParams(List<DDesinationParams> destinationParams) {
 		this.destinationParams = destinationParams;
+		this.onChangedEvent.fire();
 	}
 
 	public String getAugmentPayload() {
@@ -74,6 +83,7 @@ public class DServiceDefinition extends DRouteElement {
 
 	public void setAugmentPayload(String augmentPayload) {
 		this.augmentPayload = augmentPayload;
+		this.onChangedEvent.fire();
 	}
 
 	public String getCondition() {
@@ -82,14 +92,28 @@ public class DServiceDefinition extends DRouteElement {
 
 	public void setCondition(String condition) {
 		this.condition = condition;
+		this.onChangedEvent.fire();
 	}
 
+	@JsonIgnore()
 	public String getMockResponse() {
 		return mockResponse;
 	}
 
+	@JsonIgnore()
 	public void setMockResponse(String mockResponse) {
 		this.mockResponse = mockResponse;
+		this.onChangedEvent.fire();
+	}
+
+	@JsonIgnore()
+	public String getLastInput() {
+		return lastInput;
+	}
+
+	@JsonIgnore()
+	public void setLastInput(String lastInput) {
+		this.lastInput = lastInput;
 	}
 
 	@Override

@@ -25,6 +25,8 @@ public class ServiceDefinitionEditor extends ModalWindow {
 
 	private CustomTextField routeField;
 	
+	private CustomTextField templateLabel;
+	
 	public ServiceDefinitionEditor(DServiceDefinition serviceDefinition) {
 		this.serviceDefinition = serviceDefinition;
 		
@@ -33,6 +35,22 @@ public class ServiceDefinitionEditor extends ModalWindow {
 		
 		if ( serviceDefinition.getAugmentPayload() != null )
 			augmentField.setText(serviceDefinition.getAugmentPayload());
+		
+		updateTemplateInfo();
+	    serviceDefinition.getOnChangedEvent().connect((args)->{
+	    	updateTemplateInfo();
+	    });
+	}
+	
+	private void updateTemplateInfo() {
+		System.out.println("Updating template info " + serviceDefinition.getTransformationType());
+		
+		String inputType = "[None]";
+		String type = serviceDefinition.getTransformationType();
+		if ( type != null )
+			inputType = "[" + type + "]";
+		
+		templateLabel.setText(inputType);
 	}
 
 	@Override
@@ -72,6 +90,25 @@ public class ServiceDefinitionEditor extends ModalWindow {
 		    
 		    mockButton.setOnAction((event)->{
 		    	new MockResponseEditor(serviceDefinition).show();
+		    });
+	    }
+
+	    // Add Template configuration
+	    {
+		    Label nameLabel = new Label("Input Template:");
+		    gridPane.add(nameLabel, 0,y);
+		    
+		    templateLabel = new CustomTextField();
+		    templateLabel.setEditable(false);
+		    gridPane.add(templateLabel, 1, y++);
+		    
+		    Button mockButton = new Button("", IconHelper.EDIT.create());
+		    mockButton.setPrefSize(16, 16);
+		    mockButton.setPadding(new Insets(2,4,2,4));
+		    templateLabel.setRight(mockButton);
+		    
+		    mockButton.setOnAction((event)->{
+		    	new TemplateEditor(TemplateEditorType.INPUT, serviceDefinition).show();
 		    });
 	    }
 

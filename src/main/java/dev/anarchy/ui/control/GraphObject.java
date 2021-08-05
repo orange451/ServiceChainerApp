@@ -148,8 +148,7 @@ public class GraphObject extends StackPane {
 		if ( routeElement instanceof DServiceDefinition ) {
 			MenuItem option = new MenuItem("Configure", IconHelper.GEAR.create());
 			option.setOnAction((event) -> {
-				ModalWindow window = new ServiceDefinitionEditor((DServiceDefinition) routeElement);
-				window.show();
+				new ServiceDefinitionEditor((DServiceDefinition) routeElement).show();
 			});
 			context.getItems().add(option);
 		}
@@ -158,8 +157,7 @@ public class GraphObject extends StackPane {
 		if ( routeElement instanceof DServiceDefinition ) {
 			MenuItem option = new MenuItem("Edit Input Template\t\t" + inputType, IconHelper.EDIT.create());
 			option.setOnAction((event) -> {
-				TemplateEditor templateEditor = new TemplateEditor(TemplateEditorType.INPUT, (DServiceDefinition) routeElement);
-				templateEditor.show();
+				new TemplateEditor(TemplateEditorType.INPUT, (DServiceDefinition) routeElement).show();
 			});
 			context.getItems().add(option);
 		}

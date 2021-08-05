@@ -49,7 +49,7 @@ public abstract class DRouteElement implements DRouteElementI {
 	private String color;
 	
 	@JsonIgnore()
-	private Event onChangedEvent = new Event();
+	protected Event onChangedEvent = new Event();
 	
 	public DRouteElement() {
 		this.setDesination("RouteElement");
