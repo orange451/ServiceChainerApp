@@ -1,21 +1,29 @@
 package dev.anarchy.ui.control;
 
+import java.lang.reflect.Field;
+
 import org.controlsfx.control.textfield.CustomTextField;
 
 import dev.anarchy.common.DServiceDefinition;
 import dev.anarchy.ui.util.IconHelper;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class ServiceDefinitionEditor extends ModalWindow {
 
@@ -64,7 +72,7 @@ public class ServiceDefinitionEditor extends ModalWindow {
 	    gridPane.setHgap(10);
 	    gridPane.setVgap(10);
 	    
-	    ColumnConstraints columnOneConstraints = new ColumnConstraints(100, 100, Double.MAX_VALUE);
+	    ColumnConstraints columnOneConstraints = new ColumnConstraints(150, 100, Double.MAX_VALUE);
 	    columnOneConstraints.setHalignment(HPos.RIGHT);
 
 	    // columnTwoConstraints will be applied to all the nodes placed in column two.
@@ -77,9 +85,13 @@ public class ServiceDefinitionEditor extends ModalWindow {
 
 	    // Add Route Id
 	    {
-		    Label nameLabel = new Label("Service Id:");
-		    gridPane.add(nameLabel, 0,y);
-		    
+		    HBox hLayout = new HBox();
+		    hLayout.setSpacing(8);
+		    hLayout.setAlignment(Pos.CENTER_RIGHT);
+		    hLayout.getChildren().add(new Label("Service Id:"));
+		    hLayout.getChildren().add(buildTooltip("Service ids are used to differentiate service definition configurations.\nIdeally they should all be a unique value, but this is not enforced."));
+		    gridPane.add(hLayout, 0, y);
+
 		    routeField = new CustomTextField();
 		    gridPane.add(routeField, 1, y++);
 		    
@@ -95,9 +107,13 @@ public class ServiceDefinitionEditor extends ModalWindow {
 
 	    // Add Template configuration
 	    {
-		    Label nameLabel = new Label("Input Template:");
-		    gridPane.add(nameLabel, 0,y);
-		    
+		    HBox hLayout = new HBox();
+		    hLayout.setSpacing(8);
+		    hLayout.setAlignment(Pos.CENTER_RIGHT);
+		    hLayout.getChildren().add(new Label("Input Template:"));
+		    hLayout.getChildren().add(buildTooltip("Transformation templates are used to modify the current data payload running through the chain.\nThe result of this transformation will be dirrectly fed in to the service definition."));
+		    gridPane.add(hLayout, 0, y);
+
 		    templateLabel = new CustomTextField();
 		    templateLabel.setEditable(false);
 		    gridPane.add(templateLabel, 1, y++);
@@ -114,8 +130,14 @@ public class ServiceDefinitionEditor extends ModalWindow {
 
 	    // Add Name Text Field
 	    {
+		    
+		    HBox hLayout = new HBox();
+		    hLayout.setSpacing(8);
+		    hLayout.setAlignment(Pos.CENTER_RIGHT);
 		    Label nameLabel = new Label("Augment Payload:");
-		    gridPane.add(nameLabel, 0,y);
+		    hLayout.getChildren().add(nameLabel);
+		    hLayout.getChildren().add(buildTooltip("Augment Payload field is used to take the output data from the service definition and set it as a key in the current input data.\nIf not set, the input data coming in to this service definition will be replaced with the output of the service definition\nand be sent to the next node in the chain."));
+		    gridPane.add(hLayout, 0, y);
 		    
 		    augmentField = new TextField();
 		    gridPane.add(augmentField, 1,y++);
@@ -140,6 +162,32 @@ public class ServiceDefinitionEditor extends ModalWindow {
 		});
 		
 		stage.setTitle("Servive Definition Editor");
+	}
+
+	private Node buildTooltip(String string) {
+		Label label = new Label("", IconHelper.QUESTION.create());
+		Tooltip tip = new Tooltip(string);
+		label.setTooltip(tip);
+		
+		hackTooltipStartTiming(tip);
+		return label;
+	}
+	
+	private static void hackTooltipStartTiming(Tooltip tooltip) {
+	    try {
+	        Field fieldBehavior = tooltip.getClass().getDeclaredField("BEHAVIOR");
+	        fieldBehavior.setAccessible(true);
+	        Object objBehavior = fieldBehavior.get(tooltip);
+
+	        Field fieldTimer = objBehavior.getClass().getDeclaredField("hideTimer");
+	        fieldTimer.setAccessible(true);
+	        Timeline objTimer = (Timeline) fieldTimer.get(objBehavior);
+
+	        objTimer.getKeyFrames().clear();
+	        objTimer.getKeyFrames().add(new KeyFrame(new Duration(15000)));
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
 	}
 
 	private void close() {

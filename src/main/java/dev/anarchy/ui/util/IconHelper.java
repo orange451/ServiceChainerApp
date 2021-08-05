@@ -18,6 +18,7 @@ public enum IconHelper {
 	GEAR(FontAwesomeIcon.GEARS),
 	PLAY(FontAwesomeIcon.PLAY),
 	EXPORT(FontAwesomeIcon.DOWNLOAD),
+	QUESTION(FontAwesomeIcon.QUESTION_CIRCLE),
 	;
 	
 	IconHelper(FontAwesomeIcon icon) {
