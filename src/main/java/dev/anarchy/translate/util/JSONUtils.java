@@ -19,39 +19,11 @@ public class JSONUtils {
 	}
 	
 	public static String mapToJsonPretty(Map<String, Object> jsonObject) {
-		String str = mapToJson(jsonObject);
-		str = str.replace("{", "{\n");
-		str = str.replace("[", "[\n");
-		str = str.replace("]", "\n]");
-		str = str.replace("}", "\n}");
-		str = str.replace(",", ",\n");
-		
-		String[] strs = str.split("\n");
-		int tab = 0;
-		for (int i = 0; i < strs.length; i++) {
-			String s = strs[i];
-
-			if ( s.contains("}") || s.contains("]") )
-				tab--;
-			
-			String prefix = "";
-			for (int j = 0; j < tab; j++) {
-				prefix += "\t";
-			}
-			
-			strs[i] = prefix + s;
-			
-			if ( s.contains("{") || s.contains("[") )
-				tab++;
+		try {
+			return new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(jsonObject);
+		} catch (JsonProcessingException e) {
+			return null;
 		}
-		
-		StringBuilder finalString = new StringBuilder();
-		for (int i = 0; i < strs.length; i++) {
-			finalString.append(strs[i]);
-			finalString.append("\n");
-		}
-		
-		return finalString.toString();
 	}
 	
 	public static String escape(String value) {
