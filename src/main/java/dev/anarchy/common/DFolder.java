@@ -43,7 +43,7 @@ public class DFolder implements DFolderElement {
 	public DFolder() {
 		this.setName("Folder");
 		this.onChildAddedEvent.connect((args)->{
-			((DFolderElement)args[0]).setParent(this);
+			//
 		});
 	}
 	
@@ -118,7 +118,6 @@ public class DFolder implements DFolderElement {
 			return;
 		
 		for (DFolderElement chain : this.children) {
-			chain.setParent(null);
 			if ( chain instanceof DFolder )
 				((DFolder)chain).delete();
 		}

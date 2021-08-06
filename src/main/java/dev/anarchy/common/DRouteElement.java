@@ -161,4 +161,26 @@ public abstract class DRouteElement implements DRouteElementI {
 	public void setIsSync(String isSync) {
 		this.isSync = isSync;
 	}
+
+	public DRouteElement clone() {
+		DRouteElement newInstance;
+		try {
+			newInstance = this.getClass().newInstance();
+		} catch (InstantiationException | IllegalAccessException e) {
+			return null;
+		}
+		
+		newInstance.source = source;
+		newInstance.sourceId = sourceId;
+		newInstance.destination = destination;
+		newInstance.destinationId = destinationId;
+		newInstance.isSync = isSync;
+		newInstance.x = x;
+		newInstance.y = y;
+		newInstance.width = width;
+		newInstance.height = height;
+		newInstance.name = name;
+		newInstance.color = color;
+		return newInstance;
+	}
 }

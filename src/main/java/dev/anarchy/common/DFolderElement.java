@@ -8,7 +8,5 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 @JsonTypeInfo(use=Id.DEDUCTION)
 @JsonSubTypes({@Type(DFolder.class), @Type(DServiceChain.class)})
 public interface DFolderElement {
-	public void setParent(DFolder parent);
-	public DFolder getParent();
 	public String getName();
 }

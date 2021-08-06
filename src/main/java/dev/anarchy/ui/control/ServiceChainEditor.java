@@ -34,8 +34,13 @@ public class ServiceChainEditor extends BorderPane {
 	private List<CubicCurve> curves = new ArrayList<>();
 
 	private List<GraphObject> nodes = new ArrayList<>();
+	
+	private DServiceChain internal;
 
-	public ServiceChainEditor(DServiceChain internal) {
+	public ServiceChainEditor(DServiceChain oldServiceChain) {
+		DServiceChain internal = oldServiceChain.clone();
+		this.internal = internal;
+		
 		BorderPane topBar = new BorderPane();
 		topBar.setStyle("-fx-background-color: rgb(240,240,240);");
 		topBar.setPadding(new Insets(8, 8, 8, 8));
@@ -305,6 +310,13 @@ public class ServiceChainEditor extends BorderPane {
 
 	private double round(double x) {
 		return Math.floor(x / 20d) * 20d;
+	}
+	
+	/**
+	 * Returns the cloned service chain derived from the original service chain. This is the "working copy"
+	 */
+	public DServiceChain getServiceChain() {
+		return internal;
 	}
 
 	public void setSelectedNode(GraphObject newNode) {

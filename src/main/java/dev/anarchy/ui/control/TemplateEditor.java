@@ -8,6 +8,7 @@ import dev.anarchy.ui.util.IconHelper;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -80,6 +81,8 @@ public class TemplateEditor extends PopupWindow {
 		});
 		
 		HBox right = new HBox();
+		right.setSpacing(8);
+		right.setAlignment(Pos.CENTER_RIGHT);
 		right.getChildren().add(new Label("Template Type:"));
 		right.getChildren().add(comboBox);
 		topLayout.setRight(right);

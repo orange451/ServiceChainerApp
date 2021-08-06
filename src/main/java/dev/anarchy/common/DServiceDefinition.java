@@ -21,7 +21,7 @@ public class DServiceDefinition extends DRouteElement {
 	private String templateContent;
 	
 	@JsonProperty("DestinationParams")
-	private List<DDesinationParams> destinationParams;
+	private List<DDestinationParams> destinationParams;
 	
 	@JsonProperty("AugmentPayload")
 	private String augmentPayload;
@@ -68,11 +68,11 @@ public class DServiceDefinition extends DRouteElement {
 		this.onChangedEvent.fire();
 	}
 
-	public List<DDesinationParams> getDestinationParams() {
+	public List<DDestinationParams> getDestinationParams() {
 		return destinationParams;
 	}
 
-	public void setDestinationParams(List<DDesinationParams> destinationParams) {
+	public void setDestinationParams(List<DDestinationParams> destinationParams) {
 		this.destinationParams = destinationParams;
 		this.onChangedEvent.fire();
 	}
@@ -124,5 +124,23 @@ public class DServiceDefinition extends DRouteElement {
 		} else {
 			return inputPayload;
 		}
+	}
+	
+	@Override
+	public DServiceDefinition clone() {
+		DServiceDefinition newInstance = (DServiceDefinition) super.clone();
+		
+		newInstance.routeId = routeId;
+		newInstance.transformationType = transformationType;
+		newInstance.templateContent = templateContent;
+		newInstance.augmentPayload = augmentPayload;
+		newInstance.condition = condition;
+		newInstance.mockResponse = mockResponse;
+		newInstance.lastInput = lastInput;
+		
+		for (DDestinationParams params : destinationParams)
+			newInstance.destinationParams.add(params.clone());
+		
+		return newInstance;
 	}
 }

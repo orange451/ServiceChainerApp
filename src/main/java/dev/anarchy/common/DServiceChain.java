@@ -5,8 +5,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.json.simple.JSONValue;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dev.anarchy.event.Event;
 import dev.anarchy.event.NameChangeEvent;
@@ -145,11 +149,6 @@ public class DServiceChain implements DFolderElement,DRouteElementI {
 		}
 		return Arrays.asList(arr);
 	}
-
-	@JsonIgnore
-	public DFolder getParent() {
-		return this.parent;
-	}
 	
 	public void setSize(double width, double height) {
 		this.width = width;
@@ -229,5 +228,48 @@ public class DServiceChain implements DFolderElement,DRouteElementI {
 	@Override
 	public Map<String, Object> transform(Map<String, Object> inputPayload) {
 		return inputPayload;
+	}
+	
+	/**
+	 * Performs deep copy on DService Chain.
+	 */
+	@Override
+	public DServiceChain clone() {
+		try {
+			ObjectMapper objectMapper = new ObjectMapper();
+			String json = objectMapper.writeValueAsString(this);
+			return objectMapper.readValue(json, DServiceChain.class);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+		/* 
+		// Manual way of doing it
+		DServiceChain copyChain = new DServiceChain();
+		copyChain.setName(getName());
+		copyChain.setHandlerId(getHandlerId());
+		copyChain.setSize(getWidth(), getHeight());
+		copyChain.setPosition(getX(), getY());
+		copyChain.setColor(getColor());
+		copyChain.setLastInput(copyChain.getLastInput());
+		
+		for (DRouteElement e : routes)
+			copyChain.addRoute(e.clone());
+		
+		//for (DExtensionPoint e : extensionPoints)
+			//copyChain.ex
+		
+		return copyChain;*/
+	}
+
+	public void copyFrom(DServiceChain serviceChain) {
+		try {
+			ObjectMapper objectMapper = new ObjectMapper();
+			String json = objectMapper.writeValueAsString(serviceChain);
+			objectMapper.readerForUpdating(this).readValue(json);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
 	}
 }

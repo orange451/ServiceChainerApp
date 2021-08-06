@@ -2,7 +2,7 @@ package dev.anarchy.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class DDesinationParams {
+public class DDestinationParams {
 
 	@JsonProperty("ParameterName")
 	private String parameterName;
@@ -24,5 +24,13 @@ public class DDesinationParams {
 
 	public void setParameterValue(String parameterValue) {
 		this.parameterValue = parameterValue;
+	}
+	
+	public DDestinationParams clone() {
+		DDestinationParams obj = new DDestinationParams();
+		obj.parameterName = parameterName;
+		obj.parameterValue = parameterValue;
+		
+		return obj;
 	}
 }

@@ -8,7 +8,9 @@ import dev.anarchy.ui.AnarchyApp;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -73,13 +75,27 @@ public class Workspace extends BorderPane {
 			tab = new Tab(internal.getName());
 			tabs.getTabs().add(tabs.getTabs().size() - 1, tab);
 			openTabs.put(internal, tab);
+			
+			ServiceChainEditor editor = new ServiceChainEditor(internal);
 
+			tab.setOnCloseRequest((event)->{
+			    Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Do you wish to save changes?", ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
+			    ButtonType result = alert.showAndWait().orElse(ButtonType.NO);
+			    
+			    
+			    if ( result.equals(ButtonType.YES) ) {
+			    	internal.copyFrom(editor.getServiceChain());
+			    } else if ( result.equals(ButtonType.CANCEL) ) {
+			    	event.consume();
+			    }
+			});
+			
 			tab.setOnClosed((event) -> {
 				openTabs.remove(internal);
 				AnarchyApp.get().getData().save();
 			});
 
-			tab.setContent(new ServiceChainEditor(internal));
+			tab.setContent(editor);
 
 			Tab finalTab = tab;
 			internal.getOnNameChangeEvent().connect((args) -> {
