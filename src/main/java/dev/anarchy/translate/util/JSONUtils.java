@@ -5,6 +5,8 @@ import java.util.Map;
 import org.json.simple.JSONValue;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.util.DefaultIndenter;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class JSONUtils {
@@ -20,7 +22,10 @@ public class JSONUtils {
 	
 	public static String mapToJsonPretty(Map<String, Object> jsonObject) {
 		try {
-			return new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(jsonObject);
+			DefaultPrettyPrinter pp = new DefaultPrettyPrinter();
+			pp.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
+			pp.indentObjectsWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
+			return new ObjectMapper().writer(pp).writeValueAsString(jsonObject);
 		} catch (JsonProcessingException e) {
 			return null;
 		}
