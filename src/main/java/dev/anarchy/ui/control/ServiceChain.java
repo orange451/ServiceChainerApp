@@ -67,7 +67,8 @@ public class ServiceChain extends Label implements FolderElement {
 		{
 			MenuItem option = new MenuItem("Export", IconHelper.EXPORT.create());
 			option.setOnAction((event) -> {
-				RouteHelper.export(internal);
+				new ExportWindow(internal).show();
+				//RouteHelper.export(internal);
 			});
 			context.getItems().add(option);
 		}

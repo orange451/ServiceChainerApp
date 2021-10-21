@@ -20,7 +20,11 @@ import javafx.stage.Stage;
 
 public class AnarchyAppUI {
 	
+	private static boolean building;
+	
 	protected static void build(Stage stage) {
+		building = true;
+		
 		BorderPane root = new BorderPane();
 		root.setPrefSize(1152, 648);
 		stage.setScene(new Scene(root));
@@ -38,6 +42,8 @@ public class AnarchyAppUI {
 		
 		Platform.runLater(()-> {
 			split.setDividerPosition(0, 0);
+			root.requestFocus();
+			building = false;
 		});
 	}
 
@@ -123,7 +129,8 @@ public class AnarchyAppUI {
 	private static void newCollection(VBox elements, ScrollPane scroll, DCollection dcoll) {
 		Collection collection = new Collection(dcoll);
 		elements.getChildren().add(collection);
-		collection.rename();
+		if ( !building )
+			collection.rename();
 
 		// Why does JavaFX not want people to use it...
 		// Platform runlater doesn't wait for next frame...

@@ -6,6 +6,7 @@ import org.controlsfx.control.textfield.CustomTextField;
 
 import dev.anarchy.common.DServiceDefinition;
 import dev.anarchy.ui.util.IconHelper;
+import dev.anarchy.ui.util.TooltipHelper;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.geometry.HPos;
@@ -89,7 +90,7 @@ public class ServiceDefinitionEditor extends ModalWindow {
 		    hLayout.setSpacing(8);
 		    hLayout.setAlignment(Pos.CENTER_RIGHT);
 		    hLayout.getChildren().add(new Label("Service Id:"));
-		    hLayout.getChildren().add(buildTooltip("Service ids are used to differentiate service definition configurations.\nIdeally they should all be a unique value, but this is not enforced."));
+		    hLayout.getChildren().add(TooltipHelper.buildTooltip("Service ids are used to differentiate service definition configurations.\nIdeally they should all be a unique value, but this is not enforced."));
 		    gridPane.add(hLayout, 0, y);
 
 		    routeField = new CustomTextField();
@@ -111,7 +112,7 @@ public class ServiceDefinitionEditor extends ModalWindow {
 		    hLayout.setSpacing(8);
 		    hLayout.setAlignment(Pos.CENTER_RIGHT);
 		    hLayout.getChildren().add(new Label("Input Template:"));
-		    hLayout.getChildren().add(buildTooltip("Transformation templates are used to modify the current data payload running through the chain.\nThe result of this transformation will be dirrectly fed in to the service definition."));
+		    hLayout.getChildren().add(TooltipHelper.buildTooltip("Transformation templates are used to modify the current data payload running through the chain.\nThe result of this transformation will be dirrectly fed in to the service definition."));
 		    gridPane.add(hLayout, 0, y);
 
 		    templateLabel = new CustomTextField();
@@ -136,7 +137,7 @@ public class ServiceDefinitionEditor extends ModalWindow {
 		    hLayout.setAlignment(Pos.CENTER_RIGHT);
 		    Label nameLabel = new Label("Augment Payload:");
 		    hLayout.getChildren().add(nameLabel);
-		    hLayout.getChildren().add(buildTooltip("Augment Payload field is used to take the output data from the service definition and set it as a key in the current input data.\nIf not set, the input data coming in to this service definition will be replaced with the output of the service definition\nand be sent to the next node in the chain."));
+		    hLayout.getChildren().add(TooltipHelper.buildTooltip("Augment Payload field is used to take the output data from the service definition and set it as a key in the current input data.\nIf not set, the input data coming in to this service definition will be replaced with the output of the service definition\nand be sent to the next node in the chain."));
 		    gridPane.add(hLayout, 0, y);
 		    
 		    augmentField = new TextField();
@@ -162,32 +163,6 @@ public class ServiceDefinitionEditor extends ModalWindow {
 		});
 		
 		stage.setTitle("Servive Definition Editor");
-	}
-
-	private Node buildTooltip(String string) {
-		Label label = new Label("", IconHelper.QUESTION.create());
-		Tooltip tip = new Tooltip(string);
-		label.setTooltip(tip);
-		
-		hackTooltipStartTiming(tip);
-		return label;
-	}
-	
-	private static void hackTooltipStartTiming(Tooltip tooltip) {
-	    try {
-	        Field fieldBehavior = tooltip.getClass().getDeclaredField("BEHAVIOR");
-	        fieldBehavior.setAccessible(true);
-	        Object objBehavior = fieldBehavior.get(tooltip);
-
-	        Field fieldTimer = objBehavior.getClass().getDeclaredField("hideTimer");
-	        fieldTimer.setAccessible(true);
-	        Timeline objTimer = (Timeline) fieldTimer.get(objBehavior);
-
-	        objTimer.getKeyFrames().clear();
-	        objTimer.getKeyFrames().add(new KeyFrame(new Duration(15000)));
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
 	}
 
 	private void close() {

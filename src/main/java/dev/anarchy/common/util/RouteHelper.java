@@ -84,17 +84,21 @@ public class RouteHelper {
         fileChooser.getExtensionFilters().add(extFilter);
         File file = fileChooser.showSaveDialog(AnarchyApp.get().getStage());
         
+        export(serviceChains, file, false);
+	}
+	
+	public static void export(List<DServiceChain> serviceChains, File outputFile, boolean stripMetadata) {
         DCollection collection = new DCollection();
         for (DServiceChain chain : serviceChains)
         	collection.addChild(chain);
 
-        if (file != null) {
+        if (outputFile != null) {
             try {
         		ObjectMapper objectMapper = new ObjectMapper();
         		String content = objectMapper.writeValueAsString(collection);
-        		String trimmed = export(content);
+        		String trimmed = export(content, stripMetadata);
                 PrintWriter writer;
-                writer = new PrintWriter(file);
+                writer = new PrintWriter(outputFile);
                 writer.println(trimmed);
                 writer.close();
             } catch (IOException ex) {
@@ -103,7 +107,7 @@ public class RouteHelper {
         }
 	}
 
-	private static String export(String json) {
+	private static String export(String json, boolean stripMetadata) {
 		Map<String, Object> data = null;
 		try {
 			data = JSONUtils.jsonToMap(json);
@@ -111,7 +115,9 @@ public class RouteHelper {
 			e.printStackTrace();
 		}
 		
-		data = removeInternalData(data);
+		if ( stripMetadata )
+			data = removeInternalData(data);
+		
 		return JSONUtils.mapToJsonPretty(data);
 	}
 
@@ -147,7 +153,7 @@ public class RouteHelper {
 		export(chains);
 	}
 	
-	private static List<DServiceChain> getServiceChains(DFolderElement root) {
+	public static List<DServiceChain> getServiceChains(DFolderElement root) {
 		List<DServiceChain> list = new ArrayList<>();
 		
 		if ( root instanceof DFolder ) {
@@ -162,5 +168,4 @@ public class RouteHelper {
 		
 		return list;
 	}
-
 }
