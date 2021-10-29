@@ -242,6 +242,8 @@ public class Folder extends VBox implements FolderElement {
 			FolderElement label = new Folder((DFolder)maybeServiceChain);
 			label.prefWidthProperty().bind(childrenBox.widthProperty());
 			childrenBox.getChildren().add((Node)label);
+			
+			((DFolder)maybeServiceChain).setParent(this.internal);
 		}
 		
 		updateChildrenLabel();

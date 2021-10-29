@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import dev.anarchy.event.Event;
 import dev.anarchy.event.NameChangeEvent;
+import dev.anarchy.ui.AnarchyApp;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -42,9 +43,6 @@ public class DFolder implements DFolderElement {
 	
 	public DFolder() {
 		this.setName("Folder");
-		this.onChildAddedEvent.connect((args)->{
-			//
-		});
 	}
 	
 	public String getName() {
@@ -122,8 +120,10 @@ public class DFolder implements DFolderElement {
 				((DFolder)chain).delete();
 		}
 		
-		if ( this.getParent() != null )
-			this.getParent().removeChild(this);
+		DFolder parentNode = this.getParent();
+		if ( parentNode == null )
+			parentNode = AnarchyApp.get().getData().UNORGANIZED;
+		parentNode.removeChild(this);
 	}
 	
 	public void setParent(DFolder parent) {

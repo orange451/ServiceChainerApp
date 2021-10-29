@@ -113,7 +113,7 @@ public class ApplicationData {
 	
 	public void save() {
 		String json = this.serializeJSON();
-		System.out.println(json);
+		//System.out.println(json);
 		
 		try {
 		    BufferedWriter writer = new BufferedWriter(new FileWriter("APPDATA.json"));
