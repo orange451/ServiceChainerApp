@@ -115,7 +115,15 @@ public class DFolder implements DFolderElement {
 		if ( !this.isDeletable() )
 			return;
 		
-		for (DFolderElement chain : this.children) {
+		// We need to iterate this slightly oddly because otherwise we risk concurrent modification exception.
+		for (int i = this.children.size()-1; i >= 0; i--) {
+			if ( i >= this.children.size() )
+				continue;
+			
+			DFolderElement chain = this.children.get(i);
+			if ( chain == null )
+				continue;
+			
 			if ( chain instanceof DFolder )
 				((DFolder)chain).delete();
 		}

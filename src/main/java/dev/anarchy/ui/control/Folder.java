@@ -250,15 +250,21 @@ public class Folder extends VBox implements FolderElement {
 	}
 
 	private void onChildRemoved(DFolderElement serviceChain) {
-		synchronized(childrenBox.getChildren()) {
-			for (Node node : childrenBox.getChildren()) {
-				if ( node instanceof FolderElement ) {
-					if ( ((FolderElement)node).getFolderElement().equals(serviceChain) ) {
-						childrenBox.getChildren().remove(node);
-					}
+		for (int i = 0 ; i < childrenBox.getChildren().size(); i++) {
+			if ( i >= childrenBox.getChildren().size() )
+				continue;
+			
+			Node node = childrenBox.getChildren().get(i);
+			if ( node == null )
+				continue;
+			
+			if ( node instanceof FolderElement ) {
+				if ( ((FolderElement)node).getFolderElement().equals(serviceChain) ) {
+					childrenBox.getChildren().remove(node);
 				}
 			}
 		}
+		
 		Platform.runLater(()->{
 			updateChildrenLabel();
 		});
