@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.anarchy.ApplicationData;
 import dev.anarchy.common.DServiceChain;
 import dev.anarchy.ui.control.Workspace;
+import dev.anarchy.ui.util.LaunchHelper;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -25,6 +26,8 @@ public class AnarchyApp extends Application {
 	
 	@Override
 	public void start(Stage stage) {
+		LaunchHelper.checkCanLaunch();
+		
 		data = loadData();
 		app = this;
 		this.stage = stage;
