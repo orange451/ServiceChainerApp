@@ -1,9 +1,8 @@
 # ServiceChainingApp
-
-Quickly and easily chain multiple service calls together with the ability to manipulate input using templates.
+Quickly and easily chain multiple service calls together with the ability to manipulate each input payload using templates.
 
 # Currently Supports
-- [Freemarker Tempalte Engine](https://freemarker.apache.org/)
+- [Freemarker Template Engine](https://freemarker.apache.org/)
 - [Velocity Template Engine](https://velocity.apache.org/)
 
 # Special Template Input Constants
