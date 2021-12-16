@@ -32,8 +32,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 
 @JsonRootName(value = "ManhXML")
-public class Document implements Serializable
-{
+public class Document implements Serializable {
     private static final long serialVersionUID = 1L;
 
     protected String entity = "entity";
@@ -43,94 +42,78 @@ public class Document implements Serializable
 
     private Map<String, Object> map = new HashMap<>();
 
-    public Document()
-    {
+    public Document() {
+    	//
     }
 
-    public Document(Map<String, Object> map)
-    {
+    public Document(Map<String, Object> map) {
         this.map = map;
     }
 
-    public Document(String entity, Map<String, Object> map)
-    {
+    public Document(String entity, Map<String, Object> map) {
         this.entity = entity;
         this.map = map;
     }
 
-    public void setMap(Map<String, Object> map)
-    {
+    public void setMap(Map<String, Object> map) {
         this.map = map;
     }
 
     @JsonAnySetter
-    public void put(String key, Object value)
-    {
+    public void put(String key, Object value) {
         map.put(key, value);
     }
 
     @JsonAnyGetter
-    public Map<String, Object> getMap()
-    {
+    public Map<String, Object> getMap() {
         return map;
     }
 
-    public void putAll(Map<String, Object> map)
-    {
+    public void putAll(Map<String, Object> map) {
         this.map.putAll(map);
     }
 
-    public Object get(String key)
-    {
+    public Object get(String key) {
         return map.get(key);
     }
 
-    public Object remove(String key)
-    {
+    public Object remove(String key) {
         return map.remove(key);
     }
 
-    public void clear()
-    {
+    public void clear() {
         this.map.clear();
     }
 
     @JsonIgnore
-    public String getEntity()
-    {
+    public String getEntity() {
         return entity;
     }
 
-    public void setEntity(String entity)
-    {
+    public void setEntity(String entity) {
         this.entity = entity;
     }
 
-    public Messages getMessages()
-    {
+    public Messages getMessages() {
         return messages;
     }
 
-    public void setMessages(Messages messages)
-    {
+    public void setMessages(Messages messages) {
         this.messages = messages;
     }
 
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         return EqualsBuilder.reflectionEquals(this, o);
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return HashCodeBuilder.reflectionHashCode(17, 31, this);
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return ToStringBuilder.reflectionToString(this);
     }
 }

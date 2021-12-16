@@ -21,30 +21,26 @@ package dev.anarchy.common.dto;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum MessageType
-{
+public enum MessageType {
 
     ERROR("error"), WARNING("warning"), INFO("info");
 
     private final String code;
 
-    private MessageType(String code)
-    {
+    private MessageType(String code) {
         this.code = code;
     }
 
-    public String getCode()
-    {
+    public String getCode() {
         return this.code;
     }
 
-    public static List<String> getCodes()
-    {
+    public static List<String> getCodes() {
         List<String> result = new ArrayList<String>();
-        for (MessageType messageType : values())
-        {
+        for (MessageType messageType : values()) {
             result.add(messageType.getCode());
         }
+        
         return result;
     }
 

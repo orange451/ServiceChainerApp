@@ -16,11 +16,10 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({ "Message", "Size" })
-public class Messages
-{
-
+public class Messages {
     @JsonProperty("Message")
     private List<Object> message = null;
+    
     @JsonProperty("Size")
     private Integer size;
 
@@ -28,44 +27,37 @@ public class Messages
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     @JsonProperty("Message")
-    public List<Object> getMessage()
-    {
+    public List<Object> getMessage() {
         return message;
     }
 
     @JsonProperty("Message")
-    public void setMessage(List<Object> message)
-    {
+    public void setMessage(List<Object> message) {
         this.message = message;
     }
 
     @JsonProperty("Size")
-    public Integer getSize()
-    {
+    public Integer getSize() {
         return size;
     }
 
     @JsonProperty("Size")
-    public void setSize(Integer size)
-    {
+    public void setSize(Integer size) {
         this.size = size;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return ToStringBuilder.reflectionToString(this);
     }
 
     @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties()
-    {
+    public Map<String, Object> getAdditionalProperties() {
         return this.additionalProperties;
     }
 
     @JsonAnySetter
-    public void setAdditionalProperty(String name, Object value)
-    {
+    public void setAdditionalProperty(String name, Object value) {
         this.additionalProperties.put(name, value);
     }
 

@@ -30,6 +30,9 @@ import javafx.stage.FileChooser;
 
 public class RouteHelper {
 
+	/**
+	 * Given a list of route elements, link a source element to a destination element.
+	 */
 	public static void linkRoutes(List<DRouteElementI> allRoutes, DRouteElementI source, DRouteElement destination) {
 		// Unlink anything source is connected to
 		for (DRouteElementI element : allRoutes) {
@@ -78,6 +81,9 @@ public class RouteHelper {
 		return JSONUtils.jsonToMap(output);
 	}
 	
+	/**
+	 * Export a list of service chains to a json.
+	 */
 	public static void export(List<DServiceChain> serviceChains) {
         FileChooser fileChooser = new FileChooser();
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Json files (*.json)", "*.json");
@@ -87,6 +93,9 @@ public class RouteHelper {
         export(serviceChains, file, false);
 	}
 	
+	/**
+	 * Export a list of service chains to a specified output file.
+	 */
 	public static void export(List<DServiceChain> serviceChains, File outputFile, boolean stripMetadata) {
         DCollection collection = new DCollection();
         for (DServiceChain chain : serviceChains)
@@ -96,7 +105,7 @@ public class RouteHelper {
             try {
         		ObjectMapper objectMapper = new ObjectMapper();
         		String content = objectMapper.writeValueAsString(collection);
-        		String trimmed = export(content, stripMetadata);
+        		String trimmed = processExpotedJson(content, stripMetadata);
                 PrintWriter writer;
                 writer = new PrintWriter(outputFile);
                 writer.println(trimmed);
@@ -107,13 +116,11 @@ public class RouteHelper {
         }
 	}
 
-	private static String export(String json, boolean stripMetadata) {
-		Map<String, Object> data = null;
-		try {
-			data = JSONUtils.jsonToMap(json);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
+	/**
+	 * Perform additional processing on export json. This involves stripping metadata if requested, and prettifying.
+	 */
+	private static String processExpotedJson(String json, boolean stripMetadata) throws JsonProcessingException {
+		Map<String, Object> data = JSONUtils.jsonToMap(json);
 		
 		if ( stripMetadata )
 			data = removeInternalData(data);
@@ -121,6 +128,9 @@ public class RouteHelper {
 		return JSONUtils.mapToJsonPretty(data);
 	}
 
+	/**
+	 * Remove internal metadata from a json object.
+	 */
 	@SuppressWarnings("unchecked")
 	private static Map<String, Object> removeInternalData(Map<String, Object> data) {
 		Map<String, Object> ret = new HashMap<>();
@@ -148,11 +158,19 @@ public class RouteHelper {
 		return ret;
 	}
 
+	/**
+	 * Exports a folder element's Service Chain data.
+	 * This is done by getting all service chains directly inside the folder
+	 * as well as all descendant service chains of the folder.
+	 */
 	public static void export(DFolderElement element) {
 		List<DServiceChain> chains = getServiceChains(element);
 		export(chains);
 	}
 	
+	/**
+	 * Recursively get all service chain objects within a folder element.
+	 */
 	public static List<DServiceChain> getServiceChains(DFolderElement root) {
 		List<DServiceChain> list = new ArrayList<>();
 		
