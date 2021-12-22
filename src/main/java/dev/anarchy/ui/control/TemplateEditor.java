@@ -112,7 +112,7 @@ public class TemplateEditor extends PopupWindow {
 		this.stage = stage;
 		
 		layout = new BorderPane();
-        Scene toolScene = new Scene(layout, 640, 480);
+        Scene toolScene = new Scene(layout, 1024, 576);
         stage.setScene(toolScene);
 	}
 }
