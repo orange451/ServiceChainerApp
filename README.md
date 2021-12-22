@@ -1,4 +1,4 @@
-# ServiceChainingApp
+# Service Chainer
 Quickly and easily chain multiple service calls together with the ability to manipulate each input payload using templates.
 
 # Currently Supports
