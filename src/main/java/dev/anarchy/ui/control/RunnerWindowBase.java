@@ -1,7 +1,11 @@
 package dev.anarchy.ui.control;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import dev.anarchy.ace.AceEditor;
 import dev.anarchy.ace.Modes;
+import dev.anarchy.common.util.RouteHelper;
+import dev.anarchy.translate.util.JSONUtils;
 import dev.anarchy.ui.util.IconHelper;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Insets;
@@ -9,12 +13,14 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
@@ -51,18 +57,34 @@ public abstract class RunnerWindowBase extends PopupWindow {
 		split.setOrientation(Orientation.VERTICAL);
 		BorderPane layout = new BorderPane();
 		
-		HBox topLayout = new HBox();
+		BorderPane topLayout = new BorderPane();
 		topLayout.setStyle("-fx-background-color: rgb(245, 245, 245);");
 		topLayout.setPadding(new Insets(8,8,8,8));
-		topLayout.setSpacing(8);
-		topLayout.setAlignment(Pos.CENTER);
 		
+		// Test button
 		Button run = new Button("Test", IconHelper.PLAY.create());
-		topLayout.getChildren().add(run);
-		
 		run.setOnMouseClicked((event)->{
 			onTest();
 		});
+		topLayout.setCenter(run);
+		
+		// Beautify button
+		StackPane t = new StackPane();
+		t.prefHeightProperty().bind(run.heightProperty());
+		t.setAlignment(Pos.CENTER);
+		Label beautify = new Label("Beautify");
+		beautify.setStyle("-fx-text-fill: #F5823A");
+		beautify.setOnMouseClicked((event)->{
+			try {
+				String json = code.getText();
+				String pretty = JSONUtils.mapToJsonPretty(JSONUtils.jsonToMap(json));
+				code.setText(pretty);
+			} catch (JsonProcessingException e) {
+				e.printStackTrace();
+			}
+		});
+		t.getChildren().add(beautify);
+		topLayout.setRight(t);
 		
 		resultPane = new TabPane();
 		resultPane.getTabs().addListener(new ListChangeListener<Tab>() {
