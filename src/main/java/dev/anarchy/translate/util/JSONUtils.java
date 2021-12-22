@@ -23,8 +23,8 @@ public class JSONUtils {
 	public static String mapToJsonPretty(Map<String, Object> jsonObject) {
 		try {
 			DefaultPrettyPrinter pp = new DefaultPrettyPrinter();
-			pp.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
-			pp.indentObjectsWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
+			pp.indentArraysWith(new DefaultIndenter("\t", DefaultIndenter.SYS_LF));
+			pp.indentObjectsWith(new DefaultIndenter("\t", DefaultIndenter.SYS_LF));
 			return new ObjectMapper().writer(pp).writeValueAsString(jsonObject);
 		} catch (JsonProcessingException e) {
 			return null;
