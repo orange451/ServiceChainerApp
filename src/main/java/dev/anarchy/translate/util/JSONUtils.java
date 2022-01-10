@@ -7,42 +7,93 @@ import org.json.simple.JSONValue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
 public class JSONUtils {
 	
-	@SuppressWarnings("unchecked")
-	public static Map<String, Object> jsonToMap(String json) throws JsonProcessingException {
-		return new ObjectMapper().readValue(json, Map.class);
+	private static DefaultPrettyPrinter prettyPrinter;
+	
+	private static ObjectWriter objectWriter;
+	
+	private static ObjectMapper objectMapper;
+	
+	static {
+		prettyPrinter = new DefaultPrettyPrinter();
+		prettyPrinter.indentArraysWith(new DefaultIndenter("\t", DefaultIndenter.SYS_LF));
+		prettyPrinter.indentObjectsWith(new DefaultIndenter("\t", DefaultIndenter.SYS_LF));
+		
+		objectMapper = new ObjectMapper();
+		objectWriter = objectMapper.writer(prettyPrinter);
 	}
 	
+	/**
+	 * Convenient method to marshal a json string in to a java map.
+	 * @param jsonStr
+	 * @param classType
+	 * @return A java map that represents the user-supplied json.
+	 */
+	@SuppressWarnings("unchecked")
+	public static Map<String, Object> jsonToMap(String json) throws JsonProcessingException {
+		return convertToObject(json, Map.class);
+	}
+	
+    /**
+     * Convenient method to turn a java Map into a JSON string.
+     * @param o The map to convert to a JSON string
+     * @return The JSON string or null if the conversion failed
+     */
 	public static String mapToJson(Map<String, Object> map) {
 		return JSONValue.toJSONString(map);
 	}
 	
+    /**
+     * Convenient method to turn a java Map into a JSON string. Applies pretty printing.
+     * @param o The map to convert to a JSON string
+     * @return The JSON string or null if the conversion failed
+     */
 	public static String mapToJsonPretty(Map<String, Object> jsonObject) {
 		try {
-			DefaultPrettyPrinter pp = new DefaultPrettyPrinter();
-			pp.indentArraysWith(new DefaultIndenter("\t", DefaultIndenter.SYS_LF));
-			pp.indentObjectsWith(new DefaultIndenter("\t", DefaultIndenter.SYS_LF));
-			return new ObjectMapper().writer(pp).writeValueAsString(jsonObject);
+			return objectWriter.writeValueAsString(jsonObject);
 		} catch (JsonProcessingException e) {
 			return null;
 		}
 	}
 	
-	public static String escape(String value) {
-		if ( value == null )
-			return value;
-		
-		value = value.replace("\u0000", "\\0")
-				.replace("'", "\\'")
-				.replace("\\", "\\\\")
-				.replace("\"", "\\\"")
-				.replace("\n", "\\n")
-				.replace("\r", "\\r")
-				.replace("\t", "\\t");
-		
-		return "\"" + value + "\"";
-	}
+	/**
+	 * Convenient method to marshal a json string in to a specified class type.
+	 * @param jsonStr
+	 * @param classType
+	 * @return The object of the class type the json is marshaled in to.
+	 */
+    public static <T> T convertToObject(String jsonStr, Class<T> classType) throws JsonMappingException, JsonProcessingException {
+        return objectMapper.readValue(jsonStr, classType);
+    }
+
+    /**
+     * Convenient method to turn an object into a JSON string.
+     */
+    public static String convertToJson(Object object) throws JsonProcessingException
+    {
+        return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
+    }
+
+    /**
+     * Convenient method to turn an object into a JSON string.
+     * @param o The object to convert to a JSON string
+     * @return The JSON string or null if the conversion failed
+     */
+    public static String objectToJSON(Object o) {
+        String jsonStr = "";
+        if (o != null) {
+            try {
+                jsonStr = convertToJson(o);
+            } catch (Exception e) {
+            	e.printStackTrace();
+            }
+
+        }
+        return jsonStr;
+    }
 }
