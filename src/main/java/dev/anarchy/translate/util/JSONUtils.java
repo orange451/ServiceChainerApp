@@ -13,19 +13,24 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 
 public class JSONUtils {
 	
-	private static DefaultPrettyPrinter prettyPrinter;
+	/** Custom Pretty Printer Utilizing Tabs **/
+	private static ObjectWriter prettyWriter;
 	
+	/** Default Object writer to serialize objects **/
 	private static ObjectWriter objectWriter;
 	
+	/** Default Object Mapper **/
 	private static ObjectMapper objectMapper;
 	
+	/** Initialize **/
 	static {
-		prettyPrinter = new DefaultPrettyPrinter();
+		DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter();
 		prettyPrinter.indentArraysWith(new DefaultIndenter("\t", DefaultIndenter.SYS_LF));
 		prettyPrinter.indentObjectsWith(new DefaultIndenter("\t", DefaultIndenter.SYS_LF));
-		
+
 		objectMapper = new ObjectMapper();
-		objectWriter = objectMapper.writer(prettyPrinter);
+		prettyWriter = objectMapper.writer(prettyPrinter);
+		objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
 	}
 	
 	/**
@@ -45,7 +50,11 @@ public class JSONUtils {
      * @return The JSON string or null if the conversion failed
      */
 	public static String mapToJson(Map<String, Object> map) {
-		return JSONValue.toJSONString(map);
+		try {
+			return convertToJson(map);
+		} catch (JsonProcessingException e) {
+			return null;
+		}
 	}
 	
     /**
@@ -55,7 +64,7 @@ public class JSONUtils {
      */
 	public static String mapToJsonPretty(Map<String, Object> jsonObject) {
 		try {
-			return objectWriter.writeValueAsString(jsonObject);
+			return convertToJsonPretty(jsonObject);
 		} catch (JsonProcessingException e) {
 			return null;
 		}
@@ -74,9 +83,15 @@ public class JSONUtils {
     /**
      * Convenient method to turn an object into a JSON string.
      */
-    public static String convertToJson(Object object) throws JsonProcessingException
-    {
-        return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
+    public static String convertToJson(Object object) throws JsonProcessingException {
+        return objectWriter.writeValueAsString(object);
+    }
+
+    /**
+     * Convenient method to turn an object into a JSON string.
+     */
+    public static String convertToJsonPretty(Object object) throws JsonProcessingException {
+        return prettyWriter.writeValueAsString(object);
     }
 
     /**
