@@ -33,7 +33,7 @@ public class AnarchyApp extends Application {
 		this.stage = stage;
 		
 		workspace = new Workspace();
-		AnarchyAppUI.build(stage);
+		AnarchyAppUIBuilder.build(stage);
 		
 		stage.centerOnScreen();
 		stage.show();
