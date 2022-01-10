@@ -29,9 +29,11 @@ public class DServiceDefinition extends DRouteElement {
 	@JsonProperty("Condition")
 	private String condition;
 	
+	/** Metadata :: Last known user-supplied response from service definition **/
 	@JsonProperty("_MockResponse")
 	private String mockResponse;
 
+	/** Metadata :: Last known user-supplied json to test against **/
 	@JsonProperty("_LastInput")
 	private String lastInput;
 	
