@@ -11,6 +11,7 @@ import dev.anarchy.common.DServiceChain;
 import dev.anarchy.ui.control.Workspace;
 import dev.anarchy.ui.util.LaunchHelper;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
@@ -33,12 +34,22 @@ public class AnarchyApp extends Application {
 		this.stage = stage;
 		
 		workspace = new Workspace();
+		
+		// Build main UI
 		AnarchyAppUIBuilder.build(stage);
 		
+		// Show
 		stage.centerOnScreen();
 		stage.show();
 		
+		// Load data
 		app.getData().load();
+		
+		// No closing
+		stage.setOnCloseRequest((event)->{
+			stage.setIconified(true);
+			event.consume();
+		});
 	}
 	
 	private ApplicationData loadData() {
