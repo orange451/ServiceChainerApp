@@ -1,6 +1,6 @@
 package dev.anarchy.ui.control;
 
-import dev.anarchy.ui.AnarchyApp;
+import dev.anarchy.ui.ServiceChainerApp;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -14,7 +14,7 @@ public abstract class PopupWindow {
 
 	public PopupWindow(boolean modal) {
         toolStage = new Stage();
-        toolStage.initOwner(AnarchyApp.get().getStage());
+        toolStage.initOwner(ServiceChainerApp.get().getStage());
         if ( modal )
         	toolStage.initModality(Modality.WINDOW_MODAL);
         

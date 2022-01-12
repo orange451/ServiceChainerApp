@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import dev.anarchy.event.Event;
 import dev.anarchy.event.NameChangeEvent;
-import dev.anarchy.ui.AnarchyApp;
+import dev.anarchy.ui.ServiceChainerApp;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -130,7 +130,7 @@ public class DFolder implements DFolderElement {
 		
 		DFolder parentNode = this.getParent();
 		if ( parentNode == null )
-			parentNode = AnarchyApp.get().getData().UNORGANIZED;
+			parentNode = ServiceChainerApp.get().getData().UNORGANIZED;
 		parentNode.removeChild(this);
 	}
 	

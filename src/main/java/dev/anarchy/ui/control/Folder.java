@@ -6,7 +6,7 @@ import dev.anarchy.common.DFolder;
 import dev.anarchy.common.DFolderElement;
 import dev.anarchy.common.DServiceChain;
 import dev.anarchy.common.util.RouteHelper;
-import dev.anarchy.ui.AnarchyApp;
+import dev.anarchy.ui.ServiceChainerApp;
 import dev.anarchy.ui.util.IconHelper;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -59,7 +59,7 @@ public class Folder extends VBox implements FolderElement {
 			MenuItem option = new MenuItem("Add Service Chain", IconHelper.CHAIN.create());
 			option.setOnAction((event) -> {
 				setOpen(true);
-				AnarchyApp.get().getData().newServiceChain(internal);
+				ServiceChainerApp.get().getData().newServiceChain(internal);
 			});
 			context.getItems().add(option);
 		}
@@ -69,7 +69,7 @@ public class Folder extends VBox implements FolderElement {
 			MenuItem option = new MenuItem("Add Folder", IconHelper.FOLDER.create());
 			option.setOnAction((event) -> {
 				setOpen(true);
-				AnarchyApp.get().getData().newFolder(internal);
+				ServiceChainerApp.get().getData().newFolder(internal);
 			});
 			context.getItems().add(option);
 		}

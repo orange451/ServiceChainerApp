@@ -2,7 +2,7 @@ package dev.anarchy.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import dev.anarchy.ui.AnarchyApp;
+import dev.anarchy.ui.ServiceChainerApp;
 
 public class DCollection extends DFolder {
 	@JsonProperty("_IsCollection")
@@ -15,6 +15,6 @@ public class DCollection extends DFolder {
 	public void delete() {
 		super.delete();
 		
-		AnarchyApp.get().getData().removeCollection(this);
+		ServiceChainerApp.get().getData().removeCollection(this);
 	}
 }

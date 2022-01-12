@@ -4,7 +4,7 @@ import java.io.File;
 
 import dev.anarchy.common.DFolderElement;
 import dev.anarchy.common.util.RouteHelper;
-import dev.anarchy.ui.AnarchyApp;
+import dev.anarchy.ui.ServiceChainerApp;
 import dev.anarchy.ui.util.TooltipHelper;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -62,7 +62,7 @@ public class ExportWindow extends ModalWindow {
 	            FileChooser fileChooser = new FileChooser();
 	            FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Json files (*.json)", "*.json");
 	            fileChooser.getExtensionFilters().add(extFilter);
-	            File file = fileChooser.showSaveDialog(AnarchyApp.get().getStage());
+	            File file = fileChooser.showSaveDialog(ServiceChainerApp.get().getStage());
 	            
 	            destinationTextField.setText(file.getAbsolutePath());
 	    	});

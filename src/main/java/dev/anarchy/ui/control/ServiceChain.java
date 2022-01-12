@@ -4,7 +4,7 @@ import dev.anarchy.common.DFolder;
 import dev.anarchy.common.DFolderElement;
 import dev.anarchy.common.DServiceChain;
 import dev.anarchy.common.util.RouteHelper;
-import dev.anarchy.ui.AnarchyApp;
+import dev.anarchy.ui.ServiceChainerApp;
 import dev.anarchy.ui.util.IconHelper;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -50,7 +50,7 @@ public class ServiceChain extends Label implements FolderElement {
 		// Double Click
 		this.setOnMouseClicked((mouseEvent) -> {
 			if (mouseEvent.getClickCount() == 2) {
-				AnarchyApp.get().edit(internal);
+				ServiceChainerApp.get().edit(internal);
 			}
 		});
 
@@ -58,7 +58,7 @@ public class ServiceChain extends Label implements FolderElement {
 		{
 			MenuItem option = new MenuItem("Edit", IconHelper.EDIT.create());
 			option.setOnAction((event) -> {
-				AnarchyApp.get().edit(internal);
+				ServiceChainerApp.get().edit(internal);
 			});
 			context.getItems().add(option);
 		}

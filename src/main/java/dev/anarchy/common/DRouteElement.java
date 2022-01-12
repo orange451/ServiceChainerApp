@@ -8,8 +8,10 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import dev.anarchy.event.Event;
+import dev.anarchy.translate.util.JSONUtils;
 
 @JsonTypeInfo(use=Id.DEDUCTION)
 @JsonSubTypes({@Type(DServiceDefinition.class)})
@@ -110,6 +112,7 @@ public abstract class DRouteElement implements DRouteElementI {
 	@JsonIgnore()
 	public void setSource(String source) {
 		this.source = source;
+		this.onChangedEvent.fire();
 	}
 
 	@JsonIgnore()
@@ -121,6 +124,7 @@ public abstract class DRouteElement implements DRouteElementI {
 	@JsonIgnore()
 	public void setSourceId(String sourceId) {
 		this.sourceId = sourceId;
+		this.onChangedEvent.fire();
 	}
 
 	@JsonIgnore()
@@ -144,6 +148,7 @@ public abstract class DRouteElement implements DRouteElementI {
 	@JsonIgnore()
 	private void setDesinationId(String destinationId) {
 		this.destinationId = destinationId;
+		this.onChangedEvent.fire();
 	}
 
 	@JsonIgnore()
@@ -160,10 +165,19 @@ public abstract class DRouteElement implements DRouteElementI {
 	@JsonIgnore()
 	public void setIsSync(String isSync) {
 		this.isSync = isSync;
+		this.onChangedEvent.fire();
 	}
 
 	public DRouteElement clone() {
-		DRouteElement newInstance;
+		try {
+			String json = JSONUtils.objectToJSON(this);
+			return JSONUtils.convertToObject(json, this.getClass());
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+		/*DRouteElement newInstance;
 		try {
 			newInstance = this.getClass().newInstance();
 		} catch (InstantiationException | IllegalAccessException e) {
@@ -181,6 +195,6 @@ public abstract class DRouteElement implements DRouteElementI {
 		newInstance.height = height;
 		newInstance.name = name;
 		newInstance.color = color;
-		return newInstance;
+		return newInstance;*/
 	}
 }

@@ -14,6 +14,9 @@ import javafx.scene.control.ButtonType;
 public class LaunchHelper {
 
 	public static void checkCanLaunch() {
+		System.setProperty("apple.laf.useScreenMenuBar", "true");
+		System.setProperty("com.apple.mrj.application.apple.menu.about.name", "ImageRotator");
+		
 		String userHome = System.getProperty("user.home");
 		File file = new File(userHome, "ServiceChainingUI.lock");
 		try {

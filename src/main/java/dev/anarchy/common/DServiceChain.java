@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dev.anarchy.event.Event;
 import dev.anarchy.event.NameChangeEvent;
+import dev.anarchy.translate.util.JSONUtils;
 import dev.anarchy.ui.util.ColorHelper;
 import javafx.scene.paint.Color;
 
@@ -88,6 +89,8 @@ public class DServiceChain implements DFolderElement,DRouteElementI {
 		
 		if ( onNameChangeEvent != null )
 			onNameChangeEvent.fire(name);
+		
+		this.onChangedEvent.fire();
 	}
 	
 	public Event getOnNameChangeEvent() {
@@ -116,18 +119,26 @@ public class DServiceChain implements DFolderElement,DRouteElementI {
 		
 		if ( onParentChangeEvent != null )
 			onParentChangeEvent.fire(parent, oldParent);
+		
+		this.onChangedEvent.fire();
 	}
 	
 	public void addRoute(DRouteElement chain) {
 		if ( this.routes.add(chain) ) {
 			this.onRouteAddedEvent.fire(chain);
 		}
+		this.onChangedEvent.fire();
+		
+		chain.getOnChangedEvent().connect((args)->{
+			this.onChangedEvent.fire(args);
+		});
 	}
 	
 	public void removeRoute(DRouteElement chain) {
 		if ( this.routes.remove(chain) ) {
 			this.onRouteRemovedEvent.fire(chain);
 		}
+		this.onChangedEvent.fire();
 	}
 	
 	public String getHandlerId() {
@@ -139,6 +150,8 @@ public class DServiceChain implements DFolderElement,DRouteElementI {
 		
 		if ( onHandlerIdChangeEvent != null )
 			onHandlerIdChangeEvent.fire(handlerId);
+		
+		this.onChangedEvent.fire();
 	}
 
 	@JsonIgnore
@@ -223,6 +236,7 @@ public class DServiceChain implements DFolderElement,DRouteElementI {
 	@JsonIgnore()
 	public void setLastInput(String lastInput) {
 		this.lastInput = lastInput;
+		this.onChangedEvent.fire();
 	}
 
 	@Override
@@ -236,38 +250,19 @@ public class DServiceChain implements DFolderElement,DRouteElementI {
 	@Override
 	public DServiceChain clone() {
 		try {
-			ObjectMapper objectMapper = new ObjectMapper();
-			String json = objectMapper.writeValueAsString(this);
-			return objectMapper.readValue(json, DServiceChain.class);
+			String json = JSONUtils.objectToJSON(this);
+			return JSONUtils.convertToObject(json, this.getClass());
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
 		
 		return null;
-		/* 
-		// Manual way of doing it
-		DServiceChain copyChain = new DServiceChain();
-		copyChain.setName(getName());
-		copyChain.setHandlerId(getHandlerId());
-		copyChain.setSize(getWidth(), getHeight());
-		copyChain.setPosition(getX(), getY());
-		copyChain.setColor(getColor());
-		copyChain.setLastInput(copyChain.getLastInput());
-		
-		for (DRouteElement e : routes)
-			copyChain.addRoute(e.clone());
-		
-		//for (DExtensionPoint e : extensionPoints)
-			//copyChain.ex
-		
-		return copyChain;*/
 	}
 
 	public void copyFrom(DServiceChain serviceChain) {
 		try {
-			ObjectMapper objectMapper = new ObjectMapper();
-			String json = objectMapper.writeValueAsString(serviceChain);
-			objectMapper.readerForUpdating(this).readValue(json);
+			String json = JSONUtils.objectToJSON(serviceChain);
+			new ObjectMapper().readerForUpdating(this).readValue(json);
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}

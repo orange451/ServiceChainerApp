@@ -289,6 +289,8 @@ public class ServiceChainEditor extends BorderPane {
 
 		routeElement.getOnChangedEvent().connect((args) -> {
 			updateRouteElement(routeElement, g);
+			if ( routeElement != this.internal )
+				this.internal.getOnChangedEvent().fire();
 		});
 
 		nodes.add(g);

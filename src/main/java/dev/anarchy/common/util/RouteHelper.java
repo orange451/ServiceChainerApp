@@ -24,7 +24,7 @@ import dev.anarchy.common.DServiceDefinition;
 import dev.anarchy.translate.util.JSONUtils;
 import dev.anarchy.translate.util.TranslateMapService;
 import dev.anarchy.translate.util.TranslateType;
-import dev.anarchy.ui.AnarchyApp;
+import dev.anarchy.ui.ServiceChainerApp;
 import freemarker.template.TemplateException;
 import javafx.stage.FileChooser;
 
@@ -88,7 +88,7 @@ public class RouteHelper {
         FileChooser fileChooser = new FileChooser();
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Json files (*.json)", "*.json");
         fileChooser.getExtensionFilters().add(extFilter);
-        File file = fileChooser.showSaveDialog(AnarchyApp.get().getStage());
+        File file = fileChooser.showSaveDialog(ServiceChainerApp.get().getStage());
         
         export(serviceChains, file, false);
 	}
