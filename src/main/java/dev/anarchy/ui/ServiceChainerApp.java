@@ -77,4 +77,12 @@ public class ServiceChainerApp extends Application {
 	public Window getStage() {
 		return stage;
 	}
+
+	public void save() {
+		// Save current open chain
+		this.saveCurrent();
+		
+		// Write to file
+		this.getData().save();
+	}
 }

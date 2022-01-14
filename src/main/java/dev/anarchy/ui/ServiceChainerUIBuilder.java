@@ -70,8 +70,7 @@ public class ServiceChainerUIBuilder {
 		// Save
 		stage.getScene().getAccelerators().put(
 			new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN), () -> {
-				ServiceChainerApp.get().saveCurrent();
-				ServiceChainerApp.get().getData().save();
+				ServiceChainerApp.get().save();
 			}
 		);
 	}
@@ -82,12 +81,19 @@ public class ServiceChainerUIBuilder {
 		if (os != null && os.startsWith("Mac"))
 		  menuBar.useSystemMenuBarProperty().set(true);
 		
-		Menu menu = new Menu("File");
-		menuBar.getMenus().add(menu);
+		Menu file = new Menu("File");
+		menuBar.getMenus().add(file);
 		
-		MenuItem file = new MenuItem("Quit");
-		menu.getItems().add(file);
-		file.setOnAction((event)->{
+		MenuItem close = new MenuItem("Close");
+		file.getItems().add(close);
+		close.setOnAction((event)->{
+			stage.setIconified(true);
+		});
+		
+		MenuItem quit = new MenuItem("Quit");
+		file.getItems().add(quit);
+		quit.setOnAction((event)->{
+			ServiceChainerApp.get().save();
 			System.exit(0);
 		});
 		
@@ -99,16 +105,6 @@ public class ServiceChainerUIBuilder {
 		try {
 			stage.getIcons().add(new Image("images/icon.png"));
 		} catch(Exception e) {
-			e.printStackTrace();
-		}
-		
-		try {
-			java.awt.Image awtImage = Toolkit.getDefaultToolkit().getImage("images/icon.png");
-			
-			Application application = Application.getApplication();
-			application.setDockIconImage(awtImage);
-		} catch(Exception e) {
-			System.out.println("Could not set apple dock application icon.");
 			e.printStackTrace();
 		}
 	}
