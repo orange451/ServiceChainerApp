@@ -1,7 +1,12 @@
 package dev.anarchy;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,7 +40,7 @@ public class ApplicationData {
 		UNORGANIZED.setName("Unorganized");
 	}
 	
-	public void load() {
+	private void onLoad() {
 		if ( this.collections.size() == 0 )
 			this.addCollection(UNORGANIZED);
 	}
@@ -111,16 +116,49 @@ public class ApplicationData {
 		return this.onCollectionRemovedEvent;
 	}
 	
+	public static String getAppDataFilePath() {
+		return System.getProperty("user.home") + File.separator + "ServiceChainer" + File.separator + "AppData.json";
+	}
+	
+	public static ApplicationData load() {
+		ApplicationData appData;
+		String json = null;
+		try {
+			System.out.println("LOAD1: " + ApplicationData.getAppDataFilePath());
+			Path path = Paths.get(ApplicationData.getAppDataFilePath());
+			System.out.println("LOAD2: " + path);
+			byte[] data = Files.readAllBytes(path);
+			json = new String(data, StandardCharsets.UTF_8);
+			
+			System.out.println("READ JSON: " + json);
+			
+			ObjectMapper objectMapper = new ObjectMapper();
+			appData = objectMapper.readValue(json, ApplicationData.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+			appData = new ApplicationData();
+		}
+		
+		appData.onLoad();
+		return appData;
+	}
+	
 	public void save() {
 		String json = this.serializeJSON();
 		//System.out.println(json);
 		
 		try {
-		    BufferedWriter writer = new BufferedWriter(new FileWriter("APPDATA.json"));
+			String path = getAppDataFilePath();
+			File file = new File(path);
+			if ( !file.getParentFile().exists() )
+				file.getParentFile().mkdirs();
+			
+			System.out.println("SAVE1: " + path);
+		    BufferedWriter writer = new BufferedWriter(new FileWriter(path));
 		    writer.write(json);
 		    writer.close();
 		} catch(Exception e) {
-			//
+			e.printStackTrace();
 		}
 	}
 	

@@ -1,17 +1,10 @@
 package dev.anarchy.ui;
 
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import dev.anarchy.ApplicationData;
 import dev.anarchy.common.DServiceChain;
 import dev.anarchy.ui.control.Workspace;
 import dev.anarchy.ui.util.LaunchHelper;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
@@ -29,7 +22,7 @@ public class ServiceChainerApp extends Application {
 	public void start(Stage stage) {
 		LaunchHelper.checkCanLaunch();
 		
-		data = loadData();
+		data = ApplicationData.load();
 		app = this;
 		this.stage = stage;
 		
@@ -42,30 +35,11 @@ public class ServiceChainerApp extends Application {
 		stage.centerOnScreen();
 		stage.show();
 		
-		// Load data
-		app.getData().load();
-		
 		// No closing
 		stage.setOnCloseRequest((event)->{
 			stage.setIconified(true);
 			event.consume();
 		});
-	}
-	
-	private ApplicationData loadData() {
-		String json = null;
-		try {
-			byte[] data = Files.readAllBytes(Paths.get("APPDATA.json"));
-			json = new String(data, StandardCharsets.UTF_8);
-			
-			System.out.println("READ JSON: " + json);
-			
-			ObjectMapper objectMapper = new ObjectMapper();
-			return objectMapper.readValue(json, ApplicationData.class);
-		} catch (Exception e) {
-			//e.printStackTrace();
-			return new ApplicationData();
-		}
 	}
 	
 	public static ServiceChainerApp get() {
