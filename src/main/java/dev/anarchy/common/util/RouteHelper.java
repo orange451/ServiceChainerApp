@@ -74,7 +74,7 @@ public class RouteHelper {
 	 * @throws IOException 
 	 * @throws ParseException 
 	 */
-	public static Map<String, Object> transform(DServiceDefinition serviceDefinition, Map<String, Object> inputPayload) throws Exception {
+	public static Map<String, Object> transform(DServiceDefinition serviceDefinition, Map<String, Object> inputPayload) throws ParseException, IOException, TemplateException {
 		TranslateType tType = TranslateType.match(serviceDefinition.getTransformationType());
 		String json = JSONUtils.mapToJson(inputPayload);
 		String output = new TranslateMapService().translate(tType, serviceDefinition.getTemplateContent(), json);

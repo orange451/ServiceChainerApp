@@ -12,7 +12,7 @@ public class BasicServiceChainRunner extends ServiceChainRunner {
 	}
 
 	@Override
-	protected Map<String, Object> onInvokeRouteElement(DRouteElementI routeElement, Map<String, Object> input) throws Exception {
+	protected Map<String, Object> onInvokeRouteElement(DRouteElementI routeElement, Map<String, Object> input) {
 		return input;
 	}
 

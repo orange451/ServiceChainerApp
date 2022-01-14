@@ -1,13 +1,16 @@
 package dev.anarchy.common;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.velocity.runtime.parser.ParseException;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.anarchy.common.util.RouteHelper;
+import freemarker.template.TemplateException;
 
 public class DServiceDefinition extends DRouteElement {
 	
@@ -119,7 +122,7 @@ public class DServiceDefinition extends DRouteElement {
 	}
 
 	@Override
-	public Map<String, Object> transform(Map<String, Object> inputPayload) throws Exception {
+	public Map<String, Object> transform(Map<String, Object> inputPayload) throws ParseException, IOException, TemplateException {
 		// Try to transform the data
 		if ( !StringUtils.isEmpty(this.getTemplateContent()) && !StringUtils.isEmpty(this.getTransformationType()) ) {
 			return RouteHelper.transform(this, inputPayload);

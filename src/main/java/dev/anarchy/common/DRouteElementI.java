@@ -1,8 +1,12 @@
 package dev.anarchy.common;
 
+import java.io.IOException;
 import java.util.Map;
 
+import org.apache.velocity.runtime.parser.ParseException;
+
 import dev.anarchy.event.Event;
+import freemarker.template.TemplateException;
 
 public interface DRouteElementI {
 	public void setSize(double width, double height);
@@ -35,5 +39,5 @@ public interface DRouteElementI {
 	
 	public String getDestinationId();
 
-	public Map<String, Object> transform(Map<String, Object> inputPayload) throws Exception;
+	public Map<String, Object> transform(Map<String, Object> inputPayload) throws ParseException, IOException, TemplateException;
 }
