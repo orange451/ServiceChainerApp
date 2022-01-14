@@ -23,14 +23,21 @@ public class VelocityTranslateService implements TranslateServiceInterface {
 	private static final String DOCUMENT = "document";
 	
 	private static final String JSONUTILS = "JSONUtils";
+	
+	private static final Properties VELOCITY_PROPERTIES;
+	
+	private static final VelocityEngine VELOCITY_ENGINE;
+	
+	static {
+		VELOCITY_PROPERTIES = new Properties();
+		VELOCITY_PROPERTIES.put("runtime.log.logsystem.class", "org.apache.velocity.runtime.log.NullLogChute");
+		
+		VELOCITY_ENGINE = new VelocityEngine();
+		VELOCITY_ENGINE.init(VELOCITY_PROPERTIES);
+	}
 
 	@SuppressWarnings("unchecked")
 	public String translate(String templateContent, String dataModel) throws ParseException {
-		Properties properties = new Properties();
-		properties.put("runtime.log.logsystem.class", "org.apache.velocity.runtime.log.NullLogChute");
-		
-    	VelocityEngine ve = new VelocityEngine();
-    	ve.init(properties);
         
         // Convert datamodel into json
         JSONObject jsonModel = (JSONObject) JSONValue.parse(dataModel);
@@ -41,17 +48,17 @@ public class VelocityTranslateService implements TranslateServiceInterface {
         context.put(DOCUMENT, new Document(jsonModel));
 
         // Process template
-        StringWriter w = new StringWriter();
+        StringWriter stringWriter = new StringWriter();
+        StringReader stringReader = new StringReader(templateContent);
         RuntimeServices runtimeServices = RuntimeSingleton.getRuntimeServices();
-        StringReader reader = new StringReader(templateContent);
-        SimpleNode node = runtimeServices.parse(reader, "StringTemplate");
+        SimpleNode node = runtimeServices.parse(stringReader, "StringTemplate");
         Template template = new Template();
         template.setRuntimeServices(runtimeServices);
         template.setData(node);
         template.initDocument();
-        template.merge(context, w);
+        template.merge(context, stringWriter);
         
-        return w.toString();
+        return stringWriter.toString();
 	}
 
 }
