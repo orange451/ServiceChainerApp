@@ -1,9 +1,5 @@
 package dev.anarchy.ui;
 
-import java.awt.Toolkit;
-
-import com.apple.eawt.Application;
-
 import dev.anarchy.common.DCollection;
 import dev.anarchy.ui.control.Collection;
 import dev.anarchy.ui.control.SearchBar;

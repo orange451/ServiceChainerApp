@@ -1,6 +1,5 @@
 package dev.anarchy.ui.control;
 
-import dev.anarchy.common.DRouteElement;
 import dev.anarchy.common.DRouteElementI;
 import dev.anarchy.common.DServiceChain;
 import dev.anarchy.common.util.RouteHelper;

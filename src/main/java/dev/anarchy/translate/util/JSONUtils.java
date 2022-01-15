@@ -2,8 +2,6 @@ package dev.anarchy.translate.util;
 
 import java.util.Map;
 
-import org.json.simple.JSONValue;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;

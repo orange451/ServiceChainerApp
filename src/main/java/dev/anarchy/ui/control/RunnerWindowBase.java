@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import dev.anarchy.ace.AceEditor;
 import dev.anarchy.ace.Modes;
-import dev.anarchy.common.util.RouteHelper;
 import dev.anarchy.translate.util.JSONUtils;
 import dev.anarchy.ui.util.IconHelper;
 import javafx.collections.ListChangeListener;
@@ -19,7 +18,6 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;

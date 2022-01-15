@@ -21,7 +21,7 @@ public class Event {
 	
 	public void wait(Thread thread) {
 		synchronized(waitingThreads) {
-			thread.yield();
+			Thread.yield();
 			waitingThreads.add(thread);
 		}
 	}
@@ -39,6 +39,7 @@ public class Event {
 		fire(new Object[] {});
 	}
 
+	@SuppressWarnings("deprecation")
 	public void fire(Object...args) {
 		synchronized(connections) {
 			// Remove the queued connections
