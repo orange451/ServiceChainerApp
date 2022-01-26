@@ -46,6 +46,11 @@ public class VelocityTranslateService implements TranslateServiceInterface {
         VelocityContext context = new VelocityContext();
         context.put(JSONUTILS, new JSONUtils());
         context.put(DOCUMENT, new Document(jsonModel));
+        context.put(Integer.class.getSimpleName(), Integer.class);
+        context.put(Double.class.getSimpleName(), Double.class);
+        context.put(Boolean.class.getSimpleName(), Boolean.class);
+        context.put(Float.class.getSimpleName(), Float.class);
+        context.put(Math.class.getSimpleName(), Math.class);
 
         // Process template
         StringWriter stringWriter = new StringWriter();
