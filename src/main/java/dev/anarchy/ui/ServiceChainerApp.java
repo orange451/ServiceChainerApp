@@ -126,4 +126,13 @@ public class ServiceChainerApp extends Application {
 			}
 		}
 	}
+
+	public File exportFilePicker() {
+        FileChooser fileChooser = new FileChooser();
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Json files (*.json)", "*.json");
+        fileChooser.getExtensionFilters().add(extFilter);
+        File file = fileChooser.showSaveDialog(ServiceChainerApp.get().getStage());
+        
+        return file;
+	}
 }

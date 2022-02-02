@@ -86,11 +86,7 @@ public class RouteHelper {
 	 * Export a list of service chains to a json.
 	 */
 	public static void export(List<DServiceChain> serviceChains) {
-        FileChooser fileChooser = new FileChooser();
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Json files (*.json)", "*.json");
-        fileChooser.getExtensionFilters().add(extFilter);
-        File file = fileChooser.showSaveDialog(ServiceChainerApp.get().getStage());
-        
+		File file = ServiceChainerApp.get().exportFilePicker();
         export(serviceChains, file, false);
 	}
 	

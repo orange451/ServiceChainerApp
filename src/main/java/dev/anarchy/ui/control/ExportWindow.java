@@ -59,11 +59,7 @@ public class ExportWindow extends ModalWindow {
 	    	browse.setPrefWidth(buttonWidth);
 	    	
 	    	browse.setOnMouseClicked((event)->{
-	            FileChooser fileChooser = new FileChooser();
-	            FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Json files (*.json)", "*.json");
-	            fileChooser.getExtensionFilters().add(extFilter);
-	            File file = fileChooser.showSaveDialog(ServiceChainerApp.get().getStage());
-	            
+	    		File file = ServiceChainerApp.get().exportFilePicker();
 	            destinationTextField.setText(file.getAbsolutePath());
 	    	});
 	    	
