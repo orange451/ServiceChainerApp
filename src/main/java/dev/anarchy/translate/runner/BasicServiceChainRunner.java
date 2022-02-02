@@ -9,6 +9,7 @@ public class BasicServiceChainRunner extends ServiceChainRunner {
 
 	public BasicServiceChainRunner(DServiceChain serviceChain) {
 		super(serviceChain);
+		this.setCanUseMocks(true);
 	}
 
 	@Override
