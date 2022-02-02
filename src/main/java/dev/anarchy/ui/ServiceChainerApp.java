@@ -117,12 +117,9 @@ public class ServiceChainerApp extends Application {
 				if ( parentFolder == null ) {
 					ServiceChainerApp.get().getData().addCollection(newCollection);
 				} else {
-					DFolder newFolder = new DFolder();
-					newFolder.setName(newCollection.getName());
 					for(DFolderElement element : newCollection.getChildrenUnmodifyable()) {
-						newFolder.addChild(element);
+						parentFolder.addChild(element);
 					}
-					parentFolder.addChild(newFolder);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
