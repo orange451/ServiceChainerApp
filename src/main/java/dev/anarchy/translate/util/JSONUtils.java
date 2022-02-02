@@ -22,9 +22,7 @@ public class JSONUtils {
 	
 	/** Initialize **/
 	static {
-		DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter();
-		prettyPrinter.indentArraysWith(new DefaultIndenter("\t", DefaultIndenter.SYS_LF));
-		prettyPrinter.indentObjectsWith(new DefaultIndenter("\t", DefaultIndenter.SYS_LF));
+		DefaultPrettyPrinter prettyPrinter = new CustomPrettyPrinter();
 
 		objectMapper = new ObjectMapper();
 		prettyWriter = objectMapper.writer(prettyPrinter);
