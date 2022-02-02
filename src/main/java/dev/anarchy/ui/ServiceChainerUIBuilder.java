@@ -1,5 +1,14 @@
 package dev.anarchy.ui;
 
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import dev.anarchy.ApplicationData;
 import dev.anarchy.common.DCollection;
 import dev.anarchy.ui.control.Collection;
 import dev.anarchy.ui.control.SearchBar;
@@ -13,6 +22,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
@@ -23,6 +33,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 
 public class ServiceChainerUIBuilder {
@@ -85,6 +97,18 @@ public class ServiceChainerUIBuilder {
 		close.setOnAction((event)->{
 			stage.setIconified(true);
 		});
+		
+		{
+			file.getItems().add(new SeparatorMenuItem());
+			
+			MenuItem imp = new MenuItem("Import");
+			file.getItems().add(imp);
+			imp.setOnAction((event)->{
+				ServiceChainerApp.get().importCollection(null);
+			});
+			
+			file.getItems().add(new SeparatorMenuItem());
+		}
 		
 		MenuItem quit = new MenuItem("Quit");
 		file.getItems().add(quit);

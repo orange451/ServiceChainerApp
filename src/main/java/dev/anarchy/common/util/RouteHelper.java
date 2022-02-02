@@ -21,6 +21,7 @@ import dev.anarchy.common.DRouteElement;
 import dev.anarchy.common.DRouteElementI;
 import dev.anarchy.common.DServiceChain;
 import dev.anarchy.common.DServiceDefinition;
+import dev.anarchy.translate.util.FileUtils;
 import dev.anarchy.translate.util.JSONUtils;
 import dev.anarchy.translate.util.TranslateMapService;
 import dev.anarchy.translate.util.TranslateType;
@@ -98,6 +99,8 @@ public class RouteHelper {
 	 */
 	public static void export(List<DServiceChain> serviceChains, File outputFile, boolean stripMetadata) {
         DCollection collection = new DCollection();
+        collection.setName(FileUtils.getFileNameFromPathWithoutExtension(outputFile.getName()));
+        
         for (DServiceChain chain : serviceChains)
         	collection.addChild(chain);
 

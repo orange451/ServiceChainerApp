@@ -83,6 +83,15 @@ public class Folder extends VBox implements FolderElement {
 			});
 			context.getItems().add(option);
 		}
+
+		// Import
+		{
+			MenuItem option = new MenuItem("Import", IconHelper.IMPORT.create());
+			option.setOnAction((event) -> {
+				ServiceChainerApp.get().importCollection(internal);
+			});
+			context.getItems().add(option);
+		}
 		
 		context.getItems().add(new SeparatorMenuItem());
 
