@@ -8,7 +8,6 @@ import java.nio.file.Paths;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import dev.anarchy.ApplicationData;
 import dev.anarchy.common.DCollection;
 import dev.anarchy.ui.control.Collection;
 import dev.anarchy.ui.control.SearchBar;

@@ -7,7 +7,6 @@ import java.nio.file.Path;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import dev.anarchy.ApplicationData;
 import dev.anarchy.common.DCollection;
 import dev.anarchy.common.DFolder;
 import dev.anarchy.common.DFolderElement;
