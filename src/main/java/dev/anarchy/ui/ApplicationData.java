@@ -23,7 +23,7 @@ import dev.anarchy.event.Event;
 
 public class ApplicationData {
 	@JsonIgnore
-	public final DCollection UNORGANIZED = new DCollection();
+	public DCollection UNORGANIZED = new DCollection();
 	
 	@JsonProperty("Collections")
 	private List<DCollection> collections = new ArrayList<>();
@@ -49,22 +49,21 @@ public class ApplicationData {
 			this.addCollection(UNORGANIZED);
 	}
 	
-	public DServiceChain newServiceChain(DFolder collection) {
+	public DServiceChain newServiceChain(DFolder parent) {
 		DServiceChain chain = new DServiceChain();
 		String baseName = chain.getName();
 		
 		int index = 0;
 		String checkName = baseName;
-		while(collection.getChild(checkName) != null) {
+		while(parent.getChild(checkName) != null) {
 			index += 1;
 			checkName = baseName + " (" + index + ")"; 
 		}
 		
 		chain.setName(checkName);
-		collection.addChild(chain);
+		parent.addChild(chain);
 		
 		save();
-		
 		return chain;
 	}
 
@@ -141,6 +140,13 @@ public class ApplicationData {
 		} catch (Exception e) {
 			e.printStackTrace();
 			appData = new ApplicationData();
+		}
+		
+		for (DCollection collection : appData.getCollectionsUnmodifyable()) {
+			if ( collection.getName().equals("Unorganized") && !collection.isDeletable() ) {
+				appData.UNORGANIZED = collection;
+				break;
+			}
 		}
 		
 		appData.onLoad();

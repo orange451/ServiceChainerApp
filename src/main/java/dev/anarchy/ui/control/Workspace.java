@@ -4,7 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import dev.anarchy.common.DCollection;
 import dev.anarchy.common.DServiceChain;
+import dev.anarchy.ui.ApplicationData;
 import dev.anarchy.ui.ServiceChainerApp;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -36,13 +38,10 @@ public class Workspace extends BorderPane {
 		this.setCenter(tabs);
 
 		// Create new service chain
-		tabs.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
-			@Override
-			public void changed(ObservableValue<? extends Tab> observable, Tab oldTab, Tab newTab) {
-				if (newTab.equals(createNewTab) && tabs.getTabs().size() > 1) {
-					DServiceChain chain = ServiceChainerApp.get().getData().newServiceChain(ServiceChainerApp.get().getData().UNORGANIZED);
-					open(chain);
-				}
+		tabs.getSelectionModel().selectedItemProperty().addListener((ObservableValue<? extends Tab> observable, Tab oldTab, Tab newTab)->{
+			if (newTab.equals(createNewTab) && tabs.getTabs().size() > 1) {
+				DServiceChain chain = ServiceChainerApp.get().getData().newServiceChain(ServiceChainerApp.get().getData().UNORGANIZED);
+				open(chain);
 			}
 		});
 	}
@@ -74,15 +73,13 @@ public class Workspace extends BorderPane {
 		
 		// Create new service chain
 		newTab.setOnMouseClicked((event) ->{
-			DServiceChain chain = ServiceChainerApp.get().getData().newServiceChain(ServiceChainerApp.get().getData().UNORGANIZED);
-			open(chain);
+			createAndOpenUnorganizedServiceChain();
 		});
 
 		// Create new service chain
 		Button createNew = new Button("Create New Service Chain");
 		createNew.setOnAction((event) -> {
-			DServiceChain chain = ServiceChainerApp.get().getData().newServiceChain(ServiceChainerApp.get().getData().UNORGANIZED);
-			open(chain);
+			createAndOpenUnorganizedServiceChain();
 		});
 		
 		StackPane p = new StackPane();
@@ -92,6 +89,13 @@ public class Workspace extends BorderPane {
 		p.getChildren().add(createNew);
 
 		return newTab;
+	}
+	
+	private void createAndOpenUnorganizedServiceChain() {
+		ApplicationData applicationData = ServiceChainerApp.get().getData();
+		DCollection parent = applicationData.UNORGANIZED;
+		DServiceChain chain = applicationData.newServiceChain(parent);
+		open(chain);
 	}
 
 	public void open(DServiceChain internal) {
