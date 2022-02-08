@@ -1,5 +1,6 @@
 # Service Chainer
 Quickly and easily chain multiple service calls together with the ability to manipulate each input payload using templates.
+Uses: https://github.com/orange451/ServiceChainer
 
 # Currently Supports
 - [Freemarker Template Engine](https://freemarker.apache.org/)
