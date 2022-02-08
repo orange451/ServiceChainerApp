@@ -27,7 +27,6 @@ import dev.anarchy.translate.util.TranslateMapService;
 import dev.anarchy.translate.util.TranslateType;
 import dev.anarchy.ui.ServiceChainerApp;
 import freemarker.template.TemplateException;
-import javafx.stage.FileChooser;
 
 public class RouteHelper {
 
@@ -97,9 +96,22 @@ public class RouteHelper {
         DCollection collection = new DCollection();
         collection.setName(FileUtils.getFileNameFromPathWithoutExtension(outputFile.getName()));
         
+        // Update ExtensionhandlerRouteId
+        for (DServiceChain chain : serviceChains) {
+        	int routeId = 0;
+        	for (DRouteElementI routeElement : chain.getRoutesUnmodifyable()) {
+        		if ( routeElement instanceof DServiceDefinition ) {
+            		((DServiceDefinition)routeElement).setExtensionHandlerRouteId("ExtensionRoute" + routeId);
+            		routeId += 1;
+        		}
+        	}
+        }
+        
+        // Add service chains to collection
         for (DServiceChain chain : serviceChains)
         	collection.addChild(chain);
 
+        // Write to file
         if (outputFile != null) {
             try {
         		ObjectMapper objectMapper = new ObjectMapper();
