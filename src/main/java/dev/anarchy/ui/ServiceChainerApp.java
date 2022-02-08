@@ -58,7 +58,7 @@ public class ServiceChainerApp extends Application {
 			if ( args[0] instanceof DFolder ) { 
 				DFolder parentNode = ((DFolder)args[0]).getParent();
 				if ( parentNode == null )
-				  parentNode = ServiceChainerApp.get().getData().UNORGANIZED;
+					parentNode = ServiceChainerApp.get().getData().UNORGANIZED;
 				parentNode.removeChild(((DFolder)args[0]));
 			}
 			
