@@ -1,5 +1,7 @@
 package dev.anarchy.ui.control;
 
+import java.io.File;
+
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import dev.anarchy.common.DFolder;
@@ -79,7 +81,8 @@ public class Folder extends VBox implements FolderElement {
 		{
 			MenuItem option = new MenuItem("Export", IconHelper.EXPORT.create());
 			option.setOnAction((event) -> {
-				RouteHelper.export(Folder.this.internal);
+				File file = ServiceChainerApp.get().exportFilePicker();
+				RouteHelper.export(RouteHelper.getServiceChains(Folder.this.internal), file, false);
 			});
 			context.getItems().add(option);
 		}

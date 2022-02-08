@@ -7,6 +7,7 @@ import java.nio.file.Path;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import dev.anarchy.common.DApp;
 import dev.anarchy.common.DCollection;
 import dev.anarchy.common.DFolder;
 import dev.anarchy.common.DFolderElement;
@@ -51,6 +52,20 @@ public class ServiceChainerApp extends Application {
 			stage.setIconified(true);
 			event.consume();
 		});
+		
+		// Delete event. TODO clean this up.
+		DApp.get().getOnDeleteEvent().connect((args) -> {
+			if ( args[0] instanceof DFolder ) { 
+				DFolder parentNode = ((DFolder)args[0]).getParent();
+				if ( parentNode == null )
+				  parentNode = ServiceChainerApp.get().getData().UNORGANIZED;
+				parentNode.removeChild(((DFolder)args[0]));
+			}
+			
+			if ( args[0] instanceof DCollection ) {
+				ServiceChainerApp.get().getData().removeCollection(((DCollection)args[0]));
+			}
+		});
 	}
 	
 	public static ServiceChainerApp get() {
@@ -79,10 +94,6 @@ public class ServiceChainerApp extends Application {
 
 	public Workspace getWorkspace() {
 		return this.workspace;
-	}
-
-	public static void main(String[] args) {
-		launch(args);
 	}
 
 	public Window getStage() {
@@ -133,5 +144,9 @@ public class ServiceChainerApp extends Application {
         File file = fileChooser.showSaveDialog(ServiceChainerApp.get().getStage());
         
         return file;
+	}
+
+	public static void main(String[] args) {
+		launch(args);
 	}
 }

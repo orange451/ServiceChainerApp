@@ -13,6 +13,8 @@
 	
 	<properties>
 	  <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	  <maven.compiler.source>1.8</maven.compiler.source>
+	  <maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
 	
 	<repositories>
@@ -76,13 +78,11 @@
 		    <artifactId>AceFX</artifactId>
 		    <version>main-SNAPSHOT</version>
 		</dependency>
-		
+			
 		<dependency>
-		    <groupId>javafx</groupId>
-		    <artifactId>jfxrt</artifactId>
-		    <version>8.0</version>
-		    <scope>system</scope>
-		    <systemPath>C:\Program Files\Java\jre1.8.0_111\lib\ext\jfxrt.jar</systemPath>
+		    <groupId>com.github.orange451</groupId>
+		    <artifactId>ServiceChainerBase</artifactId>
+		    <version>-SNAPSHOT</version>
 		</dependency>
 		
 		<dependency>
