@@ -38,6 +38,9 @@ public class GraphObject extends StackPane {
 	private DServiceChain serviceChain;
 	
 	private ContextMenu context;
+
+	private double clickOffsetX;
+	private double clickOffsetY;
 	
 	public GraphObject(ServiceChainEditor editor, DServiceChain serviceChain, DRouteElementI routeElement) {
 		this.setAlignment(Pos.CENTER);
@@ -77,8 +80,8 @@ public class GraphObject extends StackPane {
 			
 			double hWid = this.getWidth()/2;
 			double hHei = this.getHeight()/2;
-			double x = round(event.getX() + this.getTranslateX() - hWid);
-			double y = round(event.getY() + this.getTranslateY() - hHei);
+			double x = round(event.getX() - clickOffsetX + this.getTranslateX() - hWid);
+			double y = round(event.getY() - clickOffsetY + this.getTranslateY() - hHei);
 			this.setTranslateX(x);
 			this.setTranslateY(y);
 			routeElement.setPosition(x, y);
@@ -108,6 +111,15 @@ public class GraphObject extends StackPane {
 		});
 		
 		updateContext();
+		
+		this.setOnMousePressed((event)->{
+	        if(event.getButton().equals(MouseButton.PRIMARY)){
+				double hWid = this.getWidth()/2;
+				double hHei = this.getHeight()/2;
+	        	clickOffsetX = event.getX()-hWid;
+	        	clickOffsetY = event.getY()-hHei;
+	        }
+		});
 
 		// Show context
 		this.setOnMouseClicked((event) -> {
