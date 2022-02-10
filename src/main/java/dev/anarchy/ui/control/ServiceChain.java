@@ -83,6 +83,15 @@ public class ServiceChain extends Label implements FolderElement {
 			context.getItems().add(option);
 		}
 
+		// Duplicate context
+		{
+			MenuItem option = new MenuItem("Duplicate");
+			option.setOnAction((event) -> {
+				ServiceChainerApp.get().duplicate(this.internal);
+			});
+			context.getItems().add(option);
+		}
+
 		// Delete context
 		{
 			MenuItem option = new MenuItem("Delete", IconHelper.DELETE.create());

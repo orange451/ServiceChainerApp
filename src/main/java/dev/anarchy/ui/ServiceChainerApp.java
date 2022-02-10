@@ -149,4 +149,54 @@ public class ServiceChainerApp extends Application {
 	public static void main(String[] args) {
 		launch(args);
 	}
+	
+	public DFolder getParent(DFolderElement element) {
+		for (DCollection collection : data.getCollectionsUnmodifyable()) {
+			DFolder folder = getParentRecursive(element, collection);
+			if ( folder != null )
+				return folder;
+		}
+		
+		return null;
+	}
+	
+	private DFolder getParentRecursive(DFolderElement check, DFolder parent) {
+		for (DFolderElement child : parent.getChildrenUnmodifyable()) {
+			if ( child == check ) {
+				return parent;
+			}
+			
+			if ( child instanceof DFolder ) {
+				DFolder match = getParentRecursive(check, (DFolder) child);
+				if ( match != null )
+					return match;
+			}
+		}
+		
+		return null;
+	}
+
+	public DFolder duplicate(DFolder internal) {
+		DFolder newFolder = internal.clone();
+		newFolder.setDeletable(true);
+		newFolder.setArchivable(true);
+		
+		if ( newFolder instanceof DCollection ) {
+			data.addCollection((DCollection) newFolder);
+		} else {
+			DFolder parent = getParent(internal);
+			parent.addChild(newFolder);
+		}
+		
+		return newFolder;
+	}
+
+	public DServiceChain duplicate(DServiceChain internal) {
+		DServiceChain newObject = internal.clone();
+
+		DFolder parent = getParent(internal);
+		parent.addChild(newObject);
+		
+		return newObject;
+	}
 }

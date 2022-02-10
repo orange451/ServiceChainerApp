@@ -109,6 +109,15 @@ public class Folder extends VBox implements FolderElement {
 			}
 		}
 
+		// Duplicate context
+		{
+			MenuItem option = new MenuItem("Duplicate");
+			option.setOnAction((event) -> {
+				ServiceChainerApp.get().duplicate(this.internal);
+			});
+			context.getItems().add(option);
+		}
+
 		// Delete context
 		{
 			if ( internal.isDeletable() ) {
