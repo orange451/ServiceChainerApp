@@ -18,8 +18,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dev.anarchy.common.DCollection;
 import dev.anarchy.common.DFolder;
+import dev.anarchy.common.DFolderElement;
 import dev.anarchy.common.DServiceChain;
 import dev.anarchy.event.Event;
+import dev.anarchy.translate.util.FileUtils;
+import dev.anarchy.translate.util.ServiceChainHelper;
+import dev.anarchy.ui.util.StringHelper;
 
 public class ApplicationData {
 	@JsonIgnore
@@ -179,5 +183,105 @@ public class ApplicationData {
 		}
 		
 		return "{}";
+	}
+
+	
+	public DFolder getParent(DFolderElement element) {
+		for (DCollection collection : getCollectionsUnmodifyable()) {
+			DFolder folder = getParentRecursive(element, collection);
+			if ( folder != null )
+				return folder;
+		}
+		
+		return null;
+	}
+	
+	private DFolder getParentRecursive(DFolderElement check, DFolder parent) {
+		for (DFolderElement child : parent.getChildrenUnmodifyable()) {
+			if ( child == check ) {
+				return parent;
+			}
+			
+			if ( child instanceof DFolder ) {
+				DFolder match = getParentRecursive(check, (DFolder) child);
+				if ( match != null )
+					return match;
+			}
+		}
+		
+		return null;
+	}
+
+	public DFolder duplicate(DFolder internal) {
+		DFolder newFolder = internal.clone();
+		newFolder.setDeletable(true);
+		newFolder.setArchivable(true);
+		
+		if ( newFolder instanceof DCollection ) {
+			this.addCollection((DCollection) newFolder);
+		} else {
+			DFolder parent = getParent(internal);
+			parent.addChild(newFolder);
+		}
+		
+		return newFolder;
+	}
+
+	public DServiceChain duplicate(DServiceChain internal) {
+		DServiceChain newObject = internal.clone();
+
+		DFolder parent = getParent(internal);
+		parent.addChild(newObject);
+		
+		return newObject;
+	}
+
+	protected void importCollection(File selectedFile, DFolder parentFolder) {
+		if (selectedFile != null) {
+			String fileName = FileUtils.getFileNameFromPathWithoutExtension(selectedFile.getAbsolutePath());
+			
+			try {
+				Path path = selectedFile.toPath();
+				byte[] data = Files.readAllBytes(path);
+				String json = new String(data, StandardCharsets.UTF_8);
+				json = json.trim();
+				
+				// Make sure jackson understannds this is a COLLECTION
+				if ( json.startsWith("{") ) {
+					json = StringHelper.insert(json, 2, "\"_IsCollection\": true,");
+				}
+				
+				// Create new collection
+				ObjectMapper objectMapper = new ObjectMapper();
+				DCollection newCollection = objectMapper.readValue(json, DCollection.class);
+				newCollection.setName(fileName);
+				
+				// Fix missing Metadata
+				for (DFolderElement child : newCollection.getChildrenUnmodifyable()) {
+					ServiceChainHelper.fixServiceChain((DServiceChain)child);
+				}
+				
+				// If no parent is specified, put it as a new collection
+				if ( parentFolder == null ) {
+					ServiceChainerApp.get().getData().addCollection(newCollection);
+				} else {
+					// If parent is specified, empty its children in to the parent
+					int x = 0;
+					for(DFolderElement element : newCollection.getChildrenUnmodifyable()) {
+						if ( x > 0 ) {
+							((DServiceChain)element).setName(fileName + " " + x);
+						} else {
+							((DServiceChain)element).setName(fileName);
+						}
+						
+						x += 1;
+						
+						parentFolder.addChild(element);
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }
