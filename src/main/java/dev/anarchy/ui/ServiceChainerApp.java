@@ -12,8 +12,11 @@ import dev.anarchy.common.DCollection;
 import dev.anarchy.common.DFolder;
 import dev.anarchy.common.DFolderElement;
 import dev.anarchy.common.DServiceChain;
+import dev.anarchy.translate.util.FileUtils;
+import dev.anarchy.translate.util.ServiceChainHelper;
 import dev.anarchy.ui.control.Workspace;
 import dev.anarchy.ui.util.LaunchHelper;
+import dev.anarchy.ui.util.StringHelper;
 import javafx.application.Application;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -115,19 +118,44 @@ public class ServiceChainerApp extends Application {
 		File selectedFile = fileChooser.showOpenDialog(stage);
 		
 		if (selectedFile != null) {
+			String fileName = FileUtils.getFileNameFromPathWithoutExtension(selectedFile.getAbsolutePath());
+			
 			try {
 				Path path = selectedFile.toPath();
 				byte[] data = Files.readAllBytes(path);
 				String json = new String(data, StandardCharsets.UTF_8);
+				json = json.trim();
 				
+				// Make sure jackson understannds this is a COLLECTION
+				if ( json.startsWith("{") ) {
+					json = StringHelper.insert(json, 2, "\"_IsCollection\": true,");
+				}
+				
+				// Create new collection
 				ObjectMapper objectMapper = new ObjectMapper();
-				
 				DCollection newCollection = objectMapper.readValue(json, DCollection.class);
+				newCollection.setName(fileName);
 				
+				// Fix missing Metadata
+				for (DFolderElement child : newCollection.getChildrenUnmodifyable()) {
+					ServiceChainHelper.fixServiceChain((DServiceChain)child);
+				}
+				
+				// If no parent is specified, put it as a new collection
 				if ( parentFolder == null ) {
 					ServiceChainerApp.get().getData().addCollection(newCollection);
 				} else {
+					// If parent is specified, empty its children in to the parent
+					int x = 0;
 					for(DFolderElement element : newCollection.getChildrenUnmodifyable()) {
+						if ( x > 0 ) {
+							((DServiceChain)element).setName(fileName + " " + x);
+						} else {
+							((DServiceChain)element).setName(fileName);
+						}
+						
+						x += 1;
+						
 						parentFolder.addChild(element);
 					}
 				}
