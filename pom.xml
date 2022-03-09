@@ -75,7 +75,7 @@
 			
 		<dependency>
 		    <groupId>com.github.orange451</groupId>
-		    <artifactId>ServiceChainerBase</artifactId>
+		    <artifactId>ServiceChainer</artifactId>
 		    <version>master-SNAPSHOT</version>
 		</dependency>
 		
