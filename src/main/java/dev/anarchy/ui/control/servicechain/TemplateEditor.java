@@ -1,9 +1,10 @@
-package dev.anarchy.ui.control;
+package dev.anarchy.ui.control.servicechain;
 
 import dev.anarchy.ace.AceEditor;
 import dev.anarchy.ace.AceEvents;
 import dev.anarchy.ace.Modes;
 import dev.anarchy.common.DServiceDefinition;
+import dev.anarchy.ui.control.PopupWindow;
 import dev.anarchy.ui.util.IconHelper;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -65,6 +66,7 @@ public class TemplateEditor extends PopupWindow {
 				comboBox.setValue(item);
 		
 		AceEditor code = new AceEditor(serviceDefinition.getTemplateContent());
+		code.setOption("scrollPastEnd", 0.5d);
 		updateMode(code);
 		
 		// Update transformation type
@@ -115,8 +117,4 @@ public class TemplateEditor extends PopupWindow {
         Scene toolScene = new Scene(layout, 1024, 576);
         stage.setScene(toolScene);
 	}
-}
-
-enum TemplateEditorType {
-	INPUT,
 }

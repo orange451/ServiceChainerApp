@@ -82,7 +82,7 @@ public class LinkNode extends StackPane {
 		return this.linkTo;
 	}
 
-	protected void update() {
+	public void update() {
 		this.getChildren().clear();
 		
 		if ( linkTo != null ) {

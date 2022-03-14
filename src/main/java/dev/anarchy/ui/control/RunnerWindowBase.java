@@ -38,6 +38,7 @@ public abstract class RunnerWindowBase extends PopupWindow {
 		resultPane.getSelectionModel().select(resultTab);
 		
 		AceEditor layout = new AceEditor(text);
+		layout.setOption("scrollPastEnd", 0.5d);
 		layout.setMode(Modes.JSON);
 		resultTab.setContent(layout);
 		
@@ -101,6 +102,7 @@ public abstract class RunnerWindowBase extends PopupWindow {
 		topLayout.setEffect(dropShadow);
 		
 		code = new AceEditor();
+		code.setOption("scrollPastEnd", 0.5d);
 		layout.setCenter(code);
 		layout.setTop(topLayout);
 
