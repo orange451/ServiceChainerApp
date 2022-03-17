@@ -35,7 +35,7 @@ public class Folder extends VBox implements FolderElement {
 
 	private final Label childrenLabel;
 
-	private final DFolder internal;
+	protected final DFolder internal;
 
 	protected final HBox rootPane;
 
@@ -54,80 +54,8 @@ public class Folder extends VBox implements FolderElement {
 
 		ContextMenu context = new ContextMenu();
 		context.setAutoHide(true);
-
-		// Add Service Chain
-		{
-			MenuItem option = new MenuItem("Add Service Chain", IconHelper.CHAIN.create());
-			option.setOnAction((event) -> {
-				setOpen(true);
-				ServiceChainerApp.get().getData().newServiceChain(internal);
-			});
-			context.getItems().add(option);
-		}
-
-		// Add Folder
-		{
-			MenuItem option = new MenuItem("Add Folder", IconHelper.FOLDER.create());
-			option.setOnAction((event) -> {
-				setOpen(true);
-				ServiceChainerApp.get().getData().newFolder(internal);
-			});
-			context.getItems().add(option);
-		}
 		
-		context.getItems().add(new SeparatorMenuItem());
-
-		// Export
-		{
-			MenuItem option = new MenuItem("Export", IconHelper.EXPORT.create());
-			option.setOnAction((event) -> {
-				File file = ServiceChainerApp.get().exportFilePicker();
-				RouteHelper.export(RouteHelper.getServiceChains(Folder.this.internal), file, false);
-			});
-			context.getItems().add(option);
-		}
-
-		// Import
-		{
-			MenuItem option = new MenuItem("Import", IconHelper.IMPORT.create());
-			option.setOnAction((event) -> {
-				ServiceChainerApp.get().importCollection(internal);
-			});
-			context.getItems().add(option);
-		}
-		
-		context.getItems().add(new SeparatorMenuItem());
-
-		// Rename context
-		{
-			if ( internal.isDeletable() ) {
-				MenuItem option = new MenuItem("Rename");
-				option.setOnAction((event) -> {
-					rename();
-				});
-				context.getItems().add(option);
-			}
-		}
-
-		// Duplicate context
-		{
-			MenuItem option = new MenuItem("Duplicate");
-			option.setOnAction((event) -> {
-				ServiceChainerApp.get().getData().duplicate(this.internal);
-			});
-			context.getItems().add(option);
-		}
-
-		// Delete context
-		{
-			if ( internal.isDeletable() ) {
-				MenuItem option = new MenuItem("Delete", IconHelper.DELETE.create());
-				option.setOnAction((event) -> {
-					this.internal.delete();
-				});
-				context.getItems().add(option);
-			}
-		}
+		generateContextMenu(context);
 
 		rootPane = new HBox();
 		rootPane.setSpacing(8);
@@ -233,7 +161,7 @@ public class Folder extends VBox implements FolderElement {
 		this.textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
 			if (!newValue) {
 				if (textField.getText().trim().length() > 0)
-					internal.setName(textField.getText());
+					internal.setName(filter(textField.getText()));
 
 				renameFinish();
 			}
@@ -253,6 +181,86 @@ public class Folder extends VBox implements FolderElement {
 		}
 	}
 	
+	protected String filter(String text) {
+		return text;
+	}
+
+	protected void generateContextMenu(ContextMenu context) {
+		// Add Service Chain
+		{
+			MenuItem option = new MenuItem("Add Service Chain", IconHelper.CHAIN.create());
+			option.setOnAction((event) -> {
+				setOpen(true);
+				ServiceChainerApp.get().getData().newServiceChain(internal);
+			});
+			context.getItems().add(option);
+		}
+
+		// Add Folder
+		{
+			MenuItem option = new MenuItem("Add Folder", IconHelper.FOLDER.create());
+			option.setOnAction((event) -> {
+				setOpen(true);
+				ServiceChainerApp.get().getData().newFolder(internal);
+			});
+			context.getItems().add(option);
+		}
+		
+		context.getItems().add(new SeparatorMenuItem());
+
+		// Export
+		{
+			MenuItem option = new MenuItem("Export", IconHelper.EXPORT.create());
+			option.setOnAction((event) -> {
+				File file = ServiceChainerApp.get().exportFilePicker();
+				RouteHelper.export(RouteHelper.getServiceChains(Folder.this.internal), file, false);
+			});
+			context.getItems().add(option);
+		}
+
+		// Import
+		{
+			MenuItem option = new MenuItem("Import", IconHelper.IMPORT.create());
+			option.setOnAction((event) -> {
+				ServiceChainerApp.get().importCollection(internal);
+			});
+			context.getItems().add(option);
+		}
+		
+		context.getItems().add(new SeparatorMenuItem());
+
+		// Rename context
+		{
+			if ( internal.isDeletable() ) {
+				MenuItem option = new MenuItem("Rename");
+				option.setOnAction((event) -> {
+					rename();
+				});
+				context.getItems().add(option);
+			}
+		}
+
+		// Duplicate context
+		{
+			MenuItem option = new MenuItem("Duplicate");
+			option.setOnAction((event) -> {
+				ServiceChainerApp.get().getData().duplicate(this.internal);
+			});
+			context.getItems().add(option);
+		}
+
+		// Delete context
+		{
+			if ( internal.isDeletable() ) {
+				MenuItem option = new MenuItem("Delete", IconHelper.DELETE.create());
+				option.setOnAction((event) -> {
+					this.internal.delete();
+				});
+				context.getItems().add(option);
+			}
+		}
+	}
+
 	private void onChildAdded(DFolderElement maybeServiceChain) {
 		if ( maybeServiceChain instanceof DServiceChain ) {
 			FolderElement label = new ServiceChain(internal, (DServiceChain) maybeServiceChain);

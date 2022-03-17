@@ -56,7 +56,7 @@ public class ServiceChainerApp extends Application {
 			}
 			
 			if ( args[0] instanceof DCollection ) {
-				ServiceChainerApp.get().getData().removeCollection(((DCollection)args[0]));
+				data.removeCollection(((DCollection)args[0]));
 			}
 		});
 	}

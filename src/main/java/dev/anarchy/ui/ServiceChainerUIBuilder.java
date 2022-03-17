@@ -1,13 +1,5 @@
 package dev.anarchy.ui;
 
-import java.io.File;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import dev.anarchy.common.DCollection;
 import dev.anarchy.ui.control.Collection;
 import dev.anarchy.ui.control.SearchBar;
@@ -32,8 +24,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.stage.FileChooser;
-import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 
 public class ServiceChainerUIBuilder {
@@ -199,9 +189,7 @@ public class ServiceChainerUIBuilder {
 		
 		// Add new collections on click
 		newCollection.setOnMouseClicked((event)->{
-			DCollection collection = new DCollection();
-			collection.setName("New Collection");
-			ServiceChainerApp.get().getData().addCollection(collection);
+			ServiceChainerApp.get().getData().newCollection();
 		});
 		
 		return pane;

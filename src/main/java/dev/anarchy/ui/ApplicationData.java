@@ -1,9 +1,11 @@
 package dev.anarchy.ui;
 
+import java.awt.Desktop;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,6 +39,9 @@ public class ApplicationData {
 	
 	@JsonIgnore
 	private Map<DCollection, File> collectionFileMap = new HashMap<>();
+	
+	@JsonIgnore
+	private Map<File, DCollection> fileCollectionMap = new HashMap<>();
 
 	@JsonIgnore
 	private Event onCollectionAddedEvent = new Event();
@@ -60,7 +65,8 @@ public class ApplicationData {
 		if ( UNORGANIZED != null && !this.collections.contains(UNORGANIZED) )
 			this.addCollection(UNORGANIZED);
 	}
-	
+
+	@JsonIgnore
 	public DServiceChain newServiceChain(DFolder parent) {
 		DServiceChain chain = new DServiceChain();
 		String baseName = chain.getName();
@@ -79,23 +85,51 @@ public class ApplicationData {
 		return chain;
 	}
 
-	public DFolder newFolder(DFolder internal) {
+	@JsonIgnore
+	public DFolder newFolder(DFolder parent) {
 		DFolder folder = new DFolder();
 		String baseName = folder.getName();
 		
 		int index = 0;
 		String checkName = baseName;
-		while(internal.getChild(checkName) != null) {
+		while(parent.getChild(checkName) != null) {
 			index += 1;
 			checkName = baseName + " (" + index + ")"; 
 		}
 		
 		folder.setName(checkName);
-		internal.addChild(folder);
+		parent.addChild(folder);
 		
 		save();
 		
 		return folder;
+	}
+
+	@JsonIgnore
+	public DCollection newCollection() {
+		DCollection folder = new DCollection();
+		String baseName = "New Collection";
+		
+		int index = 0;
+		String checkName = baseName;
+		while(getCollection(checkName) != null) {
+			index += 1;
+			checkName = baseName + " (" + index + ")"; 
+		}
+		
+		folder.setName(checkName);
+		this.addCollection(folder);
+		return folder;
+	}
+	
+	@JsonIgnore
+	public DCollection getCollection(String collectionName) {
+		for (DCollection collection : collections) {
+			if (collection.getName().equals(collectionName) )
+				return collection;
+		}
+		
+		return null;
 	}
 
 	@JsonIgnore
@@ -106,15 +140,32 @@ public class ApplicationData {
 		}
 		return Arrays.asList(arr);
 	}
-	
+
+	@JsonIgnore
 	public void addCollection(DCollection collection) {
 		if ( collections.add(collection) ) {
 			onCollectionAddedEvent.fire(collection);
+			save();
+			
+			collection.getOnNameChangeEvent().connect((args)->{
+				File file = collectionFileMap.get(collection);
+				if ( file != null ) {
+					try {
+						File newFile = new File(file.getParentFile().getAbsoluteFile() + File.separator + args[0]);
+						file.renameTo(newFile);
+						
+						fileCollectionMap.remove(file);
+						fileCollectionMap.put(newFile, collection);
+						collectionFileMap.put(collection, newFile);
+					} catch(Exception e) {
+						e.printStackTrace();
+					}
+				}
+			});
 		}
-		
-		save();
 	}
-	
+
+	@JsonIgnore
 	public void removeCollection(DCollection collection) {
 		// Remove collection internally
 		if ( collections.remove(collection) ) {
@@ -125,7 +176,7 @@ public class ApplicationData {
 		try {
 			File file = collectionFileMap.get(collection);
 			if ( file != null && file.exists() ) {
-				file.delete();
+				deleteDirectory(file);
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -134,23 +185,43 @@ public class ApplicationData {
 		// Save json
 		save();
 	}
-	
+
+	@JsonIgnore
+	private boolean deleteDirectory(File path) {
+	    if (path.exists()) {
+	        File[] files = path.listFiles();
+	        for (int i = 0; i < files.length; i++) {
+	            if (files[i].isDirectory()) {
+	                deleteDirectory(files[i]);
+	            } else {
+	                files[i].delete();
+	            }
+	        }
+	    }
+	    return (path.delete());
+	}
+
+	@JsonIgnore
 	public Event getOnCollectionAddedEvent() {
 		return this.onCollectionAddedEvent;
 	}
-	
+
+	@JsonIgnore
 	public Event getOnCollectionRemovedEvent() {
 		return this.onCollectionRemovedEvent;
 	}
-	
+
+	@JsonIgnore
 	public static String getAppDataPath() {
 		return System.getProperty("user.home") + File.separator + APPLICATION_NAME + File.separator;
 	}
-	
+
+	@JsonIgnore
 	public static String getAppDataFilePath() {
 		return getAppDataPath() + APPLICATION_FILENAME;
 	}
-	
+
+	@JsonIgnore
 	public static ApplicationData load() {
 		ApplicationData appData = new ApplicationData();
 		
@@ -186,6 +257,7 @@ public class ApplicationData {
 					}
 					
 					appData.collectionFileMap.put(collection, file);
+					appData.fileCollectionMap.put(file, collection);
 				} catch(Exception e) {
 					e.printStackTrace();
 				}
@@ -194,13 +266,14 @@ public class ApplicationData {
 		
 		// Add
 		for (DCollection collection : newCollections) {
-			appData.collections.add(collection);
+			appData.addCollection(collection);
 		}
 		
 		appData.onLoad();
 		return appData;
 	}
-	
+
+	@JsonIgnore
 	@Deprecated
 	public static ApplicationData loadLegacy() {
 		ApplicationData appData;
@@ -231,7 +304,8 @@ public class ApplicationData {
 		appData.onLoad();
 		return appData;
 	}
-	
+
+	@JsonIgnore
 	public void save() {
 		File appData = new File(getAppDataPath());
 		if ( !appData.exists() )
@@ -246,17 +320,22 @@ public class ApplicationData {
 			try {
 				String json = serializeJSON(collection);
 				
-			    BufferedWriter writer = new BufferedWriter(new FileWriter(folderPath + File.separator + APPLICATION_FILENAME));
+				FileWriter fw = new FileWriter(folderPath + File.separator + APPLICATION_FILENAME);
+			    BufferedWriter writer = new BufferedWriter(fw);
 			    writer.write(json);
+			    
 			    writer.close();
+			    fw.close();
 			    
 			    collectionFileMap.put(collection, folder);
+				fileCollectionMap.put(folder, collection);
 			} catch(Exception e) {
 				e.printStackTrace();
 			}
 		}
 	}
-	
+
+	@JsonIgnore
 	@Deprecated
 	public void saveLegacy() {
 		String json = this.serializeJSON(this);
@@ -274,7 +353,8 @@ public class ApplicationData {
 			e.printStackTrace();
 		}
 	}
-	
+
+	@JsonIgnore
 	private String serializeJSON(Object object) {
 		ObjectMapper objectMapper = new ObjectMapper();
 		try {
@@ -285,8 +365,8 @@ public class ApplicationData {
 		
 		return "{}";
 	}
-
 	
+	@JsonIgnore
 	public DFolder getParent(DFolderElement element) {
 		for (DCollection collection : getCollectionsUnmodifyable()) {
 			DFolder folder = getParentRecursive(element, collection);
@@ -296,7 +376,8 @@ public class ApplicationData {
 		
 		return null;
 	}
-	
+
+	@JsonIgnore
 	private DFolder getParentRecursive(DFolderElement check, DFolder parent) {
 		for (DFolderElement child : parent.getChildrenUnmodifyable()) {
 			if ( child == check ) {
@@ -313,6 +394,7 @@ public class ApplicationData {
 		return null;
 	}
 
+	@JsonIgnore
 	public DFolder duplicate(DFolder internal) {
 		DFolder newFolder = internal.clone();
 		newFolder.setDeletable(true);
@@ -328,6 +410,7 @@ public class ApplicationData {
 		return newFolder;
 	}
 
+	@JsonIgnore
 	public DServiceChain duplicate(DServiceChain internal) {
 		DServiceChain newObject = internal.clone();
 
@@ -337,6 +420,7 @@ public class ApplicationData {
 		return newObject;
 	}
 
+	@JsonIgnore
 	protected void importCollection(File selectedFile, DFolder parentFolder) {
 		if (selectedFile != null) {
 			String fileName = FileUtils.getFileNameFromPathWithoutExtension(selectedFile.getAbsolutePath());
@@ -384,5 +468,18 @@ public class ApplicationData {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	@JsonIgnore
+	public void openExplorer(DCollection internal) {
+        Desktop desktop = Desktop.getDesktop();
+        File dirToOpen = null;
+        try {
+            dirToOpen = collectionFileMap.get(internal);
+            desktop.open(dirToOpen);
+            System.out.println(dirToOpen);
+        } catch (IllegalArgumentException | IOException e) {
+        	e.printStackTrace();
+        }
 	}
 }
