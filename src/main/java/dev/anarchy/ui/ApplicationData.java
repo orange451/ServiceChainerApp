@@ -3,13 +3,16 @@ package dev.anarchy.ui;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -31,15 +34,20 @@ public class ApplicationData {
 	
 	@JsonProperty("Collections")
 	private List<DCollection> collections = new ArrayList<>();
+	
+	@JsonIgnore
+	private Map<DCollection, File> collectionFileMap = new HashMap<>();
 
 	@JsonIgnore
 	private Event onCollectionAddedEvent = new Event();
 	
 	@JsonIgnore
 	private Event onCollectionRemovedEvent = new Event();
-	
+
+	@JsonIgnore
 	private static final String APPLICATION_NAME = "ServiceChainer";
-	
+
+	@JsonIgnore
 	private static final String APPLICATION_FILENAME = "AppData.json";
 	
 	public ApplicationData() {
@@ -49,7 +57,7 @@ public class ApplicationData {
 	}
 	
 	private void onLoad() {
-		if ( this.collections.size() == 0 )
+		if ( UNORGANIZED != null && !this.collections.contains(UNORGANIZED) )
 			this.addCollection(UNORGANIZED);
 	}
 	
@@ -108,10 +116,22 @@ public class ApplicationData {
 	}
 	
 	public void removeCollection(DCollection collection) {
+		// Remove collection internally
 		if ( collections.remove(collection) ) {
 			onCollectionRemovedEvent.fire(collection);
 		}
 		
+		// Remove Collection file
+		try {
+			File file = collectionFileMap.get(collection);
+			if ( file != null && file.exists() ) {
+				file.delete();
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		// Save json
 		save();
 	}
 	
@@ -123,11 +143,66 @@ public class ApplicationData {
 		return this.onCollectionRemovedEvent;
 	}
 	
+	public static String getAppDataPath() {
+		return System.getProperty("user.home") + File.separator + APPLICATION_NAME + File.separator;
+	}
+	
 	public static String getAppDataFilePath() {
-		return System.getProperty("user.home") + File.separator + APPLICATION_NAME + File.separator + APPLICATION_FILENAME;
+		return getAppDataPath() + APPLICATION_FILENAME;
 	}
 	
 	public static ApplicationData load() {
+		ApplicationData appData = new ApplicationData();
+		
+		// Get all potential collections
+		File[] directories = new File(getAppDataPath()).listFiles(new FilenameFilter() {
+		  @Override
+		  public boolean accept(File current, String name) {
+		    return new File(current, name).isDirectory();
+		  }
+		});
+		
+		// Check all collections
+		List<DCollection> newCollections = new ArrayList<>();
+		for (File file : directories) {
+			String appDataPath = file.getAbsolutePath() + File.separator + APPLICATION_FILENAME;
+			System.out.println("Checking: " + appDataPath);
+			File appDataFile = new File(appDataPath);
+			if ( appDataFile.exists() ) {
+				try {
+					Path path = Paths.get(appDataPath);
+					byte[] data = Files.readAllBytes(path);
+					String json = new String(data, StandardCharsets.UTF_8);
+					System.out.println("READ JSON: " + json);
+					ObjectMapper objectMapper = new ObjectMapper();
+					
+					DCollection collection = objectMapper.readValue(json, DCollection.class);
+					
+					if ( collection.getName().equals("Unorganized") && !collection.isDeletable() ) {
+						appData.UNORGANIZED = collection;
+						newCollections.add(0, collection);
+					} else {
+						newCollections.add(collection);
+					}
+					
+					appData.collectionFileMap.put(collection, file);
+				} catch(Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		// Add
+		for (DCollection collection : newCollections) {
+			appData.collections.add(collection);
+		}
+		
+		appData.onLoad();
+		return appData;
+	}
+	
+	@Deprecated
+	public static ApplicationData loadLegacy() {
 		ApplicationData appData;
 		String json = null;
 		try {
@@ -158,7 +233,33 @@ public class ApplicationData {
 	}
 	
 	public void save() {
-		String json = this.serializeJSON();
+		File appData = new File(getAppDataPath());
+		if ( !appData.exists() )
+			appData.mkdirs();
+		
+		for (DCollection collection : collections) {
+			String folderPath = getAppDataPath() + collection.getName();
+			File folder = new File(folderPath);
+			if ( !folder.exists() )
+				folder.mkdirs();
+			
+			try {
+				String json = serializeJSON(collection);
+				
+			    BufferedWriter writer = new BufferedWriter(new FileWriter(folderPath + File.separator + APPLICATION_FILENAME));
+			    writer.write(json);
+			    writer.close();
+			    
+			    collectionFileMap.put(collection, folder);
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	@Deprecated
+	public void saveLegacy() {
+		String json = this.serializeJSON(this);
 		
 		try {
 			String path = getAppDataFilePath();
@@ -174,10 +275,10 @@ public class ApplicationData {
 		}
 	}
 	
-	private String serializeJSON() {
+	private String serializeJSON(Object object) {
 		ObjectMapper objectMapper = new ObjectMapper();
 		try {
-			return objectMapper.writeValueAsString(this);
+			return objectMapper.writeValueAsString(object);
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
