@@ -16,6 +16,7 @@ public class Collection extends Folder {
 		rootPane.setPrefSize(128, 64);
 		rootPane.setMaxHeight(rootPane.getPrefHeight());
 		rootPane.setMinHeight(rootPane.getPrefHeight());
+		rootPane.getStyleClass().add("Collection");
 		
 		DropShadow dropShadow = new DropShadow();
 		dropShadow.setRadius(5.0);

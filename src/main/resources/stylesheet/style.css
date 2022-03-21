@@ -1,0 +1,23 @@
+.Collection {
+	-fx-background-color:rgb(255, 255, 255);
+}
+
+.Folder {
+	-fx-background-color:rgb(255, 255, 255);
+}
+
+.Collection-Elements {
+	-fx-background-color:rgb(200, 200, 200);
+}
+
+.Service-Chain-Editor-Topbar {
+	-fx-background-color:rgb(255, 255, 255);
+}
+
+.Filter-Topbar {
+	-fx-background-color:rgb(255, 255, 255);
+}
+
+.Filter-Base {
+	-fx-background-color:rgb(255, 255, 255);
+}

@@ -8,7 +8,8 @@ import dev.anarchy.common.DCollection;
 import dev.anarchy.common.DServiceChain;
 import dev.anarchy.ui.ApplicationData;
 import dev.anarchy.ui.ServiceChainerApp;
-import javafx.beans.value.ChangeListener;
+import dev.anarchy.ui.ServiceChainerUIBuilder;
+import dev.anarchy.ui.control.servicechain.ServiceChainEditor;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -68,7 +69,7 @@ public class Workspace extends BorderPane {
 	}
 
 	private Tab newTab() {
-		ButtonTab newTab = new ButtonTab(new Label("\u2795"));
+		ButtonTab newTab = new ButtonTab(new Label("+"));
 		newTab.setClosable(false);
 		
 		// Create new service chain
@@ -114,8 +115,9 @@ public class Workspace extends BorderPane {
 					return;
 				
 			    Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Do you wish to save changes?", ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
+		        ServiceChainerUIBuilder.setTheme(alert.getDialogPane());
+		        alert.getDialogPane().getStylesheets();
 			    ButtonType result = alert.showAndWait().orElse(ButtonType.NO);
-			    
 			    
 			    if ( result.equals(ButtonType.YES) ) {
 			    	save(internal);
@@ -160,6 +162,7 @@ public class Workspace extends BorderPane {
 		
 		ServiceChainEditor editor = (ServiceChainEditor) tab.getContent();
     	internal.copyFrom(editor.getServiceChain());
+    	//ServiceChainHelper.saveServiceChain(internal);
 		tab.setText(internal.getName());
 		MODIFIED = false;
 	}

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import dev.anarchy.ace.AceEditor;
 import dev.anarchy.ace.Modes;
 import dev.anarchy.translate.util.JSONUtils;
+import dev.anarchy.ui.ServiceChainerUIBuilder;
 import dev.anarchy.ui.util.IconHelper;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Insets;
@@ -108,6 +109,7 @@ public abstract class RunnerWindowBase extends PopupWindow {
 
         split.getItems().add(layout);
         Scene toolScene = new Scene(split, 640, 480);
+        ServiceChainerUIBuilder.setTheme(toolScene);
         stage.setScene(toolScene);
         
         stage.setTitle("Runner");

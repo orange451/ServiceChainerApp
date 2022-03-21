@@ -67,7 +67,7 @@ public class ApplicationData {
 	private static final String EXTENSION_HANDLER_FILENAME = "ExtensionHandler.json";
 	
 	@JsonIgnore
-	private static final String EXTENSION_HANDLER_FOLDER = "ExtensionHandler";
+	private static final String EXTENSION_HANDLER_FOLDER = "ExtensionHandlers";
 	
 	public ApplicationData() {
 		UNORGANIZED.setDeletable(false);

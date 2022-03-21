@@ -4,6 +4,7 @@ import dev.anarchy.ace.AceEditor;
 import dev.anarchy.ace.AceEvents;
 import dev.anarchy.ace.Modes;
 import dev.anarchy.common.DServiceDefinition;
+import dev.anarchy.ui.ServiceChainerUIBuilder;
 import dev.anarchy.ui.control.PopupWindow;
 import dev.anarchy.ui.util.IconHelper;
 import javafx.beans.value.ChangeListener;
@@ -116,5 +117,6 @@ public class TemplateEditor extends PopupWindow {
 		layout = new BorderPane();
         Scene toolScene = new Scene(layout, 1024, 576);
         stage.setScene(toolScene);
+        ServiceChainerUIBuilder.setTheme(toolScene);
 	}
 }

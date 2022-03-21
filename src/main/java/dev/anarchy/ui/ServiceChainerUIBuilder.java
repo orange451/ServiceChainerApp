@@ -1,12 +1,24 @@
 package dev.anarchy.ui;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
+
 import dev.anarchy.common.DCollection;
 import dev.anarchy.ui.control.Collection;
 import dev.anarchy.ui.control.SearchBar;
 import dev.anarchy.ui.control.Workspace;
 import javafx.application.Platform;
+import javafx.css.Styleable;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
@@ -60,6 +72,31 @@ public class ServiceChainerUIBuilder {
 		accelerators(stage);
 		
 		setIcon(stage);
+
+		setTheme(stage.getScene());
+	}
+	
+	protected static List<String> getStylesheet() {
+		return Arrays.asList(
+			"stylesheet/bootstrap2.css",
+			"stylesheet/style.css"
+		);
+	}
+
+	public static void setTheme(Parent scene) {
+		try {
+			scene.getStylesheets().addAll(getStylesheet());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void setTheme(Scene scene) {
+		try {
+			scene.getStylesheets().addAll(getStylesheet());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	private static void accelerators(Stage stage) {
@@ -121,13 +158,16 @@ public class ServiceChainerUIBuilder {
 	private static Pane filter() {
 		VBox pane = new VBox();
 		pane.setPrefHeight(Double.MAX_VALUE);
+		//pane.setStyle("-fx-background-color:white;");
+		pane.getStyleClass().add("Filter-Base");
 		pane.setSpacing(8);
 		pane.setMinWidth(200);
 		pane.setMaxWidth(400);
 	
 		// Top bar
 		VBox v = new VBox();
-		v.setStyle("-fx-background-color: rgb(245,245,245);");
+		v.getStyleClass().add("Filter-Topbar");
+		//v.setStyle("-fx-background-color: rgb(245,245,245);");
 		v.setSpacing(8);
 		
 		pane.getChildren().add(v);
@@ -135,7 +175,7 @@ public class ServiceChainerUIBuilder {
 		v.setPadding(new Insets(8,8,8,8));
 		v.getChildren().add(new SearchBar());
 		
-		Label newCollection = new Label("\u2795 New Collection");
+		Label newCollection = new Label("+ New Collection");
 		newCollection.setStyle("-fx-text-fill: #F5823A");
 		v.getChildren().add(newCollection);
 		
@@ -159,7 +199,7 @@ public class ServiceChainerUIBuilder {
 		pane.getChildren().add(scroll);
 		
 		VBox elements = new VBox();
-		elements.setStyle("-fx-background-color:rgb(200, 200, 200);");
+		elements.getStyleClass().add("Collection-Elements");
 		elements.setSpacing(1);
 		elements.setPadding(new Insets(0,0,1,0));
 		scroll.setContent(elements);

@@ -61,7 +61,7 @@ public class Folder extends VBox implements FolderElement {
 		rootPane.setSpacing(8);
 		rootPane.setPadding(new Insets(0, 4, 0, 8));
 		rootPane.setAlignment(Pos.CENTER_LEFT);
-		rootPane.setStyle("-fx-background-color:rgb(245, 245, 245);");
+		rootPane.getStyleClass().add("Folder");
 		rootPane.setPrefSize(128, 32);
 		rootPane.setMaxHeight(rootPane.getPrefHeight());
 		rootPane.setMinHeight(rootPane.getPrefHeight());
