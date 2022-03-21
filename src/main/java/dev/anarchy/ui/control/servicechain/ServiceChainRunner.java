@@ -1,10 +1,11 @@
-package dev.anarchy.ui.control;
+package dev.anarchy.ui.control.servicechain;
 
 import java.util.Map;
 
 import dev.anarchy.common.DServiceChain;
 import dev.anarchy.translate.runner.BasicServiceChainRunner;
 import dev.anarchy.translate.util.JSONUtils;
+import dev.anarchy.ui.control.RunnerWindowBase;
 import dev.anarchy.ace.Modes;
 
 public class ServiceChainRunner extends RunnerWindowBase {

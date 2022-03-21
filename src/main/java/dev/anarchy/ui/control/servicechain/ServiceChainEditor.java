@@ -1,12 +1,20 @@
-package dev.anarchy.ui.control;
+package dev.anarchy.ui.control.servicechain;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+
+import dev.anarchy.common.DConditionElement;
 import dev.anarchy.common.DRouteElement;
 import dev.anarchy.common.DRouteElementI;
 import dev.anarchy.common.DServiceChain;
 import dev.anarchy.common.DServiceDefinition;
+import dev.anarchy.common.condition.ConditionMeta;
+import dev.anarchy.translate.util.ServiceChainHelper;
+import dev.anarchy.ui.control.GraphObject;
+import dev.anarchy.ui.control.GraphObjectCondition;
 import dev.anarchy.ui.util.ColorHelper;
 import dev.anarchy.ui.util.IconHelper;
 import javafx.application.Platform;
@@ -42,7 +50,7 @@ public class ServiceChainEditor extends BorderPane {
 		this.internal = internal;
 		
 		BorderPane topBar = new BorderPane();
-		topBar.setStyle("-fx-background-color: rgb(240,240,240);");
+		topBar.getStyleClass().add("Service-Chain-Editor-Topbar");
 		topBar.setPadding(new Insets(8, 8, 8, 8));
 		topBar.prefWidthProperty().bind(this.widthProperty());
 		this.setTop(topBar);
@@ -51,18 +59,31 @@ public class ServiceChainEditor extends BorderPane {
 		{
 			HBox buttons = new HBox();
 			buttons.setSpacing(6);
-			Button newB = new Button("New Service Definition");
-			newB.setOnAction((event) -> {
-				DServiceDefinition sDef = new DServiceDefinition();
-				sDef.setExtensionHandlerRouteId("Service Definition");
-				sDef.setColor(ColorHelper.toHexString(Color.DARKCYAN));
-				sDef.setSize(220, 60);
-				double x = round(editPane.getPrefWidth() / 2) - round(sDef.getWidth() / 2);
-				double y = round(editPane.getPrefWidth() / 2) - round(sDef.getHeight() / 2);
-				sDef.setPosition(x, y);
-				internal.addRoute(sDef);
-			});
-			buttons.getChildren().add(newB);
+			
+			{
+				Button button = new Button("New Service Definition");
+				button.setOnAction((event) -> {
+					DServiceDefinition sDef = new DServiceDefinition();
+					sDef.setExtensionHandlerRouteId("Service Definition");
+					sDef.setColor(ServiceChainHelper.getDefaultServiceDefinitionColor());
+					sDef.setSize(220, 60);
+					double x = round(editPane.getPrefWidth() / 2) - round(sDef.getWidth() / 2);
+					double y = round(editPane.getPrefWidth() / 2) - round(sDef.getHeight() / 2);
+					sDef.setPosition(x, y);
+					internal.addRoute(sDef);
+				});
+				buttons.getChildren().add(button);
+			}
+			
+			{
+				Button button = new Button("New Condition");
+				button.setDisable(true);
+				button.setOnAction((event) -> {
+					newConditionNode(null);
+				});
+				buttons.getChildren().add(button);
+			}
+			
 			topBar.setLeft(buttons);
 		}
 
@@ -78,15 +99,25 @@ public class ServiceChainEditor extends BorderPane {
 			buttons2.getChildren().add(play);
 			
 			Button edit = new Button("", IconHelper.GEAR.create());
+			edit.setOnMouseClicked((event)->{
+				new ServiceChainConfigurator((DServiceChain) internal);
+			});
 			buttons2.getChildren().add(edit);
 			
 			topBar.setRight(buttons2);
 		}
 
-		DropShadow dropShadow = new DropShadow();
+		/*DropShadow dropShadow = new DropShadow();
 		dropShadow.setRadius(5.0);
 		dropShadow.setOffsetX(0.0);
 		dropShadow.setOffsetY(3.0);
+		dropShadow.setColor(Color.color(0.4, 0.5, 0.5));
+		topBar.setEffect(dropShadow);*/
+		
+		DropShadow dropShadow = new DropShadow();
+		dropShadow.setRadius(5.0);
+		dropShadow.setOffsetX(0.0);
+		dropShadow.setOffsetY(1.0);
 		dropShadow.setColor(Color.color(0.4, 0.5, 0.5));
 		topBar.setEffect(dropShadow);
 
@@ -111,6 +142,41 @@ public class ServiceChainEditor extends BorderPane {
 		});
 
 		// Entry node
+		createEntryPointNode(internal);
+
+		// Create new Graph Object when new route is added
+		internal.getOnRouteAddedEvent().connect((args) -> {
+			newRouteElementNode(internal, (DRouteElement) args[0]);
+		});
+		
+		// Create graph objects for all routes already in
+		for (DRouteElementI element : internal.getRoutesUnmodifyable())
+			newRouteElementNode(internal, element);
+
+		// Remove graph object when route is removed
+		internal.getOnRouteRemovedEvent().connect((args) -> {
+			removeRouteElementNode(internal, (DRouteElement) args[0]);
+		});
+		
+		// Create initial condition graph objects
+		for (DRouteElementI element : internal.getRoutesUnmodifyable()) {
+			if (element instanceof DServiceDefinition) {
+				if (!StringUtils.isEmpty(((DServiceDefinition)element).getCondition())) {
+					newConditionNode((DServiceDefinition) element); 
+				}
+			}
+		}
+		
+		// Initial link for all graph objects
+		new Thread(()->{
+			try {Thread.sleep(50);} catch (InterruptedException e) {}
+			Platform.runLater(()->{
+				connectNodes();
+			});
+		}).start();
+	}
+	
+	private void createEntryPointNode(DServiceChain internal) {
 		GraphObject entryNode = newRouteElementNode(internal, internal);
 		entryNode.setCornerAsPercent();
 		if (internal.getX() == 0 && internal.getY() == 0) {
@@ -119,24 +185,83 @@ public class ServiceChainEditor extends BorderPane {
 			double y = round(editPane.getPrefWidth() / 2 * 0.9125) - round(entryNode.getPrefHeight() / 2);
 			internal.setPosition(x, y);
 		}
+	}
 
-		// Service Defs
-		internal.getOnRouteAddedEvent().connect((args) -> {
-			newRouteElementNode(internal, (DRouteElement) args[0]);
-		});
-		for (DRouteElementI element : internal.getRoutesUnmodifyable())
-			newRouteElementNode(internal, element);
+	public void removeNode(GraphObject object) {
+		this.editPane.getChildren().remove(object);
+		this.nodes.remove(object);
+		this.connectNodes();
+	}
 
-		internal.getOnRouteRemovedEvent().connect((args) -> {
-			removeRouteElementNode(internal, (DRouteElement) args[0]);
+	private GraphObjectCondition newConditionNode(DServiceDefinition source) {
+		DConditionElement condition = new DConditionElement();
+		
+		// Setup new condition element
+		processConditionNode(source, condition);
+		
+		// Update on change
+		condition.getOnChangedEvent().connect((args)->{
+			condition.getConditionMeta().setPosition(condition.getX(), condition.getY());
+			condition.getConditionMeta().setSize(condition.getWidth(), condition.getHeight());
+			condition.getConditionMeta().setColor(condition.getColor());
+			condition.getConditionMeta().setName(condition.getName());
 		});
 		
-		new Thread(()->{
-			try {Thread.sleep(50);} catch (InterruptedException e) {}
-			Platform.runLater(()->{
-				connectNodes();
-			});
-		}).start();
+		// Create graph object
+		GraphObjectCondition g = new GraphObjectCondition(this, this.internal, condition);
+		g.setCornerRadius(0); 
+		this.editPane.getChildren().add(g);
+		
+		// Update / Display
+		updateRouteElement(condition, g);
+		nodes.add(g);
+		return g;
+	}
+
+	private void processConditionNode(DServiceDefinition source, DConditionElement condition) {
+		if ( source == null ) { // USER CLICKED NEW
+			condition.setSize(ServiceChainHelper.getDefaultServiceChainElementWidth(), ServiceChainHelper.getDefaultServiceChainElementWidth());
+			condition.setPosition(ServiceChainHelper.getDefaultServiceChainElementX(), ServiceChainHelper.getDefaultServiceChainElementY());
+			condition.setColor(ServiceChainHelper.getDefaultConditionColor());
+			condition.setName("Condition");
+		} else { // Create one based off service def
+			condition.setCondition(source.getCondition());
+			
+			// HACKY. Must be RESET upon saving...
+			DRouteElementI parentElement = getRouteElement(source.getSourceId());
+			source.setSourceId(condition.getDestinationId());
+			if ( parentElement != null ) {
+				condition.setSourceId(parentElement.getDestinationId());
+				
+				for (DRouteElementI element : internal.getRoutesUnmodifyable()) {
+					if ( element instanceof DServiceDefinition && StringUtils.equalsIgnoreCase(element.getSourceId(), parentElement.getDestinationId())) {
+						((DServiceDefinition)element).setSourceId(condition.getDestinationId());
+					}
+				}
+			}
+			
+			// Setup meta
+			if ( source.getConditionMeta() != null ) {
+				condition.setConditionMeta(source.getConditionMeta());
+				condition.setPosition(source.getConditionMeta().getX(), source.getConditionMeta().getY());
+				condition.setSize(source.getConditionMeta().getWidth(), source.getConditionMeta().getHeight());
+				condition.setColor(source.getConditionMeta().getColor());
+				condition.setName(source.getConditionMeta().getName());
+			} else {
+				condition.setSize(ServiceChainHelper.getDefaultServiceChainElementWidth(), ServiceChainHelper.getDefaultServiceChainElementWidth());
+				condition.setPosition(ServiceChainHelper.getDefaultServiceChainElementX(), ServiceChainHelper.getDefaultServiceChainElementY());
+				condition.setColor(ServiceChainHelper.getDefaultConditionColor());
+				condition.setName("Condition");
+			}
+		}
+	}
+
+	private DRouteElementI getRouteElement(String destinationId) {
+		for (DRouteElementI route : internal.getRoutesUnmodifyable()) {
+			if ( route.getDestinationId().equalsIgnoreCase(destinationId))
+				return route;
+		}
+		return null;
 	}
 
 	protected void clearCurves() {
@@ -152,7 +277,7 @@ public class ServiceChainEditor extends BorderPane {
 		curves.clear();
 	}
 
-	protected void connectNodes() {
+	public void connectNodes() {
 		clearCurves();
 
 		System.out.println("Reconnecting nodes");
@@ -162,11 +287,31 @@ public class ServiceChainEditor extends BorderPane {
 				if (conTo == node)
 					continue;
 
-				String source = conTo.getRouteElement().getSourceId();
-				String dest = node.getRouteElement().getDestinationId();
+				DRouteElementI fromElement = node.getRouteElement();
+				DRouteElementI toElement = conTo.getRouteElement();
+				
+				String source = toElement.getSourceId(); // From node potential
+				String dest = fromElement.getDestinationId(); // From Node real
+				
+				String entryCondition = null;
+				ConditionMeta fromMeta = null;
+				if ( fromElement instanceof DConditionElement ) {
+					entryCondition = ((DConditionElement)fromElement).getCondition();
+					fromMeta = ((DConditionElement)fromElement).getConditionMeta();
+				}
+				
 				if (source != null && source.equals(dest)) {
 					connectNode(node, conTo);
-					continue;
+					
+					if ( toElement instanceof DServiceDefinition ) {
+						if ( !StringUtils.isEmpty(entryCondition) ) {
+							((DServiceDefinition)toElement).setCondition(entryCondition);
+							((DServiceDefinition)toElement).setConditionMeta(fromMeta);
+						} else {
+							((DServiceDefinition)toElement).setCondition(null);
+							((DServiceDefinition)toElement).setConditionMeta(null);
+						}
+					}
 				}
 			}
 		}
@@ -330,8 +475,7 @@ public class ServiceChainEditor extends BorderPane {
 		}
 
 		if (newNode != null) {
-			newNode.setStyle(
-					"-fx-border-color:orange; -fx-border-width: 3; -fx-border-style: segments(10, 10) line-cap square;");
+			newNode.setStyle("-fx-border-color: orange; -fx-border-width: 3; -fx-border-style: segments(10, 10) line-cap square;");
 		}
 	}
 	
