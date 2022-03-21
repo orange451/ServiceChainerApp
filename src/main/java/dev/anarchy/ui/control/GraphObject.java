@@ -5,6 +5,12 @@ import dev.anarchy.common.DRouteElementI;
 import dev.anarchy.common.DServiceChain;
 import dev.anarchy.common.DServiceDefinition;
 import dev.anarchy.common.util.RouteHelper;
+import dev.anarchy.ui.control.servicechain.ServiceChainConfigurator;
+import dev.anarchy.ui.control.servicechain.ServiceChainEditor;
+import dev.anarchy.ui.control.servicechain.ServiceChainRunner;
+import dev.anarchy.ui.control.servicechain.ServiceDefinitionEditor;
+import dev.anarchy.ui.control.servicechain.TemplateEditor;
+import dev.anarchy.ui.control.servicechain.TemplateEditorType;
 import dev.anarchy.ui.util.IconHelper;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -63,11 +69,6 @@ public class GraphObject extends StackPane {
 		label = new Label("Node");
 		label.setMouseTransparent(true);
 		this.getChildren().add(label);
-
-		this.setOnMousePressed((event)->{
-			editor.setSelectedNode(this);
-			event.consume();
-		});
 		
 		linkerNode = new LinkNode(routeElement, serviceChain, this);
 		
@@ -110,16 +111,23 @@ public class GraphObject extends StackPane {
 			}
 		});
 		
-		updateContext();
-		
 		this.setOnMousePressed((event)->{
 	        if(event.getButton().equals(MouseButton.PRIMARY)){
 				double hWid = this.getWidth()/2;
 				double hHei = this.getHeight()/2;
 	        	clickOffsetX = event.getX()-hWid;
 	        	clickOffsetY = event.getY()-hHei;
+				editor.setSelectedNode(this);
+				event.consume();
 	        }
 		});
+		
+		this.context = new ContextMenu();
+		this.context.setAutoHide(true);
+		this.context.setHideOnEscape(true);
+
+		this.context.getItems().clear();
+		updateContext(this.context);
 
 		// Show context
 		this.setOnMouseClicked((event) -> {
@@ -133,7 +141,8 @@ public class GraphObject extends StackPane {
 	            }
 	        } else if (event.getButton() == MouseButton.SECONDARY) {
 				if (!context.isShowing()) {
-					updateContext();
+					this.context.getItems().clear();
+					updateContext(this.context);
 					context.show(this, event.getScreenX(), event.getScreenY());
 				}
 			}
@@ -142,10 +151,26 @@ public class GraphObject extends StackPane {
 		update();
 	}
 	
-	private void updateContext() {
-		context = new ContextMenu();
-		context.setAutoHide(true);
-		context.setHideOnEscape(true);
+	protected void updateContext(ContextMenu context) {
+
+		// CONFIGURE SERVICE CHAIN
+		if ( routeElement instanceof DServiceChain ) {
+			MenuItem option = new MenuItem("Configure", IconHelper.GEAR.create());
+			option.setOnAction((event) -> {
+				new ServiceChainConfigurator((DServiceChain) routeElement);
+				//new ServiceDefinitionEditor((DServiceDefinition) routeElement).show();
+			});
+			context.getItems().add(option);
+		}
+		
+		// TEST SERVICE CHAIN
+		if ( routeElement instanceof DServiceChain ) {
+			MenuItem option = new MenuItem("Test", IconHelper.PLAY.create());
+			option.setOnAction((event) -> {
+				new ServiceChainRunner((DServiceChain) routeElement).show();
+			});
+			context.getItems().add(option);
+		}
 		
 		String inputType = "[None]";
 		if ( routeElement instanceof DServiceDefinition ) {
@@ -181,13 +206,13 @@ public class GraphObject extends StackPane {
 			MenuItem option = new MenuItem("Delete", IconHelper.DELETE.create());
 			option.setOnAction((event) -> {
 				serviceChain.removeRoute((DRouteElement) routeElement);
-				delete();
+				onDelete();
 			});
 			context.getItems().add(option);
 		}
 	}
 	
-	private void delete() {
+	protected void onDelete() {
 		
 	}
 
@@ -202,7 +227,7 @@ public class GraphObject extends StackPane {
 	}
 	
 	private boolean percentCorner = false;
-	protected void setCornerAsPercent() {
+	public void setCornerAsPercent() {
 		percentCorner = true;
 		update();
 	}
