@@ -13,19 +13,19 @@ import dev.anarchy.common.DServiceChain;
 import dev.anarchy.common.DServiceDefinition;
 import dev.anarchy.common.condition.ConditionMeta;
 import dev.anarchy.translate.util.ServiceChainHelper;
+import dev.anarchy.ui.ServiceChainerApp;
 import dev.anarchy.ui.control.GraphObject;
 import dev.anarchy.ui.control.GraphObjectCondition;
 import dev.anarchy.ui.util.ColorHelper;
 import dev.anarchy.ui.util.IconHelper;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Slider;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
@@ -48,8 +48,12 @@ public class ServiceChainEditor extends BorderPane {
 	private List<GraphObject> nodes = new ArrayList<>();
 	
 	private DServiceChain internal;
+	
+	private boolean ignoreChangeEvents;
 
 	public ServiceChainEditor(DServiceChain oldServiceChain) {
+		ignoreChangeEvents = true;
+		
 		DServiceChain internal = oldServiceChain.clone();
 		this.internal = internal;
 		
@@ -89,6 +93,24 @@ public class ServiceChainEditor extends BorderPane {
 			}
 			
 			topBar.setLeft(buttons);
+		}
+		
+		// Center top bar
+		{
+			Button button = new Button("Save");
+			button.setPrefWidth(200);
+			button.getStyleClass().add("info");
+			
+			button.setOnAction((event)->{
+				ServiceChainerApp.get().saveCurrent();
+			});
+			
+			Platform.runLater(() -> {
+				SimpleBooleanProperty modifiedProperty = ServiceChainerApp.get().getWorkspace().getModifiedStatusProperty(oldServiceChain);
+				button.visibleProperty().bind(modifiedProperty);
+			});
+			
+			topBar.setCenter(button);
 		}
 
 		// Right top bar
@@ -151,6 +173,7 @@ public class ServiceChainEditor extends BorderPane {
 			setSelectedNode(null);
 		});
 
+		
 		// Entry node
 		createEntryPointNode(internal);
 
@@ -179,16 +202,13 @@ public class ServiceChainEditor extends BorderPane {
 		
 		// Initial link for all graph objects
 		new Thread(()->{
-			try {Thread.sleep(50);} catch (InterruptedException e) {}
+			try {Thread.sleep(25);} catch (InterruptedException e) {}
 			Platform.runLater(()->{
 				connectNodes();
+				centerView();
+				ignoreChangeEvents = false;
 			});
 		}).start();
-		
-		// Center view
-		Platform.runLater(()->{
-			centerView();
-		});
 	}
 
 	private double getViewportValue(double x, double viewportLength, double totalLength, double ratio) {
@@ -475,8 +495,9 @@ public class ServiceChainEditor extends BorderPane {
 
 		routeElement.getOnChangedEvent().connect((args) -> {
 			updateRouteElement(routeElement, g);
-			if ( routeElement != this.internal )
-				this.internal.getOnChangedEvent().fire();
+			if ( routeElement != this.internal && !ignoreChangeEvents ) {
+				this.internal.getOnChangedEvent().fire(routeElement, args);
+			}
 		});
 
 		nodes.add(g);
