@@ -6,10 +6,13 @@ import java.util.Map.Entry;
 
 import dev.anarchy.common.DCollection;
 import dev.anarchy.common.DServiceChain;
+import dev.anarchy.translate.util.ServiceChainHelper;
 import dev.anarchy.ui.ApplicationData;
 import dev.anarchy.ui.ServiceChainerApp;
 import dev.anarchy.ui.ServiceChainerUIBuilder;
 import dev.anarchy.ui.control.servicechain.ServiceChainEditor;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -27,8 +30,7 @@ public class Workspace extends BorderPane {
 	private TabPane tabs;
 
 	private Map<DServiceChain, Tab> openTabs = new HashMap<>();
-	
-	private boolean MODIFIED = false;
+	private Map<DServiceChain, SimpleBooleanProperty> modifiedStatus = new HashMap<>();
 
 	public Workspace() {
 		Tab createNewTab = newTab();
@@ -105,13 +107,19 @@ public class Workspace extends BorderPane {
 			final Tab tab = new Tab(internal.getName());
 			openTab = tab;
 			
+			// Add to SECOND TO LAST tab. Last tab is "+" button
 			tabs.getTabs().add(tabs.getTabs().size() - 1, tab);
-			openTabs.put(internal, tab);
 			
+			// Update trackers
+			openTabs.put(internal, tab);
+			modifiedStatus.put(internal, new SimpleBooleanProperty(false));
+			
+			// Create new editor
 			ServiceChainEditor editor = new ServiceChainEditor(internal);
-
+			
+			// Handle request close logic
 			tab.setOnCloseRequest((event)->{
-				if ( !MODIFIED )
+				if ( !modifiedStatus.get(internal).get() )
 					return;
 				
 			    Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Do you wish to save changes?", ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
@@ -126,14 +134,16 @@ public class Workspace extends BorderPane {
 			    }
 			});
 			
+			// Mark service chain as modified
 			editor.getServiceChain().getOnChangedEvent().connect((args)->{
 				tab.setText("*" + internal.getName());
-				MODIFIED = true;
+				modifiedStatus.get(internal).setValue(true);
 			});
+			
 			
 			tab.setOnClosed((event) -> {
 				openTabs.remove(internal);
-				ServiceChainerApp.get().getData().save();
+				modifiedStatus.get(internal).setValue(false);
 			});
 
 			tab.setContent(editor);
@@ -160,10 +170,24 @@ public class Workspace extends BorderPane {
 		if ( node == null || !(node instanceof ServiceChainEditor) )
 			return;
 		
+		// Get editor
 		ServiceChainEditor editor = (ServiceChainEditor) tab.getContent();
+		
+		// Copy service chain back to app data
     	internal.copyFrom(editor.getServiceChain());
-    	//ServiceChainHelper.saveServiceChain(internal);
+    	
+    	// Extra save transformation logic
+    	ServiceChainHelper.saveServiceChain(internal);
+    	
+    	// Mark as unmodified
 		tab.setText(internal.getName());
-		MODIFIED = false;
+		modifiedStatus.get(internal).setValue(false);
+		
+		// Write to file
+		ServiceChainerApp.get().getData().save();
+	}
+	
+	public SimpleBooleanProperty getModifiedStatusProperty(DServiceChain serviceChain) {
+		return modifiedStatus.get(serviceChain);
 	}
 }
