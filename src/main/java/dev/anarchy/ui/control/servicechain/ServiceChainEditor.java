@@ -92,18 +92,24 @@ public class ServiceChainEditor extends BorderPane {
 			HBox buttons2 = new HBox();
 			buttons2.setSpacing(6);
 			
-			Button play = new Button("", IconHelper.PLAY.create(Color.WHITE));
-			play.getStyleClass().add("primary");
-			play.setOnMouseClicked((event)->{
-				new ServiceChainRunner(internal).show();
-			});
-			buttons2.getChildren().add(play);
+			// Edit
+			{
+				Button edit = new Button("", IconHelper.GEAR.create());
+				edit.setOnMouseClicked((event)->{
+					new ServiceChainConfigurator((DServiceChain) internal);
+				});
+				buttons2.getChildren().add(edit);
+			}
 			
-			Button edit = new Button("", IconHelper.GEAR.create());
-			edit.setOnMouseClicked((event)->{
-				new ServiceChainConfigurator((DServiceChain) internal);
-			});
-			buttons2.getChildren().add(edit);
+			// Test
+			{
+				Button play = new Button("", IconHelper.PLAY.create(Color.WHITE));
+				play.getStyleClass().add("primary");
+				play.setOnMouseClicked((event)->{
+					new ServiceChainRunner(internal).show();
+				});
+				buttons2.getChildren().add(play);
+			}
 			
 			topBar.setRight(buttons2);
 		}
