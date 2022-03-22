@@ -92,7 +92,8 @@ public class ServiceChainEditor extends BorderPane {
 			HBox buttons2 = new HBox();
 			buttons2.setSpacing(6);
 			
-			Button play = new Button("", IconHelper.PLAY.create());
+			Button play = new Button("", IconHelper.PLAY.create(Color.WHITE));
+			play.getStyleClass().add("primary");
 			play.setOnMouseClicked((event)->{
 				new ServiceChainRunner(internal).show();
 			});
@@ -106,13 +107,6 @@ public class ServiceChainEditor extends BorderPane {
 			
 			topBar.setRight(buttons2);
 		}
-
-		/*DropShadow dropShadow = new DropShadow();
-		dropShadow.setRadius(5.0);
-		dropShadow.setOffsetX(0.0);
-		dropShadow.setOffsetY(3.0);
-		dropShadow.setColor(Color.color(0.4, 0.5, 0.5));
-		topBar.setEffect(dropShadow);*/
 		
 		DropShadow dropShadow = new DropShadow();
 		dropShadow.setRadius(5.0);

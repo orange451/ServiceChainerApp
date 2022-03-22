@@ -7,6 +7,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -76,11 +77,37 @@ public class ServiceChainerUIBuilder {
 		setTheme(stage.getScene());
 	}
 	
+	protected static String getExternalResource(String resourceName) {
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+		try {
+			return classLoader.getResource(resourceName).toExternalForm();
+		} catch(Exception e) {
+			return null;
+		}
+	}
+	
 	protected static List<String> getStylesheet() {
-		return Arrays.asList(
+		
+		// List of stylesheets we want to load
+		List<String> styleSheets = Arrays.asList(
 			"stylesheet/bootstrap2.css",
 			"stylesheet/style.css"
 		);
+		
+		// Styles in IDE
+		List<String> styles = new ArrayList<>();
+		styles.addAll(styleSheets);
+		
+		// Styles outside of IDE (external)
+		for (String style : styleSheets) {
+			String externalStyle = "resources/" + style;
+			String externalResource = getExternalResource(externalStyle);
+			if ( externalResource != null ) {
+				styles.add(externalStyle);
+			}
+		}
+		
+		return styles;
 	}
 
 	public static void setTheme(Parent scene) {
