@@ -136,7 +136,7 @@ public class GraphObject extends StackPane {
 	            	if ( routeElement instanceof DServiceDefinition ) {
 		        		new ServiceDefinitionEditor((DServiceDefinition) routeElement).show();
 	            	} else if ( routeElement instanceof DServiceChain ) {
-	            		new ServiceChainRunner((DServiceChain) routeElement).show();
+	            		new ServiceChainConfigurator((DServiceChain) routeElement).show();
 	            	}
 	            }
 	        } else if (event.getButton() == MouseButton.SECONDARY) {
