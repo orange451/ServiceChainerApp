@@ -36,6 +36,8 @@ import javafx.scene.shape.StrokeLineCap;
 public class ServiceChainEditor extends BorderPane {
 
 	private Pane editPane;
+	
+	private ScrollPane scroll;
 
 	private GraphObject selectedNode;
 
@@ -67,8 +69,8 @@ public class ServiceChainEditor extends BorderPane {
 					sDef.setExtensionHandlerRouteId("Service Definition");
 					sDef.setColor(ServiceChainHelper.getDefaultServiceDefinitionColor());
 					sDef.setSize(220, 60);
-					double x = round(editPane.getPrefWidth() / 2) - round(sDef.getWidth() / 2);
-					double y = round(editPane.getPrefWidth() / 2) - round(sDef.getHeight() / 2);
+					double x = round(ServiceChainHelper.getDefaultServiceDefinitionX());
+					double y = round(ServiceChainHelper.getDefaultServiceDefinitionY());
 					sDef.setPosition(x, y);
 					internal.addRoute(sDef);
 				});
@@ -91,6 +93,15 @@ public class ServiceChainEditor extends BorderPane {
 		{
 			HBox buttons2 = new HBox();
 			buttons2.setSpacing(6);
+			
+			// Center
+			{
+				Button edit = new Button("x");
+				edit.setOnMouseClicked((event)->{
+					centerView();
+				});
+				buttons2.getChildren().add(edit);
+			}
 			
 			// Edit
 			{
@@ -121,7 +132,7 @@ public class ServiceChainEditor extends BorderPane {
 		dropShadow.setColor(Color.color(0.4, 0.5, 0.5));
 		topBar.setEffect(dropShadow);
 
-		ScrollPane scroll = new ScrollPane();
+		scroll = new ScrollPane();
 		scroll.setStyle(
 				"-fx-background: transparent; -fx-border-color: transparent; -fx-background-color:transparent;");
 		scroll.setPadding(Insets.EMPTY);
@@ -131,10 +142,10 @@ public class ServiceChainEditor extends BorderPane {
 		this.setCenter(scroll);
 
 		this.editPane = new Pane();
-		this.editPane.setPrefSize(2048, 2048);
-		this.editPane.setStyle("-fx-background-color: rgba(150, 150, 150, 0.1),"
-				+ "linear-gradient(from 0.5px 0.0px to 10.5px  0.0px, repeat, rgba(102, 128, 128, 0.33) 5%, transparent 5%),"
-				+ "linear-gradient(from 0.0px 0.5px to  0.0px 10.5px, repeat, rgba(102, 128, 128, 0.33) 5%, transparent 5%);");
+		this.editPane.setPrefSize(4096, 4096);
+		this.editPane.setStyle("-fx-background-color: rgba(175, 175, 175, 0.1),"
+				+ "linear-gradient(from 0.5px 0.0px to 10.5px  0.0px, repeat, rgba(125, 125, 125, 0.25) 5%, transparent 5%),"
+				+ "linear-gradient(from 0.0px 0.5px to  0.0px 10.5px, repeat, rgba(125, 125, 125, 0.25) 5%, transparent 5%);");
 		scroll.setContent(this.editPane);
 
 		this.editPane.setOnMousePressed((event) -> {
@@ -174,8 +185,39 @@ public class ServiceChainEditor extends BorderPane {
 				connectNodes();
 			});
 		}).start();
+		
+		// Center view
+		Platform.runLater(()->{
+			centerView();
+		});
 	}
 	
+	private double getViewportValue(double x, double viewportLength, double totalLength, double ratio) {
+		return (x - ratio * viewportLength) / (totalLength - viewportLength);
+	}
+	
+	private void centerView() {
+		// Get AABB of all nodes
+		double minX = Math.min(Integer.MAX_VALUE, internal.getX());
+		double minY = Math.min(Integer.MAX_VALUE, internal.getY());
+		double maxX = Math.max(Integer.MIN_VALUE, internal.getX()+internal.getWidth());
+		double maxY = Math.max(Integer.MIN_VALUE, internal.getY()+internal.getHeight());
+		for (DRouteElementI element : internal.getRoutesUnmodifyable()) {
+			minX = Math.min(minX, element.getX());
+			minY = Math.min(minY, element.getY());
+			maxX = Math.max(maxX, element.getX()+element.getWidth());
+			maxY = Math.max(maxY, element.getY()+element.getHeight());
+		}
+		
+		// Center position of node AABB
+		double xx = (maxX+minX) / 2d;
+		double yy = (maxY+minY) / 2d;
+		
+		// Center view over nodes
+		scroll.setHvalue(getViewportValue(xx, scroll.getViewportBounds().getWidth(), editPane.getPrefWidth(), 0.5d));
+		scroll.setVvalue(getViewportValue(yy, scroll.getViewportBounds().getHeight(), editPane.getPrefHeight(), 0.5d));
+	}
+
 	private void createEntryPointNode(DServiceChain internal) {
 		GraphObject entryNode = newRouteElementNode(internal, internal);
 		entryNode.setCornerAsPercent();
