@@ -21,3 +21,9 @@
 .Filter-Base {
 	-fx-background-color:rgb(255, 255, 255);
 }
+
+.Diagram-Editor {
+	-fx-background-color: rgba(175, 175, 175, 0.1),
+				linear-gradient(from 0.5px 0.0px to 10.5px  0.0px, repeat, rgba(125, 125, 125, 0.25) 5%, transparent 5%),
+				linear-gradient(from 0.0px 0.5px to  0.0px 10.5px, repeat, rgba(125, 125, 125, 0.25) 5%, transparent 5%);
+}

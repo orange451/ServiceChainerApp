@@ -20,10 +20,12 @@ import dev.anarchy.ui.util.IconHelper;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Slider;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
@@ -133,8 +135,7 @@ public class ServiceChainEditor extends BorderPane {
 		topBar.setEffect(dropShadow);
 
 		scroll = new ScrollPane();
-		scroll.setStyle(
-				"-fx-background: transparent; -fx-border-color: transparent; -fx-background-color:transparent;");
+		scroll.setStyle("-fx-background: transparent; -fx-border-color: transparent; -fx-background-color:transparent;");
 		scroll.setPadding(Insets.EMPTY);
 		scroll.setBorder(Border.EMPTY);
 		scroll.setHvalue(0.5);
@@ -143,9 +144,7 @@ public class ServiceChainEditor extends BorderPane {
 
 		this.editPane = new Pane();
 		this.editPane.setPrefSize(4096, 4096);
-		this.editPane.setStyle("-fx-background-color: rgba(175, 175, 175, 0.1),"
-				+ "linear-gradient(from 0.5px 0.0px to 10.5px  0.0px, repeat, rgba(125, 125, 125, 0.25) 5%, transparent 5%),"
-				+ "linear-gradient(from 0.0px 0.5px to  0.0px 10.5px, repeat, rgba(125, 125, 125, 0.25) 5%, transparent 5%);");
+		this.editPane.getStyleClass().add("Diagram-Editor");
 		scroll.setContent(this.editPane);
 
 		this.editPane.setOnMousePressed((event) -> {
@@ -191,7 +190,7 @@ public class ServiceChainEditor extends BorderPane {
 			centerView();
 		});
 	}
-	
+
 	private double getViewportValue(double x, double viewportLength, double totalLength, double ratio) {
 		return (x - ratio * viewportLength) / (totalLength - viewportLength);
 	}
