@@ -7,6 +7,7 @@ import dev.anarchy.ace.Modes;
 import dev.anarchy.translate.util.JSONUtils;
 import dev.anarchy.ui.ServiceChainerUIBuilder;
 import dev.anarchy.ui.util.IconHelper;
+import dev.anarchy.ui.util.StyleClassToggleUtil;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -30,6 +31,8 @@ public abstract class RunnerWindowBase extends PopupWindow {
 	private SplitPane split;
 	
 	private TabPane resultPane;
+	
+	private Button run;
 	
 	protected void addResult(String title, String text) {
 		Tab resultTab = new Tab();
@@ -62,7 +65,7 @@ public abstract class RunnerWindowBase extends PopupWindow {
 		topLayout.setPadding(new Insets(8,8,8,8));
 		
 		// Test button
-		Button run = new Button("Test", IconHelper.PLAY.create());
+		this.run = new Button("Test", IconHelper.PLAY.create());
 		run.setOnMouseClicked((event)->{
 			onTest();
 		});
@@ -113,6 +116,14 @@ public abstract class RunnerWindowBase extends PopupWindow {
         stage.setScene(toolScene);
         
         stage.setTitle("Runner");
+	}
+	
+	protected void animateFlash(String className) {
+		StyleClassToggleUtil.toggleStyleClass(run.getStyleClass(), className, 4, 300);
+	}
+	
+	protected void animateLong(String className) {
+		StyleClassToggleUtil.toggleStyleClass(run.getStyleClass(), className, 1, 750);
 	}
 	
 	protected abstract void onTest();

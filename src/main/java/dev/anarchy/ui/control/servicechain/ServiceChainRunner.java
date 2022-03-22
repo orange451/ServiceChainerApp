@@ -1,5 +1,6 @@
 package dev.anarchy.ui.control.servicechain;
 
+import java.util.List;
 import java.util.Map;
 
 import dev.anarchy.common.DServiceChain;
@@ -29,9 +30,11 @@ public class ServiceChainRunner extends RunnerWindowBase {
 			Map<String, Object> result = new BasicServiceChainRunner(serviceChain).run(inputPayload);
 			String prettyResult = JSONUtils.mapToJsonPretty(result);
 			addResult("Test Result [ok]", prettyResult);
+			animateLong("success");
 		} catch (Exception e) {
 			e.printStackTrace();
 			addResult("Test Result [err]", e.toString());
+			animateFlash("danger");
 		}
 	}
 }

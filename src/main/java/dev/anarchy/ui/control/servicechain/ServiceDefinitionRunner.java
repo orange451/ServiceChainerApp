@@ -35,9 +35,11 @@ public class ServiceDefinitionRunner extends RunnerWindowBase {
 			Map<String, Object> result = new BasicServiceChainRunner(null).transformSingle(serviceDefinition, inputPayload, false);
 			String prettyResult = JSONUtils.mapToJsonPretty(result);
 			addResult("Test Result [ok]", prettyResult);
+			animateLong("success");
 		} catch (Exception e) {
 			e.printStackTrace();
 			addResult("Test Result [err]", e.toString());
+			animateFlash("danger");
 		}
 	}
 }

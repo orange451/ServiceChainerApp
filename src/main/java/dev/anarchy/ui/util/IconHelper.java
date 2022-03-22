@@ -29,9 +29,18 @@ public enum IconHelper {
 	private FontAwesomeIcon icon;
 	
 	public Node create() {
+		return create(Color.color(0.3, 0.3, 0.4, 0.75));
+	}
+	
+	public Node create(Color color) {
 		FontAwesomeIconView icon = new FontAwesomeIconView(this.icon);
-		icon.setFill(Color.color(0.3, 0.3, 0.4, 0.75));
+		icon.setFill(color);
 		return icon;
 	}
-
+	
+	public Node create(String... classes) {
+		FontAwesomeIconView icon = new FontAwesomeIconView(this.icon);
+		icon.getStyleClass().addAll(classes);
+		return icon;
+	}
 }
