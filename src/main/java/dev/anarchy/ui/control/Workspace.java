@@ -17,6 +17,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
@@ -65,7 +66,7 @@ public class Workspace extends BorderPane {
 		return null;
 	}
 	
-	private Tab findTab(DServiceChain chain) {
+	public Tab findTab(DServiceChain chain) {
 		for (Entry<DServiceChain, Tab> entry : openTabs.entrySet()) {
 			if ( entry.getKey() == chain ) {
 				return entry.getValue();
@@ -122,20 +123,6 @@ public class Workspace extends BorderPane {
 			// Create new editor
 			ServiceChainEditor editor = new ServiceChainEditor(internal);
 			
-			// Handle request close logic
-			tab.setOnCloseRequest((event)->{
-				if ( !modifiedStatus.get(internal).get() )
-					return;
-				
-				ButtonType result = requestSave();
-				
-				if ( result.equals(ButtonType.YES) ) {
-					save(internal);
-				} else if ( result.equals(ButtonType.CANCEL) ) {
-					event.consume();
-				}
-			});
-			
 			// Context Menu
 			{
 				ContextMenu contextMenu = new ContextMenu();
@@ -145,6 +132,15 @@ public class Workspace extends BorderPane {
 					MenuItem option = new MenuItem("Close");
 					option.setOnAction((event) -> {
 						close(tab);
+					});
+					contextMenu.getItems().add(option);
+				}
+				
+				// Close Others
+				{
+					MenuItem option = new MenuItem("Close Others");
+					option.setOnAction((event) -> {
+						closeOthers(tab);
 					});
 					contextMenu.getItems().add(option);
 				}
@@ -167,11 +163,24 @@ public class Workspace extends BorderPane {
 				modifiedStatus.get(internal).setValue(true);
 			});
 			
+			// Handle request close logic
+			tab.setOnCloseRequest((event)->{
+				if ( !modifiedStatus.get(internal).get() )
+					return;
+				
+				ButtonType result = requestSave();
+				
+				if ( result.equals(ButtonType.YES) ) {
+					save(internal);
+				} else if ( result.equals(ButtonType.CANCEL) ) {
+					event.consume();
+				}
+			});
+			
 			// On Closed event
 			tab.setOnClosed((event) -> {
 				openTabs.remove(internal);
 				modifiedStatus.get(internal).setValue(false);
-				System.out.println("REEEEEEE");
 			});
 
 			tab.setContent(editor);
@@ -185,11 +194,25 @@ public class Workspace extends BorderPane {
 		tabs.getSelectionModel().select(openTab);
 	}
 
-	private void close(Tab tab) {
+	private void forceClose(Tab tab) {
 		EventHandler<Event> handler = tab.getOnClosed();
 		handler.handle(null);
 		
 		tabs.getTabs().remove(tab);
+	}
+	
+	private boolean requestClose(Tab tab) {
+		Event event = new Event(Tab.TAB_CLOSE_REQUEST_EVENT);
+		EventHandler<Event> handler = tab.getOnCloseRequest();
+		handler.handle(event);
+		
+		return !event.isConsumed();
+	}
+
+	private void close(Tab tab) {
+		if ( requestClose(tab) ) {
+			forceClose(tab);
+		}
 	}
 
 	private ButtonType requestSave() {
@@ -259,14 +282,27 @@ public class Workspace extends BorderPane {
 		Object[] myTabs = openTabs.values().toArray();
 		synchronized(myTabs) {
 			for (Object tab : myTabs) {
-				close((Tab)tab);
+				forceClose((Tab)tab);
 			}
 		}
 		
 		return true;
 	}
+	
+	public void closeOthers(Tab exclude) {
+		Object[] myTabs = openTabs.values().toArray();
+		synchronized(myTabs) {
+			for (Object tab : myTabs) {
+				if ( tab.equals(exclude) )
+					continue;
+				
+				tabs.getSelectionModel().select((Tab) tab);
+				close((Tab)tab);
+			}
+		}
+	}
 
-	private void saveOpenTabs() {
+	public void saveOpenTabs() {
 		for (Entry<DServiceChain, SimpleBooleanProperty> entrySet : modifiedStatus.entrySet()) {
 			if ( entrySet.getValue().get() ) {
 				save(entrySet.getKey());
