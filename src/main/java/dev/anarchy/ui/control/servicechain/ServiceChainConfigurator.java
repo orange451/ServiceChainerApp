@@ -106,7 +106,8 @@ public class ServiceChainConfigurator extends ModalWindow {
 		this.show();
 		
 		stage.setOnCloseRequest((event)->{
-			close();
+			//close();
+			// We only want to save when user clicks save
 		});
 		
 		stage.setTitle("Servive Chain Configurator");

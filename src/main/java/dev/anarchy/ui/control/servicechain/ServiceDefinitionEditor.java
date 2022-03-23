@@ -154,7 +154,8 @@ public class ServiceDefinitionEditor extends ModalWindow {
 		this.show();
 		
 		stage.setOnCloseRequest((event)->{
-			close();
+			//close();
+			// Only save when user clicks save
 		});
 		
 		stage.setTitle("Servive Definition Editor");
