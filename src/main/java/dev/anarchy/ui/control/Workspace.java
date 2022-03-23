@@ -11,15 +11,20 @@ import dev.anarchy.ui.ApplicationData;
 import dev.anarchy.ui.ServiceChainerApp;
 import dev.anarchy.ui.ServiceChainerUIBuilder;
 import dev.anarchy.ui.control.servicechain.ServiceChainEditor;
+import dev.anarchy.ui.control.servicechain.ServiceChainRunner;
+import dev.anarchy.ui.util.IconHelper;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabClosingPolicy;
@@ -122,17 +127,39 @@ public class Workspace extends BorderPane {
 				if ( !modifiedStatus.get(internal).get() )
 					return;
 				
-			    Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Do you wish to save changes?", ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
-		        ServiceChainerUIBuilder.setTheme(alert.getDialogPane());
-		        alert.getDialogPane().getStylesheets();
-			    ButtonType result = alert.showAndWait().orElse(ButtonType.NO);
-			    
-			    if ( result.equals(ButtonType.YES) ) {
-			    	save(internal);
-			    } else if ( result.equals(ButtonType.CANCEL) ) {
-			    	event.consume();
-			    }
+				ButtonType result = requestSave();
+				
+				if ( result.equals(ButtonType.YES) ) {
+					save(internal);
+				} else if ( result.equals(ButtonType.CANCEL) ) {
+					event.consume();
+				}
 			});
+			
+			// Context Menu
+			{
+				ContextMenu contextMenu = new ContextMenu();
+				
+				// Close
+				{
+					MenuItem option = new MenuItem("Close");
+					option.setOnAction((event) -> {
+						close(tab);
+					});
+					contextMenu.getItems().add(option);
+				}
+				
+				// Close All
+				{
+					MenuItem option = new MenuItem("Close All");
+					option.setOnAction((event) -> {
+						closeAll();
+					});
+					contextMenu.getItems().add(option);
+				}
+				
+				tab.setContextMenu(contextMenu);
+			}
 			
 			// Mark service chain as modified
 			editor.getServiceChain().getOnChangedEvent().connect((args)->{
@@ -140,10 +167,11 @@ public class Workspace extends BorderPane {
 				modifiedStatus.get(internal).setValue(true);
 			});
 			
-			
+			// On Closed event
 			tab.setOnClosed((event) -> {
 				openTabs.remove(internal);
 				modifiedStatus.get(internal).setValue(false);
+				System.out.println("REEEEEEE");
 			});
 
 			tab.setContent(editor);
@@ -155,6 +183,22 @@ public class Workspace extends BorderPane {
 		}
 
 		tabs.getSelectionModel().select(openTab);
+	}
+
+	private void close(Tab tab) {
+		EventHandler<Event> handler = tab.getOnClosed();
+		handler.handle(null);
+		
+		tabs.getTabs().remove(tab);
+	}
+
+	private ButtonType requestSave() {
+		Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Do you wish to save changes?", ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
+		ServiceChainerUIBuilder.setTheme(alert.getDialogPane());
+		alert.getDialogPane().getStylesheets();
+		ButtonType result = alert.showAndWait().orElse(ButtonType.NO);
+		
+		return result;
 	}
 
 	public void save(DServiceChain internal) {
@@ -174,12 +218,12 @@ public class Workspace extends BorderPane {
 		ServiceChainEditor editor = (ServiceChainEditor) tab.getContent();
 		
 		// Copy service chain back to app data
-    	internal.copyFrom(editor.getServiceChain());
-    	
-    	// Extra save transformation logic
-    	ServiceChainHelper.saveServiceChain(internal);
-    	
-    	// Mark as unmodified
+		internal.copyFrom(editor.getServiceChain());
+		
+		// Extra save transformation logic
+		ServiceChainHelper.saveServiceChain(internal);
+		
+		// Mark as unmodified
 		tab.setText(internal.getName());
 		modifiedStatus.get(internal).setValue(false);
 		
@@ -189,5 +233,50 @@ public class Workspace extends BorderPane {
 	
 	public SimpleBooleanProperty getModifiedStatusProperty(DServiceChain serviceChain) {
 		return modifiedStatus.get(serviceChain);
+	}
+
+	public boolean closeAll() {
+		boolean needsToSave = false;
+		for (SimpleBooleanProperty value : modifiedStatus.values()) {
+			if ( value.get() ) {
+				needsToSave = true;
+			}
+		}
+		
+		if ( needsToSave ) {
+			ButtonType result = requestSave();
+			if ( result == ButtonType.YES ) {
+				saveOpenTabs();
+			} else if ( result == ButtonType.CANCEL ) {
+				return false;
+			}
+		}
+		
+		// Mark everything as saved
+		clearModifiedStatus();
+		
+		// Close tabs
+		Object[] myTabs = openTabs.values().toArray();
+		synchronized(myTabs) {
+			for (Object tab : myTabs) {
+				close((Tab)tab);
+			}
+		}
+		
+		return true;
+	}
+
+	private void saveOpenTabs() {
+		for (Entry<DServiceChain, SimpleBooleanProperty> entrySet : modifiedStatus.entrySet()) {
+			if ( entrySet.getValue().get() ) {
+				save(entrySet.getKey());
+			}
+		}
+	}
+
+	private void clearModifiedStatus() {
+		for (SimpleBooleanProperty value : modifiedStatus.values()) {
+			value.set(false);
+		}
 	}
 }

@@ -1,12 +1,5 @@
 package dev.anarchy.ui;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -16,7 +9,6 @@ import dev.anarchy.ui.control.Collection;
 import dev.anarchy.ui.control.SearchBar;
 import dev.anarchy.ui.control.Workspace;
 import javafx.application.Platform;
-import javafx.css.Styleable;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -166,8 +158,9 @@ public class ServiceChainerUIBuilder {
 		MenuItem quit = new MenuItem("Quit");
 		file.getItems().add(quit);
 		quit.setOnAction((event)->{
-			ServiceChainerApp.get().save();
-			System.exit(0);
+			if ( ServiceChainerApp.get().closeAll() ) {
+				System.exit(0);
+			}
 		});
 		
 		((BorderPane)stage.getScene().getRoot()).setTop(menuBar);

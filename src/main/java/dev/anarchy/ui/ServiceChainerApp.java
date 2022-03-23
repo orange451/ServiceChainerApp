@@ -42,8 +42,12 @@ public class ServiceChainerApp extends Application {
 		
 		// No closing
 		stage.setOnCloseRequest((event)->{
-			stage.setIconified(true);
-			event.consume();
+			if ( !workspace.closeAll() ) {
+				event.consume();
+				return;
+			}
+			//stage.setIconified(true);
+			//event.consume();
 		});
 		
 		// Delete event. TODO clean this up.
@@ -99,6 +103,10 @@ public class ServiceChainerApp extends Application {
 		
 		// Write to file
 		this.getData().save();
+	}
+
+	public boolean closeAll() {
+		return this.getWorkspace().closeAll();
 	}
 
 	public void importCollection(DFolder parentFolder) {
