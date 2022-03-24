@@ -48,17 +48,16 @@ public class ServiceChainerApp extends Application {
 		stage.setOnCloseRequest((event)->{
 			if ( !workspace.closeAll() ) {
 				event.consume();
-				return;
 			}
-			//stage.setIconified(true);
-			//event.consume();
 		});
 		
 		// Delete event. TODO clean this up.
 		DApp.get().getOnDeleteEvent().connect((args) -> {
 			DCollection collection = getData().getCollection((DFolderElement) args[0]);
 			
-			if ( args[0] instanceof DFolderElement ) { 
+			if ( args[0] instanceof DCollection ) {
+				data.removeCollection(((DCollection)args[0]));
+			}else if ( args[0] instanceof DFolderElement ) { 
 				DFolder parentNode = getData().getParent((DFolderElement) args[0]);
 				
 				// See if it needs to be saved
@@ -73,13 +72,11 @@ public class ServiceChainerApp extends Application {
 				
 				if ( parentNode != null && canClose )
 					parentNode.removeChild(((DFolderElement)args[0]));
-			} else if ( args[0] instanceof DCollection ) {
-				data.removeCollection(((DCollection)args[0]));
+
+				this.getData().saveCollection(collection);
 			} else {
 				System.out.println("Attempting to delete an element that is not yet supported. Please implement.");
 			}
-			
-			this.getData().saveCollection(collection);
 		});
 	}
 	
@@ -179,9 +176,23 @@ public class ServiceChainerApp extends Application {
 	public ButtonType requestSave() {
 		Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Do you wish to save changes?", ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
 		ServiceChainerUIBuilder.setTheme(alert.getDialogPane());
-		alert.getDialogPane().getStylesheets();
+		alert.getDialogPane().getStylesheets().addAll(ServiceChainerUIBuilder.getStylesheet());
 		ButtonType result = alert.showAndWait().orElse(ButtonType.NO);
 		
+		return result;
+	}
+
+	/**
+	 * Prompts the user to save changes.
+	 * @return ButtonType representing what the user selected. {@link ButtonType#YES}, {@link ButtonType#NO}, or {@link ButtonType#CANCEL}
+	 */
+	public ButtonType warn(String text) {
+		System.err.println(text);
+		
+		Alert alert = new Alert(Alert.AlertType.WARNING, text, ButtonType.OK);
+		ServiceChainerUIBuilder.setTheme(alert.getDialogPane());
+		alert.getDialogPane().getStylesheets().addAll(ServiceChainerUIBuilder.getStylesheet());
+		ButtonType result = alert.showAndWait().orElse(ButtonType.OK);
 		return result;
 	}
 
