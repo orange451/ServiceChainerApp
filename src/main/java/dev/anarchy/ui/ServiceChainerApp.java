@@ -9,7 +9,9 @@ import dev.anarchy.common.DServiceChain;
 import dev.anarchy.ui.control.Workspace;
 import dev.anarchy.ui.util.LaunchHelper;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Tab;
 import javafx.stage.FileChooser;
@@ -186,14 +188,28 @@ public class ServiceChainerApp extends Application {
 	 * Prompts the user to save changes.
 	 * @return ButtonType representing what the user selected. {@link ButtonType#YES}, {@link ButtonType#NO}, or {@link ButtonType#CANCEL}
 	 */
-	public ButtonType warn(String text) {
+	public ButtonType alert(AlertType alertType, String text) {
 		System.err.println(text);
 		
-		Alert alert = new Alert(Alert.AlertType.WARNING, text, ButtonType.OK);
+		Alert alert = new Alert(alertType, text, ButtonType.OK);
 		ServiceChainerUIBuilder.setTheme(alert.getDialogPane());
 		alert.getDialogPane().getStylesheets().addAll(ServiceChainerUIBuilder.getStylesheet());
 		ButtonType result = alert.showAndWait().orElse(ButtonType.OK);
 		return result;
+	}
+
+	/**
+	 * Notifies the program to unminimize and be brought to front.
+	 */
+	public void wakeup() {
+		Platform.runLater(()->{
+			stage.setIconified(false);
+			stage.toFront();
+			
+			// Hack
+			stage.setAlwaysOnTop(true);
+			stage.setAlwaysOnTop(false);
+		});
 	}
 
 	public static void main(String[] args) {

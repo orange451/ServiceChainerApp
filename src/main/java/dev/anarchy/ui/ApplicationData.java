@@ -33,6 +33,7 @@ import dev.anarchy.event.Event;
 import dev.anarchy.translate.util.FileUtils;
 import dev.anarchy.translate.util.JSONUtils;
 import dev.anarchy.translate.util.ServiceChainHelper;
+import javafx.scene.control.Alert.AlertType;
 
 public class ApplicationData {
 	@JsonIgnore
@@ -197,7 +198,7 @@ public class ApplicationData {
 					fileCollectionMap.put(newFile, collection);
 					collectionFileMap.put(collection, newFile);
 				} else {
-					ServiceChainerApp.get().warn("Something went wrong renaming collection. Could not locate folder in system path.");
+					ServiceChainerApp.get().alert(AlertType.ERROR, "Something went wrong renaming collection.\nCould not locate folder in system path.");
 				}
 				
 				saveCollection(collection);
@@ -673,7 +674,7 @@ public class ApplicationData {
 				
 				// Make sure it has kids
 				if ( newCollection.getChildrenUnmodifyable().size() <= 0 ) {
-					ServiceChainerApp.get().warn("Could not import collection. Check file contents and try again.");
+					ServiceChainerApp.get().alert(AlertType.ERROR, "Could not import collection. Check file contents and try again.");
 					return;
 				}
 				
@@ -776,13 +777,13 @@ public class ApplicationData {
         try {
             dirToOpen = collectionFileMap.get(internal);
             if ( dirToOpen == null ) {
-            	ServiceChainerApp.get().warn("Error opening directory. Something went wrong.");
+            	ServiceChainerApp.get().alert(AlertType.ERROR, "Error opening directory. Something went wrong.");
             	return;
             }
             desktop.open(dirToOpen);
             System.out.println(dirToOpen);
         } catch (IllegalArgumentException | IOException e) {
-        	ServiceChainerApp.get().warn("Error opening directory. " + e.getMessage());
+        	ServiceChainerApp.get().alert(AlertType.ERROR, "Error opening directory.\n" + e.getMessage());
         	e.printStackTrace();
         }
 	}
