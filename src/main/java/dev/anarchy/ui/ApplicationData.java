@@ -21,7 +21,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dev.anarchy.common.DCollection;
@@ -34,7 +33,6 @@ import dev.anarchy.event.Event;
 import dev.anarchy.translate.util.FileUtils;
 import dev.anarchy.translate.util.JSONUtils;
 import dev.anarchy.translate.util.ServiceChainHelper;
-import dev.anarchy.ui.util.StringHelper;
 
 public class ApplicationData {
 	@JsonIgnore
@@ -147,7 +145,7 @@ public class ApplicationData {
 	}
 	
 	public DCollection newCollection(String baseName) {
-		DCollection folder = new DCollection();
+		DCollection collection = new DCollection();
 		
 		int index = 0;
 		String checkName = baseName;
@@ -156,9 +154,9 @@ public class ApplicationData {
 			checkName = baseName + " (" + index + ")"; 
 		}
 		
-		folder.setName(checkName);
-		this.addCollection(folder);
-		return folder;
+		collection.setName(checkName);
+		this.addCollection(collection);
+		return collection;
 	}
 	
 	@JsonIgnore
@@ -188,12 +186,15 @@ public class ApplicationData {
 			
 			collection.getOnNameChangeEvent().connect((args)->{
 				File file = collectionFileMap.get(collection);
+				System.out.println("Attempting to rename " + collection + " with name: " + args[0].toString());
 				if ( file != null ) {
 					File newFile = renameFile(file, getFileName(args[0].toString()));
 					
 					fileCollectionMap.remove(file);
 					fileCollectionMap.put(newFile, collection);
 					collectionFileMap.put(collection, newFile);
+				} else {
+					ServiceChainerApp.get().warn("Something went wrong renaming collection. Could not locate folder in system path.");
 				}
 			});
 		}
@@ -221,20 +222,18 @@ public class ApplicationData {
 		
 		// Remove Collection file
 		try {
-			File file = collectionFileMap.get(collection);
+			File file = collectionFileMap.remove(collection);
 			if ( file != null && file.exists() ) {
 				deleteDirectory(file);
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
-		
-		// Save json
-		save();
 	}
 
 	@JsonIgnore
 	private boolean deleteDirectory(File path) {
+		System.out.println("Deleting: " + path.getAbsolutePath());
 	    if (path.exists()) {
 	        File[] files = path.listFiles();
 	        for (int i = 0; i < files.length; i++) {
@@ -245,7 +244,7 @@ public class ApplicationData {
 	            }
 	        }
 	    }
-	    return (path.delete());
+	    return path.delete();
 	}
 
 	@JsonIgnore
@@ -439,6 +438,9 @@ public class ApplicationData {
 		File folder = new File(collectionPath);
 		if ( !folder.exists() )
 			folder.mkdirs();
+
+		// Make sure the collection has a map to file
+		collectionFileMap.put(collection, folder);
 		
 		// Output metadata
 		try {
@@ -645,7 +647,7 @@ public class ApplicationData {
 				json = json.trim();
 				
 				// Ugly fix due to typo early on. Commenting out will break OLD service chain handlerid names. New ones will not be affected.
-				json = dirtyFix(json);
+				json = dirtyHandlerFix(json);
 				
 				// Convert to map
 				System.out.println("Attempting to import: " + fileName);
@@ -654,8 +656,8 @@ public class ApplicationData {
 				// Locate extensionHandler
 				Map<String, Object> extensionHandlerParent = locateKeyInMap(map, "ExtensionHandler");
 				if ( extensionHandlerParent == null ) {
-					System.out.println("Could not import extension. Missing ExtensionHandler");
-					return;
+					extensionHandlerParent = generateFakeExtensionHandler(map);
+					System.out.println("Could not find ExtensionHandler. Using whole payload.");
 				}
 				
 				// Create new collection
@@ -663,6 +665,12 @@ public class ApplicationData {
 				DCollection newCollection = objectMapper.convertValue(extensionHandlerParent, DCollection.class);
 				newCollection.setName(fileName);
 				System.out.println("Created new Collection: " + newCollection);
+				
+				// Make sure it has kids
+				if ( newCollection.getChildrenUnmodifyable().size() <= 0 ) {
+					ServiceChainerApp.get().warn("Could not import collection. Check file contents and try again.");
+					return;
+				}
 				
 				// Fix missing Metadata
 				for (DFolderElement child : newCollection.getChildrenUnmodifyable()) {
@@ -712,8 +720,17 @@ public class ApplicationData {
 		}
 	}
 
+	private Map<String, Object> generateFakeExtensionHandler(Map<String, Object> map) {
+		Map<String, Object> extension = new HashMap<>();
+		List<Object> handlers = new ArrayList<>();
+		handlers.add(map);
+		
+		extension.put("ExtensionHandler", handlers);
+		return extension;
+	}
+
 	@Deprecated
-	private String dirtyFix(String json) {
+	private String dirtyHandlerFix(String json) {
 		return json.replace("\"ExtensionhandlerId\"", "\"ExtensionHandlerId\"");
 	}
 
@@ -753,9 +770,14 @@ public class ApplicationData {
         File dirToOpen = null;
         try {
             dirToOpen = collectionFileMap.get(internal);
+            if ( dirToOpen == null ) {
+            	ServiceChainerApp.get().warn("Error opening directory. Something went wrong.");
+            	return;
+            }
             desktop.open(dirToOpen);
             System.out.println(dirToOpen);
         } catch (IllegalArgumentException | IOException e) {
+        	ServiceChainerApp.get().warn("Error opening directory. " + e.getMessage());
         	e.printStackTrace();
         }
 	}
