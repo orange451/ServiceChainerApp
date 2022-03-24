@@ -1,7 +1,6 @@
 package dev.anarchy.ui.control;
 
 import dev.anarchy.common.DCollection;
-import dev.anarchy.ui.ApplicationData;
 import dev.anarchy.ui.ServiceChainerApp;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
@@ -40,10 +39,5 @@ public class Collection extends Folder {
 			});
 			context.getItems().add(option);
 		}
-	}
-
-	@Override
-	protected String filter(String input) {
-		return ApplicationData.getFileName(input);
 	}
 }

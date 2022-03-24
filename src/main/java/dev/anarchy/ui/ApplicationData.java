@@ -185,10 +185,13 @@ public class ApplicationData {
 			save();
 			
 			collection.getOnNameChangeEvent().connect((args)->{
+				String newName = args[0].toString();
+				String newFileName = getFileName(newName);
+				
 				File file = collectionFileMap.get(collection);
-				System.out.println("Attempting to rename " + collection + " with name: " + args[0].toString());
+				System.out.println("Attempting to rename " + collection + " with name: " + newName);
 				if ( file != null ) {
-					File newFile = renameFile(file, getFileName(args[0].toString()));
+					File newFile = renameFile(file, newFileName);
 					
 					fileCollectionMap.remove(file);
 					fileCollectionMap.put(newFile, collection);
@@ -196,6 +199,8 @@ public class ApplicationData {
 				} else {
 					ServiceChainerApp.get().warn("Something went wrong renaming collection. Could not locate folder in system path.");
 				}
+				
+				saveCollection(collection);
 			});
 		}
 	}
@@ -429,7 +434,7 @@ public class ApplicationData {
 	}
 
 	protected void saveCollection(DCollection collection) {
-		String collectionPath = getAppDataFilePath(collection.getName());
+		String collectionPath = getAppDataFilePath(getFileName(collection.getName()));
 		String metadataPath = collectionPath + File.separator + APPLICATION_METADATA;
 		String extensionsPath = collectionPath + File.separator + EXTENSION_HANDLER_FOLDER;
 		List<DServiceChain> serviceChains = RouteHelper.getServiceChains(collection);
