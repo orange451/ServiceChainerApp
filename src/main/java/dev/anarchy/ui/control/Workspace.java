@@ -168,7 +168,7 @@ public class Workspace extends BorderPane {
 				if ( !modifiedStatus.get(internal).get() )
 					return;
 				
-				ButtonType result = requestSave();
+				ButtonType result = ServiceChainerApp.get().requestSave();
 				
 				if ( result.equals(ButtonType.YES) ) {
 					save(internal);
@@ -209,19 +209,13 @@ public class Workspace extends BorderPane {
 		return !event.isConsumed();
 	}
 
-	private void close(Tab tab) {
+	public boolean close(Tab tab) {
 		if ( requestClose(tab) ) {
 			forceClose(tab);
+			return true;
 		}
-	}
-
-	private ButtonType requestSave() {
-		Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Do you wish to save changes?", ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
-		ServiceChainerUIBuilder.setTheme(alert.getDialogPane());
-		alert.getDialogPane().getStylesheets();
-		ButtonType result = alert.showAndWait().orElse(ButtonType.NO);
 		
-		return result;
+		return false;
 	}
 
 	public void save(DServiceChain internal) {
@@ -267,7 +261,7 @@ public class Workspace extends BorderPane {
 		}
 		
 		if ( needsToSave ) {
-			ButtonType result = requestSave();
+			ButtonType result = ServiceChainerApp.get().requestSave();
 			if ( result == ButtonType.YES ) {
 				saveOpenTabs();
 			} else if ( result == ButtonType.CANCEL ) {

@@ -4,10 +4,14 @@ import java.io.File;
 import dev.anarchy.common.DApp;
 import dev.anarchy.common.DCollection;
 import dev.anarchy.common.DFolder;
+import dev.anarchy.common.DFolderElement;
 import dev.anarchy.common.DServiceChain;
 import dev.anarchy.ui.control.Workspace;
 import dev.anarchy.ui.util.LaunchHelper;
 import javafx.application.Application;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Tab;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -52,16 +56,30 @@ public class ServiceChainerApp extends Application {
 		
 		// Delete event. TODO clean this up.
 		DApp.get().getOnDeleteEvent().connect((args) -> {
-			if ( args[0] instanceof DFolder ) { 
-				DFolder parentNode = ((DFolder)args[0]).getParent();
-				if ( parentNode == null )
-					parentNode = ServiceChainerApp.get().getData().UNORGANIZED;
-				parentNode.removeChild(((DFolder)args[0]));
+			DCollection collection = getData().getCollection((DFolderElement) args[0]);
+			
+			if ( args[0] instanceof DFolderElement ) { 
+				DFolder parentNode = getData().getParent((DFolderElement) args[0]);
+				
+				// See if it needs to be saved
+				boolean canClose = true;
+				if ( args[0] instanceof DServiceChain ) {
+					Tab tab = getWorkspace().findTab((DServiceChain) args[0]);
+					if ( tab != null ) {
+						if ( !getWorkspace().close(tab) )
+							canClose = false;
+					}
+				}
+				
+				if ( parentNode != null && canClose )
+					parentNode.removeChild(((DFolderElement)args[0]));
+			} else if ( args[0] instanceof DCollection ) {
+				data.removeCollection(((DCollection)args[0]));
+			} else {
+				System.out.println("Attempting to delete an element that is not yet supported. Please implement.");
 			}
 			
-			if ( args[0] instanceof DCollection ) {
-				data.removeCollection(((DCollection)args[0]));
-			}
+			this.getData().saveCollection(collection);
 		});
 	}
 	
@@ -97,6 +115,10 @@ public class ServiceChainerApp extends Application {
 		return stage;
 	}
 
+	/**
+	 * Save current open tab in {@link Workspace}.
+	 * Will also write service chains to file.
+	 */
 	public void save() {
 		// Save current open chain
 		this.saveCurrent();
@@ -105,15 +127,29 @@ public class ServiceChainerApp extends Application {
 		this.getData().save();
 	}
 
+	/**
+	 * Attempts to close all tabs in {@link Workspace}.
+	 * @return Whether or not all the tabs were all closed.
+	 */
 	public boolean closeAll() {
 		return this.getWorkspace().closeAll();
 	}
 
+	/**
+	 * Opens FileChooser used to import collection. Takes resultant file and attempts to import.
+	 * The collection will attempt to be placed within the supplied Parent Directory. If no directory
+	 * is supplied, it will be placed in Unorganized.
+	 * @param parentFolder
+	 */
 	public void importCollection(DFolder parentFolder) {
 		File selectedFile = importFilePicker();
 		data.importCollection(selectedFile, parentFolder);
 	}
 	
+	/**
+	 * Opens FileChooser used to import collection.
+	 * @return The File selected to import.
+	 */
 	public File importFilePicker() {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Open Resource File");
@@ -123,6 +159,10 @@ public class ServiceChainerApp extends Application {
 		return file;
 	}
 
+	/**
+	 * Opens FileChooser used to export collection.
+	 * @return The File selected to export.
+	 */
 	public File exportFilePicker() {
         FileChooser fileChooser = new FileChooser();
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Json files (*.json)", "*.json");
@@ -130,6 +170,19 @@ public class ServiceChainerApp extends Application {
         File file = fileChooser.showSaveDialog(ServiceChainerApp.get().getStage());
         
         return file;
+	}
+
+	/**
+	 * Prompts the user to save changes.
+	 * @return ButtonType representing what the user selected. {@link ButtonType#YES}, {@link ButtonType#NO}, or {@link ButtonType#CANCEL}
+	 */
+	public ButtonType requestSave() {
+		Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Do you wish to save changes?", ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
+		ServiceChainerUIBuilder.setTheme(alert.getDialogPane());
+		alert.getDialogPane().getStylesheets();
+		ButtonType result = alert.showAndWait().orElse(ButtonType.NO);
+		
+		return result;
 	}
 
 	public static void main(String[] args) {

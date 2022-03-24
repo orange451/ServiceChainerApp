@@ -22,7 +22,7 @@ public class ServiceChain extends Label implements FolderElement {
 	
 	private final int height = 16;
 
-	public ServiceChain(DFolder collection, DServiceChain internal) {
+	public ServiceChain(DFolder parent, DServiceChain internal) {
 		super(internal.getName());
 		this.internal = internal;
 		
@@ -96,7 +96,8 @@ public class ServiceChain extends Label implements FolderElement {
 		{
 			MenuItem option = new MenuItem("Delete", IconHelper.DELETE.create());
 			option.setOnAction((event) -> {
-				collection.removeChild(internal);
+				internal.delete();
+				//parent.removeChild(internal);
 			});
 			context.getItems().add(option);
 		}

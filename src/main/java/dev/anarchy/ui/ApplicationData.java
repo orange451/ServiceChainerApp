@@ -15,6 +15,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -29,6 +32,7 @@ import dev.anarchy.common.DServiceChain;
 import dev.anarchy.common.util.RouteHelper;
 import dev.anarchy.event.Event;
 import dev.anarchy.translate.util.FileUtils;
+import dev.anarchy.translate.util.JSONUtils;
 import dev.anarchy.translate.util.ServiceChainHelper;
 import dev.anarchy.ui.util.StringHelper;
 
@@ -79,12 +83,8 @@ public class ApplicationData {
 		if ( UNORGANIZED != null && !this.collections.contains(UNORGANIZED) )
 			this.addCollection(UNORGANIZED);
 	}
-
-	@JsonIgnore
-	public DServiceChain newServiceChain(DFolder parent) {
-		DServiceChain chain = new DServiceChain();
-		String baseName = chain.getName();
-		
+	
+	private String generateNewChildElementName(DFolder parent, String baseName) {
 		int index = 0;
 		String checkName = baseName;
 		while(parent.getChild(checkName) != null) {
@@ -92,7 +92,31 @@ public class ApplicationData {
 			checkName = baseName + " (" + index + ")"; 
 		}
 		
-		chain.setName(checkName);
+		return checkName;
+	}
+	
+	private String generateNewCollectionName(String baseName) {
+		int index = 0;
+		String checkName = baseName;
+		while(getCollection(checkName) != null) {
+			index += 1;
+			checkName = baseName + " (" + index + ")"; 
+		}
+		
+		return checkName;
+	}
+
+	@JsonIgnore
+	public DServiceChain newServiceChain(DFolder parent) {
+		return newServiceChain(parent, new DServiceChain().getName());
+	}
+
+	@JsonIgnore
+	public DServiceChain newServiceChain(DFolder parent, String baseName) {
+		DServiceChain chain = new DServiceChain();
+		String newName = generateNewChildElementName(parent, baseName);
+		
+		chain.setName(newName);
 		parent.addChild(chain);
 		
 		save();
@@ -101,17 +125,15 @@ public class ApplicationData {
 
 	@JsonIgnore
 	public DFolder newFolder(DFolder parent) {
+		return newFolder(parent, new DFolder().getName());
+	}
+
+	@JsonIgnore
+	public DFolder newFolder(DFolder parent, String baseName) {
 		DFolder folder = new DFolder();
-		String baseName = folder.getName();
+		String newName = generateNewChildElementName(parent, baseName);
 		
-		int index = 0;
-		String checkName = baseName;
-		while(parent.getChild(checkName) != null) {
-			index += 1;
-			checkName = baseName + " (" + index + ")"; 
-		}
-		
-		folder.setName(checkName);
+		folder.setName(newName);
 		parent.addChild(folder);
 		
 		save();
@@ -121,8 +143,11 @@ public class ApplicationData {
 
 	@JsonIgnore
 	public DCollection newCollection() {
+		return newCollection("New Collection");
+	}
+	
+	public DCollection newCollection(String baseName) {
 		DCollection folder = new DCollection();
-		String baseName = "New Collection";
 		
 		int index = 0;
 		String checkName = baseName;
@@ -404,7 +429,7 @@ public class ApplicationData {
 		}
 	}
 
-	private void saveCollection(DCollection collection) {
+	protected void saveCollection(DCollection collection) {
 		String collectionPath = getAppDataFilePath(collection.getName());
 		String metadataPath = collectionPath + File.separator + APPLICATION_METADATA;
 		String extensionsPath = collectionPath + File.separator + EXTENSION_HANDLER_FOLDER;
@@ -511,16 +536,34 @@ public class ApplicationData {
 
 	@JsonIgnore
 	private String serializeJSON(Object object) {
-		ObjectMapper objectMapper = new ObjectMapper();
-		try {
-			return objectMapper.writeValueAsString(object);
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-		}
+		String json = JSONUtils.objectToJSON(object);
+		if ( StringUtils.isEmpty(json) )
+			json = "{}";
 		
-		return "{}";
+		return json;
 	}
 	
+	/**
+	 * Get the collection that a generic element exists within.
+	 */
+	public DCollection getCollection(DFolderElement element) {
+		if ( element instanceof DCollection )
+			return (DCollection)element;
+		
+		for (DCollection collection : getCollectionsUnmodifyable()) {
+			DFolder folder = getParentRecursive(element, collection);
+			if ( folder != null )
+				return collection;
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Get the parent Folder/Collection to a generic element
+	 * @param element
+	 * @return
+	 */
 	@JsonIgnore
 	public DFolder getParent(DFolderElement element) {
 		for (DCollection collection : getCollectionsUnmodifyable()) {
@@ -550,54 +593,80 @@ public class ApplicationData {
 	}
 
 	@JsonIgnore
+	public DFolder duplicate(DCollection internal) {
+		DFolder newCollection = internal.clone();
+		newCollection.setName(generateNewCollectionName(internal.getName()));
+		newCollection.setDeletable(true);
+		newCollection.setArchivable(true);
+		this.addCollection((DCollection) newCollection);
+		
+		this.save();
+		return newCollection;
+	}
+
+	@JsonIgnore
 	public DFolder duplicate(DFolder internal) {
+		if ( internal instanceof DCollection )
+			return duplicate((DCollection)internal);
+		
+		DFolder parent = getParent(internal);
 		DFolder newFolder = internal.clone();
-		newFolder.setDeletable(true);
-		newFolder.setArchivable(true);
+		newFolder.setName(this.generateNewChildElementName(parent, newFolder.getName()));
+		parent.addChild(newFolder);
 		
-		if ( newFolder instanceof DCollection ) {
-			this.addCollection((DCollection) newFolder);
-		} else {
-			DFolder parent = getParent(internal);
-			parent.addChild(newFolder);
-		}
-		
+		this.save();
 		return newFolder;
 	}
 
 	@JsonIgnore
 	public DServiceChain duplicate(DServiceChain internal) {
-		DServiceChain newObject = internal.clone();
-
 		DFolder parent = getParent(internal);
+		DServiceChain newObject = internal.clone();
+		newObject.setName(this.generateNewChildElementName(parent, newObject.getName()));
 		parent.addChild(newObject);
 		
+		this.save();
 		return newObject;
 	}
 
+	@SuppressWarnings("unchecked")
 	@JsonIgnore
 	protected void importCollection(File selectedFile, DFolder parentFolder) {
 		if (selectedFile != null) {
 			String fileName = FileUtils.getFileNameFromPathWithoutExtension(selectedFile.getAbsolutePath());
+
+			ObjectMapper objectMapper = new ObjectMapper();
 			
 			try {
+				// Read file contents
 				Path path = selectedFile.toPath();
 				byte[] data = Files.readAllBytes(path);
 				String json = new String(data, StandardCharsets.UTF_8);
 				json = json.trim();
 				
-				// Make sure jackson understannds this is a COLLECTION
-				if ( json.startsWith("{") ) {
-					json = StringHelper.insert(json, 2, "\"_IsCollection\": true,");
+				// Ugly fix due to typo early on. Commenting out will break OLD service chain handlerid names. New ones will not be affected.
+				json = dirtyFix(json);
+				
+				// Convert to map
+				System.out.println("Attempting to import: " + fileName);
+				Map<String, Object> map = objectMapper.readValue(json, Map.class);
+				
+				// Locate extensionHandler
+				Map<String, Object> extensionHandlerParent = locateKeyInMap(map, "ExtensionHandler");
+				if ( extensionHandlerParent == null ) {
+					System.out.println("Could not import extension. Missing ExtensionHandler");
+					return;
 				}
 				
 				// Create new collection
-				ObjectMapper objectMapper = new ObjectMapper();
-				DCollection newCollection = objectMapper.readValue(json, DCollection.class);
+				extensionHandlerParent.put("_IsCollection", true); // Mark as collection, so there's no confusion how this gets marshaled
+				DCollection newCollection = objectMapper.convertValue(extensionHandlerParent, DCollection.class);
 				newCollection.setName(fileName);
+				System.out.println("Created new Collection: " + newCollection);
 				
 				// Fix missing Metadata
 				for (DFolderElement child : newCollection.getChildrenUnmodifyable()) {
+					System.out.println("Checking Metadata: " + child);
 					ServiceChainHelper.fixServiceChain((DServiceChain)child);
 				}
 				
@@ -605,16 +674,29 @@ public class ApplicationData {
 				if ( parentFolder == null ) {
 					ServiceChainerApp.get().getData().addCollection(newCollection);
 				} else {
+					
+					// If there's more than 1 child being added, wrap it in a folder
+					if ( newCollection.getChildrenUnmodifyable().size() > 1 && parentFolder.getChildrenUnmodifyable().size() > 0 ) {
+						DFolder folder = newFolder(parentFolder, newCollection.getName());
+						parentFolder = folder;
+					}
+					
 					// If parent is specified, empty its children in to the parent
-					int x = 0;
-					for(DFolderElement element : newCollection.getChildrenUnmodifyable()) {
-						if ( x > 0 ) {
-							((DServiceChain)element).setName(fileName + " " + x);
-						} else {
-							((DServiceChain)element).setName(fileName);
+					for (DFolderElement element : newCollection.getChildrenUnmodifyable()) {
+						String elementName = fileName;
+						if ( element instanceof DServiceChain ) {
+							String name = ((DServiceChain)element).getName();
+							elementName = name;
+							
+							if ( StringUtils.isEmpty(name) ) {
+								String handlerId = ((DServiceChain)element).getHandlerId();
+								elementName = StringUtils.isEmpty(handlerId) ? fileName : handlerId;
+							}
 						}
 						
-						x += 1;
+						System.out.println("Adding element: " + element + " to parent folder: " + parentFolder);
+						String name = this.generateNewChildElementName(parentFolder, elementName);
+						((DServiceChain)element).setName(name);
 						
 						parentFolder.addChild(element);
 					}
@@ -623,6 +705,46 @@ public class ApplicationData {
 				e.printStackTrace();
 			}
 		}
+		
+		DCollection collection = this.getCollection(parentFolder);
+		if ( collection != null ) {
+			saveCollection(collection);
+		}
+	}
+
+	@Deprecated
+	private String dirtyFix(String json) {
+		return json.replace("\"ExtensionhandlerId\"", "\"ExtensionHandlerId\"");
+	}
+
+	@SuppressWarnings("unchecked")
+	private Map<String, Object> locateKeyInMap(Map<String, Object> map, String keyName) {
+		for (Entry<String, Object> set : map.entrySet()) {
+			Object value = set.getValue();
+			
+			if ( StringUtils.equals(set.getKey(), keyName) ) {
+				return map;
+			}
+
+			if ( value instanceof Map ) {
+				Object newValue = locateKeyInMap((Map<String, Object>) value, keyName);
+				if ( newValue != null )
+					return (Map<String, Object>) newValue;
+			}
+			
+			if ( value instanceof List ) {
+				List<Object> list = (List<Object>)value;
+				for (Object object : list) {
+					if ( object instanceof Map ) {
+						Object newValue = locateKeyInMap((Map<String, Object>) object, keyName);
+						if ( newValue != null )
+							return (Map<String, Object>) newValue;
+					}
+				}
+			}
+		}
+		
+		return null;
 	}
 
 	@JsonIgnore

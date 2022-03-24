@@ -208,21 +208,21 @@ public class Folder extends VBox implements FolderElement {
 		
 		context.getItems().add(new SeparatorMenuItem());
 
+		// Import
+		{
+			MenuItem option = new MenuItem("Import", IconHelper.IMPORT.create());
+			option.setOnAction((event) -> {
+				ServiceChainerApp.get().importCollection(internal);
+			});
+			context.getItems().add(option);
+		}
+
 		// Export
 		{
 			MenuItem option = new MenuItem("Export", IconHelper.EXPORT.create());
 			option.setOnAction((event) -> {
 				File file = ServiceChainerApp.get().exportFilePicker();
 				RouteHelper.export(RouteHelper.getServiceChains(Folder.this.internal), file, false);
-			});
-			context.getItems().add(option);
-		}
-
-		// Import
-		{
-			MenuItem option = new MenuItem("Import", IconHelper.IMPORT.create());
-			option.setOnAction((event) -> {
-				ServiceChainerApp.get().importCollection(internal);
 			});
 			context.getItems().add(option);
 		}
@@ -271,7 +271,7 @@ public class Folder extends VBox implements FolderElement {
 			label.prefWidthProperty().bind(childrenBox.widthProperty());
 			childrenBox.getChildren().add((Node)label);
 			
-			((DFolder)maybeServiceChain).setParent(this.internal);
+			//((DFolder)maybeServiceChain).setParent(this.internal);
 		}
 		
 		updateChildrenLabel();
