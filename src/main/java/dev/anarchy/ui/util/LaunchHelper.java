@@ -7,6 +7,7 @@ import java.nio.channels.FileLock;
 import java.nio.file.StandardOpenOption;
 import java.util.Optional;
 
+import dev.anarchy.ui.ApplicationData;
 import dev.anarchy.ui.ServiceChainerApp;
 import io.jrest.HttpMethod;
 import io.jrest.HttpStatus;
@@ -20,13 +21,15 @@ import javafx.scene.control.ButtonType;
 public class LaunchHelper {
 	
 	private static final int PORT = 39571;
+	
+	private static final String API_WAKEUP = "wakeup";
 
 	public static void checkCanLaunch() {
 		System.setProperty("apple.laf.useScreenMenuBar", "true");
 		System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Test Name 123");
 		
-		String userHome = System.getProperty("user.home");
-		File file = new File(userHome, "ServiceChainingUI.lock");
+		String userHome = ApplicationData.getAppDataPath();
+		File file = new File(userHome + "ServiceChainingUI.lock");
 		try {
 			file.deleteOnExit();
 		    FileChannel fc = FileChannel.open(file.toPath(),
@@ -47,15 +50,20 @@ public class LaunchHelper {
 	 * Called when the application is running and no other instances of this application are running.
 	 */
 	private static void onApplicationNotYetRunning() {
-        JRest app = JRest.create()
-        		.setPort(PORT)
-        		.setKeepApplicationAlive(false)
-        		.start();
-        
-        app.get("/wakeup", (request) -> {
-        	ServiceChainerApp.get().wakeup();
-            return new ResponseEntity<>(HttpStatus.OK);
-        });
+		try {
+	        JRest app = JRest.create()
+	        		.setPort(PORT)
+	        		.setKeepApplicationAlive(false)
+	        		.start();
+	        
+	        app.get("/" + API_WAKEUP, (request) -> {
+	        	ServiceChainerApp.get().wakeup();
+	            return new ResponseEntity<>(HttpStatus.OK);
+	        });
+		} catch(Exception e) {
+			onApplicationAlreadyRunning();
+			System.exit(0);
+		}
 	}
 	
 	/**
@@ -64,7 +72,7 @@ public class LaunchHelper {
 	private static void onApplicationAlreadyRunning() {
 		try {
 			RequestEntity<String> request = new RequestEntity<>(HttpMethod.GET);
-			request.exchange("http://localhost:" + PORT + "/wakeup", String.class);
+			request.exchange("http://localhost:" + PORT + "/" + API_WAKEUP, String.class);
 			System.exit(0);
 		} catch(Exception e) {
 			e.printStackTrace();
