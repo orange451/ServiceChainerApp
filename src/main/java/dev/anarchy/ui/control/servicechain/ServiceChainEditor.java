@@ -173,6 +173,10 @@ public class ServiceChainEditor extends BorderPane {
 			setSelectedNode(null);
 		});
 
+		// oldServiceChain rename
+		oldServiceChain.getOnNameChangeEvent().connect((args)->{
+			internal.setName(args[0].toString());
+		});
 		
 		// Entry node
 		createEntryPointNode(internal);

@@ -124,43 +124,14 @@ public class Workspace extends BorderPane {
 			ServiceChainEditor editor = new ServiceChainEditor(internal);
 			
 			// Context Menu
-			{
-				ContextMenu contextMenu = new ContextMenu();
-				
-				// Close
-				{
-					MenuItem option = new MenuItem("Close");
-					option.setOnAction((event) -> {
-						close(tab);
-					});
-					contextMenu.getItems().add(option);
-				}
-				
-				// Close Others
-				{
-					MenuItem option = new MenuItem("Close Others");
-					option.setOnAction((event) -> {
-						closeOthers(tab);
-					});
-					contextMenu.getItems().add(option);
-				}
-				
-				// Close All
-				{
-					MenuItem option = new MenuItem("Close All");
-					option.setOnAction((event) -> {
-						closeAll();
-					});
-					contextMenu.getItems().add(option);
-				}
-				
-				tab.setContextMenu(contextMenu);
-			}
+			ContextMenu contextMenu = new ContextMenu();
+			generateContextMenu(tab, contextMenu);
+			tab.setContextMenu(contextMenu);
 			
 			// Mark service chain as modified
 			editor.getServiceChain().getOnChangedEvent().connect((args)->{
-				tab.setText("*" + internal.getName());
 				modifiedStatus.get(internal).setValue(true);
+				updateTabText(tab, internal);
 			});
 			
 			// Handle request close logic
@@ -185,13 +156,47 @@ public class Workspace extends BorderPane {
 
 			tab.setContent(editor);
 
-			Tab finalTab = tab;
+			// Track name changes
 			internal.getOnNameChangeEvent().connect((args) -> {
-				finalTab.setText(args[0].toString());
+				updateTabText(tab, internal);
 			});
 		}
 
 		tabs.getSelectionModel().select(openTab);
+	}
+	
+	private void updateTabText(Tab tab, DServiceChain serviceChain) {
+		String prefix = modifiedStatus.get(serviceChain).get() ? "*" : "";
+		tab.setText(prefix + serviceChain.getName());
+	}
+
+	private void generateContextMenu(Tab tab, ContextMenu contextMenu) {
+		// Close
+		{
+			MenuItem option = new MenuItem("Close");
+			option.setOnAction((event) -> {
+				close(tab);
+			});
+			contextMenu.getItems().add(option);
+		}
+		
+		// Close Others
+		{
+			MenuItem option = new MenuItem("Close Others");
+			option.setOnAction((event) -> {
+				closeOthers(tab);
+			});
+			contextMenu.getItems().add(option);
+		}
+		
+		// Close All
+		{
+			MenuItem option = new MenuItem("Close All");
+			option.setOnAction((event) -> {
+				closeAll();
+			});
+			contextMenu.getItems().add(option);
+		}
 	}
 
 	private void forceClose(Tab tab) {
@@ -241,8 +246,8 @@ public class Workspace extends BorderPane {
 		ServiceChainHelper.saveServiceChain(internal);
 		
 		// Mark as unmodified
-		tab.setText(internal.getName());
 		modifiedStatus.get(internal).setValue(false);
+		updateTabText(tab, internal);
 		
 		// Write to file
 		ServiceChainerApp.get().getData().save();
