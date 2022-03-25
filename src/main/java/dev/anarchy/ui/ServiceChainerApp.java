@@ -63,16 +63,20 @@ public class ServiceChainerApp extends Application {
 				DFolder parentNode = getData().getParent((DFolderElement) args[0]);
 				
 				// See if it needs to be saved
-				boolean canClose = true;
 				if ( args[0] instanceof DServiceChain ) {
 					Tab tab = getWorkspace().findTab((DServiceChain) args[0]);
 					if ( tab != null ) {
 						if ( !getWorkspace().close(tab) )
-							canClose = false;
+							return;
+					}
+					
+					boolean deleteChain = requestDeleteFile(((DServiceChain) args[0]).getName());
+					if ( deleteChain ) {
+						this.getData().removeServiceChain((DServiceChain) args[0]);
 					}
 				}
 				
-				if ( parentNode != null && canClose )
+				if ( parentNode != null )
 					parentNode.removeChild(((DFolderElement)args[0]));
 
 				this.getData().saveCollection(collection);
@@ -81,7 +85,7 @@ public class ServiceChainerApp extends Application {
 			}
 		});
 	}
-	
+
 	public static ServiceChainerApp get() {
 		return app;
 	}
@@ -182,6 +186,15 @@ public class ServiceChainerApp extends Application {
 		ButtonType result = alert.showAndWait().orElse(ButtonType.NO);
 		
 		return result;
+	}
+	
+	private boolean requestDeleteFile(String name) {
+		Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Delete " + name + " from disk?", ButtonType.YES, ButtonType.NO);
+		ServiceChainerUIBuilder.setTheme(alert.getDialogPane());
+		alert.getDialogPane().getStylesheets().addAll(ServiceChainerUIBuilder.getStylesheet());
+		ButtonType result = alert.showAndWait().orElse(ButtonType.NO);
+		
+		return result == ButtonType.YES;
 	}
 
 	/**

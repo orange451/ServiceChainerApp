@@ -43,13 +43,16 @@ public class ApplicationData {
 	private List<DCollection> collections = new ArrayList<>();
 	
 	@JsonIgnore
-	private Map<DCollection, File> collectionFileMap = new HashMap<>();
+	private static Map<DCollection, File> collectionFileMap = new HashMap<>();
 	
 	@JsonIgnore
-	private Map<File, DCollection> fileCollectionMap = new HashMap<>();
+	private static Map<File, DCollection> fileCollectionMap = new HashMap<>();
 	
 	@JsonIgnore
-	private Map<File, DServiceChain> fileServiceChainMap = new HashMap<>();
+	private static Map<File, DServiceChain> fileServiceChainMap = new HashMap<>();
+	
+	@JsonIgnore
+	private static Map<DServiceChain, File> serviceChainFileMap = new HashMap<>();
 
 	@JsonIgnore
 	private Event onCollectionAddedEvent = new Event();
@@ -117,6 +120,8 @@ public class ApplicationData {
 		
 		chain.setName(newName);
 		parent.addChild(chain);
+		
+		registerServiceChain(this, chain);
 		
 		save();
 		return chain;
@@ -206,7 +211,7 @@ public class ApplicationData {
 		}
 	}
 	
-	private File renameFile(File source, String newName) {
+	private static File renameFile(File source, String newName) {
 		try {
 			File newFile = new File(source.getParentFile().getAbsoluteFile() + File.separator + newName);
 			source.renameTo(newFile);
@@ -238,9 +243,21 @@ public class ApplicationData {
 	}
 
 	@JsonIgnore
+	public void removeServiceChain(DServiceChain serviceChain) {
+		try {
+			File file = serviceChainFileMap.remove(serviceChain);
+			if ( file != null && file.exists() ) {
+				deleteDirectory(file);
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@JsonIgnore
 	private boolean deleteDirectory(File path) {
 		System.out.println("Deleting: " + path.getAbsolutePath());
-	    if (path.exists()) {
+	    if (path.exists() && path.isDirectory()) {
 	        File[] files = path.listFiles();
 	        for (int i = 0; i < files.length; i++) {
 	            if (files[i].isDirectory()) {
@@ -312,7 +329,7 @@ public class ApplicationData {
 					DCollectionMetadata metadata = objectMapper.readValue(json, DCollectionMetadata.class);
 					
 					// Import Metadata
-					loadMetadata(file, metadata, collection);
+					readMetadata(appData, file, metadata, collection);
 				} catch(Exception e) {
 					e.printStackTrace();
 				}
@@ -326,8 +343,8 @@ public class ApplicationData {
 					newCollections.add(collection);
 				}
 				
-				appData.collectionFileMap.put(collection, file);
-				appData.fileCollectionMap.put(file, collection);
+				collectionFileMap.put(collection, file);
+				fileCollectionMap.put(file, collection);
 						
 				/*String appDataPath = file.getAbsolutePath() + File.separator + APPLICATION_FILENAME;
 				System.out.println("Checking: " + appDataPath);
@@ -366,12 +383,12 @@ public class ApplicationData {
 		return appData;
 	}
 
-	private static void loadMetadata(File collectionFile, DCollectionMetadata metadata, DFolder folder) {
+	private static void readMetadata(ApplicationData appData, File collectionFile, DCollectionMetadata metadata, DFolder folder) {
 		folder.setName(metadata.getName());
 		
 		for (DCollectionMetadata child : metadata.getChildren()) {
 			DFolder subFolder = new DFolder();
-			loadMetadata(collectionFile, child, subFolder);
+			readMetadata(appData, collectionFile, child, subFolder);
 			folder.addChild(subFolder);
 		}
 		
@@ -385,10 +402,28 @@ public class ApplicationData {
 				String json = new String(data, StandardCharsets.UTF_8);
 				DServiceChain serviceChain = new ObjectMapper().readValue(json, DServiceChain.class);
 				folder.addChild(serviceChain);
+				
+				registerServiceChain(appData, serviceChain);
 			} catch(Exception e) {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	protected static void registerServiceChain(ApplicationData appData, DServiceChain serviceChain) {
+		serviceChain.getOnNameChangeEvent().connect((args)->{
+			File file = serviceChainFileMap.get(serviceChain);
+			if ( file != null && file.exists() ) {
+				String newName = getFileName(args[0].toString());
+				File newFile = renameFile(file, newName + ".json");
+				
+				fileServiceChainMap.remove(file);
+				fileServiceChainMap.put(newFile, serviceChain);
+				serviceChainFileMap.put(serviceChain, newFile);
+				
+				appData.saveCollection(appData.getCollection(serviceChain));
+			}
+		});
 	}
 
 	@JsonIgnore
@@ -467,13 +502,7 @@ public class ApplicationData {
 				String name = serviceChainFileNames.get(serviceChain);
 				File file = writeObject(serviceChain, extensionsPath + File.separator + name + ".json");
 				fileServiceChainMap.put(file, serviceChain);
-				
-				// TODO dont connect to this every time we save.... resource leak
-				serviceChain.getOnNameChangeEvent().connect((args)->{
-					File newFile = renameFile(file, getFileName(args[0].toString()) + ".json");
-					fileServiceChainMap.remove(file);
-					fileServiceChainMap.put(newFile, serviceChain);
-				});
+				serviceChainFileMap.put(serviceChain, file);
 				
 				// TODO connect to parent node and track deletion OF this service chain. We need to clean up the file
 			} catch(Exception e) {
