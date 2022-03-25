@@ -58,11 +58,18 @@ public class ServiceChainerApp extends Application {
 			DCollection collection = getData().getCollection((DFolderElement) args[0]);
 			
 			if ( args[0] instanceof DCollection ) {
+				// Remove it from list
 				data.removeCollection(((DCollection)args[0]));
+				
+				// Delete it from disk maybe
+				boolean deleteFromDisk = requestDeleteFile(((DCollection) args[0]).getName());
+				if ( deleteFromDisk ) {
+					this.getData().deleteCollection((DCollection) args[0]);
+				}
 			}else if ( args[0] instanceof DFolderElement ) { 
 				DFolder parentNode = getData().getParent((DFolderElement) args[0]);
 				
-				// See if it needs to be saved
+				// Attempt to close
 				if ( args[0] instanceof DServiceChain ) {
 					Tab tab = getWorkspace().findTab((DServiceChain) args[0]);
 					if ( tab != null ) {
@@ -70,15 +77,18 @@ public class ServiceChainerApp extends Application {
 							return;
 					}
 					
+					// Delete from disk
 					boolean deleteChain = requestDeleteFile(((DServiceChain) args[0]).getName());
 					if ( deleteChain ) {
-						this.getData().removeServiceChain((DServiceChain) args[0]);
+						this.getData().deleteServiceChain((DServiceChain) args[0]);
 					}
 				}
 				
+				// Remove it from parent
 				if ( parentNode != null )
 					parentNode.removeChild(((DFolderElement)args[0]));
 
+				// Save the collection (Most likely not necessary)
 				this.getData().saveCollection(collection);
 			} else {
 				System.out.println("Attempting to delete an element that is not yet supported. Please implement.");
@@ -146,7 +156,7 @@ public class ServiceChainerApp extends Application {
 	 */
 	public void importCollection(DFolder parentFolder) {
 		File selectedFile = importFilePicker();
-		data.importCollection(selectedFile, parentFolder);
+		data.importFile(selectedFile, parentFolder);
 	}
 	
 	/**

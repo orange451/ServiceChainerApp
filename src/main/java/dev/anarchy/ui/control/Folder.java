@@ -222,7 +222,9 @@ public class Folder extends VBox implements FolderElement {
 			MenuItem option = new MenuItem("Export", IconHelper.EXPORT.create());
 			option.setOnAction((event) -> {
 				File file = ServiceChainerApp.get().exportFilePicker();
-				RouteHelper.export(RouteHelper.getServiceChains(Folder.this.internal), file, false);
+				if (file != null ) {
+					RouteHelper.export(RouteHelper.getServiceChains(Folder.this.internal), file, false);
+				}
 			});
 			context.getItems().add(option);
 		}
