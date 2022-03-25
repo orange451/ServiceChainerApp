@@ -29,9 +29,8 @@ public class LaunchHelper {
 		System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Test Name 123");
 		
 		String userHome = ApplicationData.getAppDataPath();
-		File file = new File(userHome + "ServiceChainingUI.lock");
+		File file = new File(userHome + ".ServiceChainerUI.lock");
 		try {
-			file.deleteOnExit();
 		    FileChannel fc = FileChannel.open(file.toPath(),
 		            StandardOpenOption.CREATE,
 		            StandardOpenOption.WRITE);
@@ -39,8 +38,11 @@ public class LaunchHelper {
 		    if (lock == null) {
 		    	onApplicationAlreadyRunning();
 		    } else {
+				file.deleteOnExit();
 		    	onApplicationNotYetRunning();
 		    }
+		    
+	    	setHiddenAttrib(file);
 		} catch (IOException e) {
 		    throw new Error(e);
 		}
@@ -51,18 +53,19 @@ public class LaunchHelper {
 	 */
 	private static void onApplicationNotYetRunning() {
 		try {
+			// Start simple rest server
 	        JRest app = JRest.create()
 	        		.setPort(PORT)
 	        		.setKeepApplicationAlive(false)
 	        		.start();
 	        
+	        // Add wakeup api
 	        app.get("/" + API_WAKEUP, (request) -> {
 	        	ServiceChainerApp.get().wakeup();
 	            return new ResponseEntity<>(HttpStatus.OK);
 	        });
 		} catch(Exception e) {
 			onApplicationAlreadyRunning();
-			System.exit(0);
 		}
 	}
 	
@@ -71,8 +74,11 @@ public class LaunchHelper {
 	 */
 	private static void onApplicationAlreadyRunning() {
 		try {
+			// Call wakeup API for other application
 			RequestEntity<String> request = new RequestEntity<>(HttpMethod.GET);
 			request.exchange("http://localhost:" + PORT + "/" + API_WAKEUP, String.class);
+			
+			// Quit
 			System.exit(0);
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -89,4 +95,16 @@ public class LaunchHelper {
 		}
 	}
 
+	private static void setHiddenAttrib(File file) {
+		// for removing hide attribute
+		//Process p = Runtime.getRuntime().exec("attrib -H " + file.getPath());
+		
+		try {
+			// execute attrib command to set hide attribute
+			Process p = Runtime.getRuntime().exec("attrib +H " + file.getPath());
+			p.waitFor();
+		} catch (IOException | InterruptedException e) {
+			//
+		}
+	}
 }
