@@ -70,13 +70,12 @@ public class ServiceChainerApp extends Application {
 			DCollection collection = getData().getCollection((DFolderElement) args[0]);
 			
 			if ( args[0] instanceof DCollection ) {
+				
+				// Check how we want to remove
 				AtomicBoolean deleteFromDisk = new AtomicBoolean(false);
 				ButtonType remove = requestRemoveFile(((DCollection) args[0]).getName(), deleteFromDisk);
 				if ( remove == ButtonType.CANCEL ) {
-					cancelDeletes = true;
-					Platform.runLater(()->{
-						cancelDeletes = false;
-					});
+					cancelCelete();
 					return;
 				}
 				
@@ -88,18 +87,17 @@ public class ServiceChainerApp extends Application {
 					this.getData().deleteCollection((DCollection) args[0]);
 				}
 			}else if ( args[0] instanceof DFolderElement ) { 
-				DFolder parentNode = getData().getParent((DFolderElement) args[0]);
 				
+				// Check how we want to remove
 				AtomicBoolean deleteFromDisk = new AtomicBoolean(false);
 				ButtonType remove = requestRemoveFile(((DFolderElement) args[0]).getName(), deleteFromDisk);
 				if ( remove == ButtonType.CANCEL ) {
-					cancelDeletes = true;
-					Platform.runLater(()->{
-						cancelDeletes = false;
-					});
+					cancelCelete();
 					return;
 				}
-				
+
+				// Get current parent
+				DFolder parentNode = getData().getParent((DFolderElement) args[0]);
 				
 				// Attempt to close
 				if ( args[0] instanceof DServiceChain ) {
@@ -124,6 +122,13 @@ public class ServiceChainerApp extends Application {
 			} else {
 				System.out.println("Attempting to delete an element that is not yet supported. Please implement.");
 			}
+		});
+	}
+	
+	private void cancelCelete() {
+		cancelDeletes = true;
+		Platform.runLater(()->{
+			cancelDeletes = false;
 		});
 	}
 

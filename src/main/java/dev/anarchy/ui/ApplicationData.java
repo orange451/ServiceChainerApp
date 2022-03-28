@@ -785,6 +785,7 @@ public class ApplicationData {
 					}
 				}
 			} catch (Exception e) {
+				ServiceChainerApp.get().alert(AlertType.ERROR, "Could not import collection. Error: " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
