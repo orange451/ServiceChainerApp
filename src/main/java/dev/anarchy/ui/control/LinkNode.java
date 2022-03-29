@@ -3,6 +3,7 @@ package dev.anarchy.ui.control;
 import dev.anarchy.common.DRouteElementI;
 import dev.anarchy.common.DServiceChain;
 import dev.anarchy.common.util.RouteHelper;
+import dev.anarchy.ui.control.workspace.GraphObject;
 import dev.anarchy.ui.util.IconHelper;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;

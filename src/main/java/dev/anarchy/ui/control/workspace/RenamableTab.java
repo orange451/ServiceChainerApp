@@ -1,4 +1,4 @@
-package dev.anarchy.ui.control;
+package dev.anarchy.ui.control.workspace;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Label;

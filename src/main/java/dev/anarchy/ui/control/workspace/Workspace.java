@@ -1,4 +1,4 @@
-package dev.anarchy.ui.control;
+package dev.anarchy.ui.control.workspace;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,8 +10,8 @@ import dev.anarchy.translate.util.ServiceChainHelper;
 import dev.anarchy.ui.ApplicationData;
 import dev.anarchy.ui.ServiceChainerApp;
 import dev.anarchy.ui.ServiceChainerUIBuilder;
-import dev.anarchy.ui.control.servicechain.ServiceChainEditor;
-import dev.anarchy.ui.control.servicechain.ServiceChainRunner;
+import dev.anarchy.ui.control.workspace.servicechain.ServiceChainEditor;
+import dev.anarchy.ui.control.workspace.servicechain.ServiceChainRunner;
 import dev.anarchy.ui.util.IconHelper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;

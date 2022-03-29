@@ -1,4 +1,4 @@
-package dev.anarchy.ui.control.servicechain;
+package dev.anarchy.ui.control.workspace.servicechain;
 
 import dev.anarchy.ace.AceEditor;
 import dev.anarchy.ace.AceEvents;

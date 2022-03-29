@@ -5,9 +5,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import dev.anarchy.common.DCollection;
-import dev.anarchy.ui.control.Collection;
-import dev.anarchy.ui.control.SearchBar;
-import dev.anarchy.ui.control.Workspace;
+import dev.anarchy.ui.control.filter.Collection;
+import dev.anarchy.ui.control.filter.SearchBar;
+import dev.anarchy.ui.control.workspace.Workspace;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Node;

@@ -9,7 +9,7 @@ import dev.anarchy.common.DCollection;
 import dev.anarchy.common.DFolder;
 import dev.anarchy.common.DFolderElement;
 import dev.anarchy.common.DServiceChain;
-import dev.anarchy.ui.control.Workspace;
+import dev.anarchy.ui.control.workspace.Workspace;
 import dev.anarchy.ui.util.LaunchHelper;
 import javafx.application.Application;
 import javafx.application.Platform;

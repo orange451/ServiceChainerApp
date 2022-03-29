@@ -1,4 +1,4 @@
-package dev.anarchy.ui.control.servicechain;
+package dev.anarchy.ui.control.workspace.servicechain;
 
 import java.util.Map;
 

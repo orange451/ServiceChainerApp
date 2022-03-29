@@ -1,4 +1,4 @@
-package dev.anarchy.ui.control;
+package dev.anarchy.ui.control.filter;
 
 import org.controlsfx.control.textfield.CustomTextField;
 

@@ -1,9 +1,9 @@
-package dev.anarchy.ui.control;
+package dev.anarchy.ui.control.workspace;
 
 import dev.anarchy.common.DConditionElement;
 import dev.anarchy.common.DServiceChain;
-import dev.anarchy.ui.control.servicechain.ConditionEditor;
-import dev.anarchy.ui.control.servicechain.ServiceChainEditor;
+import dev.anarchy.ui.control.workspace.servicechain.ConditionEditor;
+import dev.anarchy.ui.control.workspace.servicechain.ServiceChainEditor;
 import dev.anarchy.ui.util.IconHelper;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;

@@ -1,16 +1,17 @@
-package dev.anarchy.ui.control;
+package dev.anarchy.ui.control.workspace;
 
 import dev.anarchy.common.DRouteElement;
 import dev.anarchy.common.DRouteElementI;
 import dev.anarchy.common.DServiceChain;
 import dev.anarchy.common.DServiceDefinition;
 import dev.anarchy.common.util.RouteHelper;
-import dev.anarchy.ui.control.servicechain.ServiceChainConfigurator;
-import dev.anarchy.ui.control.servicechain.ServiceChainEditor;
-import dev.anarchy.ui.control.servicechain.ServiceChainRunner;
-import dev.anarchy.ui.control.servicechain.ServiceDefinitionEditor;
-import dev.anarchy.ui.control.servicechain.TemplateEditor;
-import dev.anarchy.ui.control.servicechain.TemplateEditorType;
+import dev.anarchy.ui.control.LinkNode;
+import dev.anarchy.ui.control.workspace.servicechain.ServiceChainConfigurator;
+import dev.anarchy.ui.control.workspace.servicechain.ServiceChainEditor;
+import dev.anarchy.ui.control.workspace.servicechain.ServiceChainRunner;
+import dev.anarchy.ui.control.workspace.servicechain.ServiceDefinitionEditor;
+import dev.anarchy.ui.control.workspace.servicechain.TemplateEditor;
+import dev.anarchy.ui.control.workspace.servicechain.TemplateEditorType;
 import dev.anarchy.ui.util.IconHelper;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

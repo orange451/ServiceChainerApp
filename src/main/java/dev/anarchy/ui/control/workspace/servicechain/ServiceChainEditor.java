@@ -1,4 +1,4 @@
-package dev.anarchy.ui.control.servicechain;
+package dev.anarchy.ui.control.workspace.servicechain;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,8 +14,8 @@ import dev.anarchy.common.DServiceDefinition;
 import dev.anarchy.common.condition.ConditionMeta;
 import dev.anarchy.translate.util.ServiceChainHelper;
 import dev.anarchy.ui.ServiceChainerApp;
-import dev.anarchy.ui.control.GraphObject;
-import dev.anarchy.ui.control.GraphObjectCondition;
+import dev.anarchy.ui.control.workspace.GraphObject;
+import dev.anarchy.ui.control.workspace.GraphObjectCondition;
 import dev.anarchy.ui.util.ColorHelper;
 import dev.anarchy.ui.util.IconHelper;
 import javafx.application.Platform;

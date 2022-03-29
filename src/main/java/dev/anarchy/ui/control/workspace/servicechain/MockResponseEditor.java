@@ -1,6 +1,7 @@
-package dev.anarchy.ui.control;
+package dev.anarchy.ui.control.workspace.servicechain;
 
 import dev.anarchy.common.DServiceDefinition;
+import dev.anarchy.ui.control.ModalWindow;
 import dev.anarchy.ace.AceEditor;
 import dev.anarchy.ace.Modes;
 import javafx.scene.Scene;

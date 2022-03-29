@@ -1,9 +1,8 @@
-package dev.anarchy.ui.control.servicechain;
+package dev.anarchy.ui.control.workspace.servicechain;
 
 import org.controlsfx.control.textfield.CustomTextField;
 
 import dev.anarchy.common.DServiceDefinition;
-import dev.anarchy.ui.control.MockResponseEditor;
 import dev.anarchy.ui.control.ModalWindow;
 import dev.anarchy.ui.util.IconHelper;
 import dev.anarchy.ui.util.TooltipHelper;

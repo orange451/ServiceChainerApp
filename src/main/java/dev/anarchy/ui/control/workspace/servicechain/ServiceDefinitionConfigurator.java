@@ -1,4 +1,4 @@
-package dev.anarchy.ui.control.servicechain;
+package dev.anarchy.ui.control.workspace.servicechain;
 
 import dev.anarchy.common.DServiceDefinition;
 import dev.anarchy.ui.control.ModalWindow;
