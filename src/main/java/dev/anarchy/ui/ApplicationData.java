@@ -297,7 +297,12 @@ public class ApplicationData {
 
 	@JsonIgnore
 	public static String getAppDataPath() {
-		return System.getProperty("user.home") + File.separator + APPLICATION_NAME + File.separator;
+		String path = System.getProperty("user.home") + File.separator + APPLICATION_NAME + File.separator;
+		File file = new File(path);
+		if ( !file.exists() )
+			file.mkdir();
+		
+		return path;
 	}
 
 	@JsonIgnore
