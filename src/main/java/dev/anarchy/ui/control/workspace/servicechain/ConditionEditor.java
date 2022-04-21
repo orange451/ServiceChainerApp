@@ -1,9 +1,15 @@
 package dev.anarchy.ui.control.workspace.servicechain;
 
+import java.util.List;
+
 import dev.anarchy.ace.AceEditor;
 import dev.anarchy.ace.AceEvents;
 import dev.anarchy.ace.Modes;
 import dev.anarchy.common.DConditionElement;
+import dev.anarchy.common.DRouteElementI;
+import dev.anarchy.common.DServiceChain;
+import dev.anarchy.common.DServiceDefinition;
+import dev.anarchy.common.util.RouteHelper;
 import dev.anarchy.ui.control.PopupWindow;
 import dev.anarchy.ui.util.IconHelper;
 import javafx.geometry.Insets;
@@ -22,7 +28,7 @@ public class ConditionEditor extends PopupWindow {
 	
 	private BorderPane layout;
 	
-	public ConditionEditor(DConditionElement condition) {
+	public ConditionEditor(DServiceChain serviceChain, DConditionElement condition) {
 		this.condition = condition;
 		
         getStage().setTitle("Condition Editor - " + condition.getName());
@@ -53,12 +59,22 @@ public class ConditionEditor extends PopupWindow {
 		stage.setOnCloseRequest((event)->{
 			condition.getConditionMeta().setCondition(code.getText());
 			condition.setCondition(code.getText());
+			updateConnectedCondition(serviceChain.getRoutesUnmodifyable(), condition);
         });
 		
 		code.addEventHandler(AceEvents.onChangeEvent, (event)->{
 			condition.getConditionMeta().setCondition(code.getText());
 			condition.setCondition(code.getText());
+			updateConnectedCondition(serviceChain.getRoutesUnmodifyable(), condition);
 		});
+	}
+
+	private void updateConnectedCondition(List<DRouteElementI> routesUnmodifyable, DConditionElement condition) {
+		for (DRouteElementI element : routesUnmodifyable) {
+			if ( element.getDestinationId().equals(condition.getConditionMeta().getLinkedToId()) ) {
+				((DServiceDefinition)element).setCondition(condition.getCondition());
+			}
+		}
 	}
 
 	@Override

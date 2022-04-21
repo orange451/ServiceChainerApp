@@ -1,9 +1,9 @@
-package dev.anarchy.ui.control;
+package dev.anarchy.ui.control.workspace;
 
+import dev.anarchy.common.DConditionElement;
 import dev.anarchy.common.DRouteElementI;
 import dev.anarchy.common.DServiceChain;
 import dev.anarchy.common.util.RouteHelper;
-import dev.anarchy.ui.control.workspace.GraphObject;
 import dev.anarchy.ui.util.IconHelper;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -54,8 +54,26 @@ public class LinkNode extends StackPane {
 		});
 		
 		this.setOnMouseClicked((event)->{
+			// Find Graph node we are connected to
+			DRouteElementI connectedToElement = RouteHelper.getLinkedTo(parent.getEditor().getGraphObjectRoutesUnmodifyable(), this.routeElement);
+			if ( connectedToElement != null ) {
+				GraphObject connectedToNode = parent.getEditor().getGraphObjectFromRoute(connectedToElement);
+				connectedToNode.onDisconnectFrom(routeElement);
+			}
+			
+			// Condition nodes need to unlink 
+			if ( routeElement instanceof DConditionElement ) {
+				DRouteElementI connectedFromElement = RouteHelper.getLinkedFrom(parent.getEditor().getGraphObjectRoutesUnmodifyable(), routeElement);
+				if ( connectedFromElement != null ) {
+					RouteHelper.linkRoutes(parent.getEditor().getGraphObjectRoutesUnmodifyable(), connectedFromElement, null);
+				}
+			}
+			
+			// unlink this route element
 			RouteHelper.linkRoutes(parent.getEditor().getGraphObjectRoutesUnmodifyable(), this.routeElement, null);
 			this.setLinkTo(null);
+			
+			// Redraw path
 			parent.getEditor().connectNodes();
 		});
 

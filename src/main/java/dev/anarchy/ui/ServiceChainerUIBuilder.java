@@ -106,7 +106,7 @@ public class ServiceChainerUIBuilder {
 		try {
 			scene.getStylesheets().addAll(getStylesheet());
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 	}
 
@@ -114,12 +114,11 @@ public class ServiceChainerUIBuilder {
 		try {
 			scene.getStylesheets().addAll(getStylesheet());
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 	}
 
 	private static void accelerators(Stage stage) {
-		
 		// Save
 		stage.getScene().getAccelerators().put(
 			new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN), () -> {

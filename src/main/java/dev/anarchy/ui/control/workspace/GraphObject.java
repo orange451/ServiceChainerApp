@@ -1,11 +1,11 @@
 package dev.anarchy.ui.control.workspace;
 
+import dev.anarchy.common.DConditionElement;
 import dev.anarchy.common.DRouteElement;
 import dev.anarchy.common.DRouteElementI;
 import dev.anarchy.common.DServiceChain;
 import dev.anarchy.common.DServiceDefinition;
 import dev.anarchy.common.util.RouteHelper;
-import dev.anarchy.ui.control.LinkNode;
 import dev.anarchy.ui.control.workspace.servicechain.ServiceChainConfigurator;
 import dev.anarchy.ui.control.workspace.servicechain.ServiceChainEditor;
 import dev.anarchy.ui.control.workspace.servicechain.ServiceChainRunner;
@@ -105,6 +105,8 @@ public class GraphObject extends StackPane {
 				if ( this.getRouteElement() instanceof DRouteElement ) {
 					RouteHelper.linkRoutes(editor.getGraphObjectRoutesUnmodifyable(), droppedFrom.getRouteElement(), (DRouteElement) this.getRouteElement());
 					droppedFrom.setLinkTo(this.linkerNode);
+					this.onConnectFrom(droppedFrom.getRouteElement());
+					
 					getEditor().connectNodes();
 				} else {
 					System.out.println("Cannot link " + droppedFrom.getRouteElement() + " to " + this.getRouteElement() + ". Element must be a RouteElement");
@@ -139,6 +141,7 @@ public class GraphObject extends StackPane {
 	            	} else if ( routeElement instanceof DServiceChain ) {
 	            		new ServiceChainConfigurator((DServiceChain) routeElement).show();
 	            	}
+	            	onDoubleClick();
 	            }
 	        } else if (event.getButton() == MouseButton.SECONDARY) {
 				if (!context.isShowing()) {
@@ -214,7 +217,56 @@ public class GraphObject extends StackPane {
 	}
 	
 	protected void onDelete() {
+		//
+	}
+	
+	protected void onDoubleClick() {
+		//
+	}
+	
+	protected void onDisconnectFrom(DRouteElementI routeElement) {
+		/*if ( this.routeElement instanceof DServiceDefinition && routeElement instanceof DConditionElement ) {
+			System.err.println("Clearing condition meta: " + routeElement);
+			((DServiceDefinition)this.routeElement).setCondition(null);
+			((DServiceDefinition)this.routeElement).setConditionMeta(null);
+		}*/
+	}
+	
+	protected void onConnectFrom(DRouteElementI routeElement) {
+		/*// Attach Condition nodes to child
+		if (this.routeElement instanceof DServiceDefinition && routeElement instanceof DConditionElement) {
+			DConditionElement condition = (DConditionElement)routeElement;
+			System.err.println("Setting condition meta from: " + condition + " / " + condition.getConditionMeta());
+			
+			((DServiceDefinition)this.routeElement).setCondition(condition.getCondition());
+			((DServiceDefinition)this.routeElement).setConditionMeta(condition.getConditionMeta());
+			((DServiceDefinition)this.routeElement).getConditionMeta().setLinkedToId(this.routeElement.getDestinationId());
+			DRouteElementI linkedFrom = RouteHelper.getLinkedFrom(this.editor.getGraphObjectRoutesUnmodifyable(), routeElement);
+			System.err.println("Connecting from condition node. Condition node attached from: " + linkedFrom);
+			if ( linkedFrom != null ) {
+				RouteHelper.linkRoutes(this.editor.getGraphObjectRoutesUnmodifyable(), linkedFrom, (DRouteElement) this.routeElement);
+				
+				// Test
+				((DRouteElement) routeElement).setSourceId(linkedFrom.getDestinationId());
+				((DRouteElement) this.routeElement).setSourceId(routeElement.getDestinationId());
+				
+				this.editor.connectNodes();
+			}
+		}
 		
+		// Route parent node THROUGH condition nodes to child
+		if ( this.routeElement instanceof DConditionElement ) {
+			DRouteElementI linkedTo = RouteHelper.getLinkedTo(this.editor.getGraphObjectRoutesUnmodifyable(), this.routeElement);
+			if ( linkedTo != null ) {
+				System.err.println("Attempting to link condition node. From: " + routeElement + " to " + linkedTo);
+				RouteHelper.linkRoutes(this.editor.getGraphObjectRoutesUnmodifyable(), routeElement, (DRouteElement) linkedTo);
+				this.editor.connectNodes();
+			}
+		}*/
+	}
+	
+	public DServiceChain getServiceChain() {
+		return this.serviceChain;
 	}
 
 	public void setCornerRadius(double x) {

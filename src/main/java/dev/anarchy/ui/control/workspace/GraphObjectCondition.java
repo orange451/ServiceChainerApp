@@ -24,10 +24,15 @@ public class GraphObjectCondition extends GraphObject {
 	}
 	
 	@Override
+	protected void onDoubleClick() {
+		new ConditionEditor(this.getServiceChain(), this.getRouteElement()).show();
+	}
+	
+	@Override
 	protected void updateContext(ContextMenu context) {		
 		MenuItem option = new MenuItem("Configure", IconHelper.GEAR.create());
 		option.setOnAction((event) -> {
-			new ConditionEditor(this.getRouteElement()).show();
+			new ConditionEditor(this.getServiceChain(), this.getRouteElement()).show();
 		});
 		context.getItems().add(option);
 		
