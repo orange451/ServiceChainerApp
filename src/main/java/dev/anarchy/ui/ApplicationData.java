@@ -21,8 +21,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dev.anarchy.common.DApplicationMetadata;
@@ -843,6 +841,11 @@ public class ApplicationData {
 		}
 		
 		return null;
+	}
+	
+	@JsonIgnore
+	public File getDirectory(DCollection internal) {
+		return collectionFileMap.get(internal);
 	}
 
 	@JsonIgnore

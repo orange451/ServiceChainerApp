@@ -361,6 +361,10 @@ public class Folder extends VBox implements FolderElement {
 	public DFolder getInternal() {
 		return this.internal;
 	}
+	
+	public void setGraphic(Node node) {
+		this.label.setGraphic(node);
+	}
 
 	@Override
 	public void setTextFill(Paint color) {
