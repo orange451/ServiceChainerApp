@@ -124,7 +124,7 @@ public class ApplicationData {
 		
 		registerServiceChain(this, chain);
 		
-		save();
+		saveAll();
 		return chain;
 	}
 
@@ -141,7 +141,7 @@ public class ApplicationData {
 		folder.setName(newName);
 		parent.addChild(folder);
 		
-		save();
+		saveAll();
 		
 		return folder;
 	}
@@ -189,7 +189,7 @@ public class ApplicationData {
 	public void addCollection(DCollection collection) {
 		if ( collections.add(collection) ) {
 			onCollectionAddedEvent.fire(collection);
-			save();
+			saveAll();
 			
 			// Register service chains
 			List<DServiceChain> chains = RouteHelper.getServiceChains(collection);
@@ -214,7 +214,7 @@ public class ApplicationData {
 					ServiceChainerApp.get().alert(AlertType.ERROR, "Something went wrong renaming collection.\nCould not locate folder in system path.");
 				}
 				
-				saveCollection(collection);
+				save(collection);
 			});
 		}
 	}
@@ -328,7 +328,7 @@ public class ApplicationData {
 		// Legacy loader, so people dont lose their collections.
 		if ( directories.length == 0 ) {
 			ApplicationData data = loadLegacy();
-			data.save();
+			data.saveAll();
 			return data;
 		}
 		
@@ -427,7 +427,7 @@ public class ApplicationData {
 				fileServiceChainMap.put(newFile, serviceChain);
 				serviceChainFileMap.put(serviceChain, newFile);
 				
-				appData.saveCollection(appData.getCollection(serviceChain));
+				appData.save(appData.getCollection(serviceChain));
 			}
 		});
 	}
@@ -465,14 +465,14 @@ public class ApplicationData {
 	}
 
 	@JsonIgnore
-	public void save() {
+	public void saveAll() {
 		File appData = new File(getAppDataPath());
 		if ( !appData.exists() )
 			appData.mkdirs();
 		
 		// Save collections
 		for (DCollection collection : collections) {
-			saveCollection(collection);
+			save(collection);
 		}
 		
 		// Write metadata
@@ -492,18 +492,45 @@ public class ApplicationData {
 		File file = null;
 		try {
 			String metadataPath = getAppDataFilePath(APPLICATION_METADATA);
-			file = writeObject(meta, metadataPath);
+			file = writeObject(meta, metadataPath, false);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
 		return file;
 	}
+	
+	public File save(DServiceChain serviceChain) throws IOException {
+		DCollection collection = this.getCollection(serviceChain);
+		if ( collection == null )
+			return null;
+		
+		// Path info
+		String collectionPath = getAppDataFilePath(getFileName(collection.getName()));
+		String extensionsPath = collectionPath + File.separator + EXTENSION_HANDLER_FOLDER;
+		
+		// mkdir Service Chains Folder
+		File extensionFolder = new File(extensionsPath);
+		if ( !extensionFolder.exists() )
+			extensionFolder.mkdirs();
+		
+		// Metadata
+		Map<DServiceChain, String> serviceChainFileNames = new HashMap<>();
+		fetchMeta(collection, serviceChainFileNames);
+		
+		// Save
+		String name = serviceChainFileNames.get(serviceChain);
+		File file = writeObject(serviceChain, extensionsPath + File.separator + name + ".json", true);
+		fileServiceChainMap.put(file, serviceChain);
+		serviceChainFileMap.put(serviceChain, file);
+		
+		// TODO connect to parent node and track deletion OF this service chain. We need to clean up the file
+		return file;
+	}
 
-	protected File saveCollection(DCollection collection) {
+	public File save(DCollection collection) {
 		String collectionPath = getAppDataFilePath(getFileName(collection.getName()));
 		String metadataPath = collectionPath + File.separator + APPLICATION_METADATA;
-		String extensionsPath = collectionPath + File.separator + EXTENSION_HANDLER_FOLDER;
 		List<DServiceChain> serviceChains = RouteHelper.getServiceChains(collection);
 		Map<DServiceChain, String> serviceChainFileNames = new HashMap<>();
 		
@@ -517,25 +544,15 @@ public class ApplicationData {
 		// Output metadata
 		try {
 			DCollectionMetadata meta = fetchMeta(collection, serviceChainFileNames);
-			writeObject(meta, metadataPath);
+			writeObject(meta, metadataPath, false);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
 		
-		// Service Chains Folder
-		File extensionFolder = new File(extensionsPath);
-		if ( !extensionFolder.exists() )
-			extensionFolder.mkdirs();
-		
 		// Output Service chains
 		for (DServiceChain serviceChain : serviceChains) {
 			try {
-				String name = serviceChainFileNames.get(serviceChain);
-				File file = writeObject(serviceChain, extensionsPath + File.separator + name + ".json");
-				fileServiceChainMap.put(file, serviceChain);
-				serviceChainFileMap.put(serviceChain, file);
-				
-				// TODO connect to parent node and track deletion OF this service chain. We need to clean up the file
+				save(serviceChain);
 			} catch(Exception e) {
 				e.printStackTrace();
 			}
@@ -544,8 +561,8 @@ public class ApplicationData {
 		return folder;
 	}
 	
-	private File writeObject(Object object, String filepath) throws IOException {
-		String json = serializeJSON(object);
+	private File writeObject(Object object, String filepath, boolean pretty) throws IOException {
+		String json = serializeJSON(object, pretty);
 		
 		FileWriter fw = new FileWriter(filepath);
 	    BufferedWriter writer = new BufferedWriter(fw);
@@ -596,7 +613,7 @@ public class ApplicationData {
 	@JsonIgnore
 	@Deprecated
 	public void saveLegacy() {
-		String json = this.serializeJSON(this);
+		String json = this.serializeJSON(this, false);
 		
 		try {
 			String path = getAppDataFilePath();
@@ -613,8 +630,13 @@ public class ApplicationData {
 	}
 
 	@JsonIgnore
-	private String serializeJSON(Object object) {
-		String json = JSONUtils.objectToJSON(object);
+	private String serializeJSON(Object object, boolean pretty) {
+		String json = null;
+		if ( pretty )
+			json = JSONUtils.objectToJSONPretty(object);
+		else
+			json = JSONUtils.objectToJSON(object);
+			
 		if ( StringUtils.isEmpty(json) )
 			json = "{}";
 		
@@ -678,7 +700,7 @@ public class ApplicationData {
 		newCollection.setArchivable(true);
 		this.addCollection((DCollection) newCollection);
 		
-		this.save();
+		this.saveAll();
 		return newCollection;
 	}
 
@@ -692,7 +714,7 @@ public class ApplicationData {
 		newFolder.setName(this.generateNewChildElementName(parent, newFolder.getName()));
 		parent.addChild(newFolder);
 		
-		this.save();
+		this.saveAll();
 		return newFolder;
 	}
 
@@ -703,7 +725,7 @@ public class ApplicationData {
 		newObject.setName(this.generateNewChildElementName(parent, newObject.getName()));
 		parent.addChild(newObject);
 		
-		this.save();
+		this.saveAll();
 		return newObject;
 	}
 
@@ -795,7 +817,7 @@ public class ApplicationData {
 		
 		DCollection collection = this.getCollection(parentFolder);
 		if ( collection != null ) {
-			saveCollection(collection);
+			save(collection);
 		}
 	}
 

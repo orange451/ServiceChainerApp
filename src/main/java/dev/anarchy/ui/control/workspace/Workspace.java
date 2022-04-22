@@ -1,5 +1,6 @@
 package dev.anarchy.ui.control.workspace;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -28,6 +29,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
@@ -250,7 +252,12 @@ public class Workspace extends BorderPane {
 		updateTabText(tab, internal);
 		
 		// Write to file
-		ServiceChainerApp.get().getData().save();
+		try {
+			ServiceChainerApp.get().getData().save(internal);
+		} catch (Exception e) {
+			ServiceChainerApp.get().alert(AlertType.ERROR, "Something went wrong saving service chain.\n" + e.getMessage());
+			e.printStackTrace();
+		}
 	}
 	
 	public SimpleBooleanProperty getModifiedStatusProperty(DServiceChain serviceChain) {

@@ -117,8 +117,8 @@ public class ServiceChainerApp extends Application {
 				if ( parentNode != null )
 					parentNode.removeChild(((DFolderElement)args[0]));
 
-				// Save the collection (Most likely not necessary)
-				this.getData().saveCollection(collection);
+				// Save the collection. TODO don't do this... Wasteful.
+				this.getData().save(collection);
 			} else {
 				System.out.println("Attempting to delete an element that is not yet supported. Please implement.");
 			}
@@ -173,7 +173,7 @@ public class ServiceChainerApp extends Application {
 		this.saveCurrent();
 		
 		// Write to file
-		this.getData().save();
+		this.getData().saveAll();
 	}
 
 	/**

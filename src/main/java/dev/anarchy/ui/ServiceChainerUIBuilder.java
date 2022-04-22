@@ -124,7 +124,7 @@ public class ServiceChainerUIBuilder {
 		// Save
 		stage.getScene().getAccelerators().put(
 			new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN), () -> {
-				ServiceChainerApp.get().save();
+				ServiceChainerApp.get().saveCurrent();
 			}
 		);
 	}
