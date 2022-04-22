@@ -234,18 +234,12 @@ public class ServiceChainerApp extends Application {
 		return result;
 	}
 	
-	private ButtonType requestRemoveFile(String name, AtomicBoolean deleteFromDisk) {
-		/*Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Delete " + name + " from disk?", ButtonType.YES, ButtonType.NO);
-		ServiceChainerUIBuilder.setTheme(alert.getDialogPane());
-		alert.getDialogPane().getStylesheets().addAll(ServiceChainerUIBuilder.getStylesheet());
-		ButtonType result = alert.showAndWait().orElse(ButtonType.NO);
-		
-		return result == ButtonType.YES;*/
-		
+	private ButtonType requestRemoveFile(String name, AtomicBoolean deleteFromDisk) {		
 		// Create alert
 		Alert alert = createAlertWithOptOut(AlertType.CONFIRMATION, "Delete", null, 
 				"Are you sure you wish to remove " + name + "?", "Delete file contents from disk (cannot be undone)", 
 				param -> deleteFromDisk.set(param), ButtonType.YES, ButtonType.CANCEL);
+		alert.getDialogPane().getStylesheets().addAll(ServiceChainerUIBuilder.getStylesheet());
 		
 		// Get Result
 		ButtonType result = alert.showAndWait().orElse(ButtonType.NO);
@@ -254,10 +248,12 @@ public class ServiceChainerApp extends Application {
 	
 	public static Alert createAlertWithOptOut(AlertType type, String title, String headerText, String message, String optOutMessage, Consumer<Boolean> optOutAction, ButtonType... buttonTypes) {
 		Alert alert = new Alert(type);
+		
 		// Need to force the alert to layout in order to grab the graphic,
 		// as we are replacing the dialog pane with a custom pane
 		alert.getDialogPane().applyCss();
 		Node graphic = alert.getDialogPane().getGraphic();
+		
 		// Create a new dialog pane that has a checkbox instead of the hide/show details button
 		// Use the supplied callback for the action of the checkbox
 		alert.setDialogPane(new DialogPane() {
@@ -269,12 +265,15 @@ public class ServiceChainerApp extends Application {
 				return optOut;
 			}
 		});
+		
 		alert.getDialogPane().getButtonTypes().addAll(buttonTypes);
 		alert.getDialogPane().setContentText(message);
+		
 		// Fool the dialog into thinking there is some expandable content
 		// a Group won't take up any space if it has no children
 		alert.getDialogPane().setExpandableContent(new Group());
 		alert.getDialogPane().setExpanded(true);
+		
 		// Reset the dialog graphic using the default style
 		alert.getDialogPane().setGraphic(graphic);
 		alert.setTitle(title);
