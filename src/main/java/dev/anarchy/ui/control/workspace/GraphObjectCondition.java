@@ -11,6 +11,7 @@ import javafx.scene.control.MenuItem;
 public class GraphObjectCondition extends GraphObject {
 	public GraphObjectCondition(ServiceChainEditor editor, DServiceChain serviceChain, DConditionElement routeElement) {
 		super(editor, serviceChain, routeElement);
+		this.maxLinks = 2;
 	}
 
 	@Override

@@ -4,14 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-
 import dev.anarchy.common.DConditionElement;
 import dev.anarchy.common.DRouteElement;
 import dev.anarchy.common.DRouteElementI;
 import dev.anarchy.common.DServiceChain;
 import dev.anarchy.common.DServiceDefinition;
-import dev.anarchy.common.condition.ConditionMeta;
 import dev.anarchy.common.util.RouteHelper;
 import dev.anarchy.translate.util.ServiceChainHelper;
 import dev.anarchy.ui.ServiceChainerApp;
@@ -72,14 +69,7 @@ public class ServiceChainEditor extends BorderPane {
 			{
 				Button button = new Button("New Service Definition");
 				button.setOnAction((event) -> {
-					DServiceDefinition sDef = new DServiceDefinition();
-					sDef.setExtensionHandlerRouteId("Service Definition");
-					sDef.setColor(ServiceChainHelper.getDefaultServiceDefinitionColor());
-					sDef.setSize(220, 60);
-					double x = round(ServiceChainHelper.getDefaultServiceDefinitionX());
-					double y = round(ServiceChainHelper.getDefaultServiceDefinitionY());
-					sDef.setPosition(x, y);
-					internal.addRoute(sDef);
+					ServiceChainHelper.newServiceDefinition(internal);
 				});
 				buttons.getChildren().add(button);
 			}
@@ -88,7 +78,7 @@ public class ServiceChainEditor extends BorderPane {
 				Button button = new Button("New Condition");
 				//button.setDisable(true);
 				button.setOnAction((event) -> {
-					newCondition();
+					ServiceChainHelper.newCondition(internal);
 				});
 				buttons.getChildren().add(button);
 			}
@@ -197,7 +187,7 @@ public class ServiceChainEditor extends BorderPane {
 		});
 		
 		// Create initial condition graph objects (Because conditions aren't in the route???? They're INSIDE SERVICE DEFINITIONS???? CANCER)
-		extractConditionNodes();
+		ServiceChainHelper.unpack(internal);
 		
 		// Initial link for all graph objects
 		new Thread(()->{
@@ -209,18 +199,6 @@ public class ServiceChainEditor extends BorderPane {
 				ignoreChangeEvents = false;
 			});
 		}).start();
-	}
-
-	private DConditionElement newCondition() {
-		DConditionElement condition = new DConditionElement();
-		condition.setName("Condition");
-		condition.setColor(ServiceChainHelper.getDefaultConditionColor());
-		condition.setSize(100, 100);
-		double x = round(ServiceChainHelper.getDefaultServiceDefinitionX());
-		double y = round(ServiceChainHelper.getDefaultServiceDefinitionY());
-		condition.setPosition(x, y);
-		internal.addRoute(condition);
-		return condition;
 	}
 
 	private double getViewportValue(double x, double viewportLength, double totalLength, double ratio) {
@@ -265,18 +243,6 @@ public class ServiceChainEditor extends BorderPane {
 		this.connectNodes();
 	}
 
-	private DRouteElementI getRouteElement(String destinationId) {
-		if ( "ON_EVENT".equals(destinationId) ) {
-			return this.internal;
-		}
-		
-		for (DRouteElementI route : internal.getRoutesUnmodifyable()) {
-			if ( route.getDestinationId().equalsIgnoreCase(destinationId))
-				return route;
-		}
-		return null;
-	}
-
 	protected void clearCurves() {
 		for (Node node : this.editPane.getChildrenUnmodifiable()) {
 			if (node instanceof CubicCurve)
@@ -295,76 +261,28 @@ public class ServiceChainEditor extends BorderPane {
 
 		System.err.println("Reconnecting nodes");
 		
-		// Make sure condition nodes are attached
 		for (GraphObject node : nodes) {
-			if ( node.getRouteElement() instanceof DConditionElement ) {
-				
-			}
-		}
-		
-		for (GraphObject node : nodes) {
+			DRouteElementI fromElement = node.getRouteElement();
+			String dest = fromElement.getDestinationId(); // From Node real
+			
 			for (GraphObject conTo : nodes) {
 				if (conTo == node)
 					continue;
 
-				DRouteElementI fromElement = node.getRouteElement();
 				DRouteElementI toElement = conTo.getRouteElement();
-				
 				String source = toElement.getSourceId(); // From node potential
-				String dest = fromElement.getDestinationId(); // From Node real
 				
 				if (source != null && source.equals(dest)) {
-					toElement = getToElement(node, fromElement, conTo, toElement);
 					conTo = getGraphObjectFromRoute(toElement);
 					if ( conTo == null )
 						continue;
 					
 					// Draw line
 					connectNode(node, conTo);
-					
-					/*String entryCondition = null;
-					ConditionMeta fromMeta = null;
-					if ( fromElement instanceof DConditionElement ) {
-						entryCondition = ((DConditionElement)fromElement).getCondition();
-						fromMeta = ((DConditionElement)fromElement).getConditionMeta();
-					}*/
-					
-					/*if ( toElement instanceof DServiceDefinition ) {
-						if ( !StringUtils.isEmpty(entryCondition) ) {
-							((DServiceDefinition)toElement).setCondition(entryCondition);
-							((DServiceDefinition)toElement).setConditionMeta(fromMeta);
-						} else {
-							((DServiceDefinition)toElement).setCondition(null);
-							((DServiceDefinition)toElement).setConditionMeta(null);
-						}
-					}*/
 				}
 			}
 		}
 	}
-	
-	private DRouteElementI getToElement(GraphObject fromNode, DRouteElementI fromElement, GraphObject toNode, DRouteElementI originalToElement) {
-		/*System.err.println("\t - " + fromElement + "("+fromNode+") => " + originalToElement + "("+toNode+")");
-		
-		// If we're connecting to a service def, try to find the corresponding condition node
-		if ( originalToElement instanceof DServiceDefinition ) {
-			if ( !(fromElement instanceof DConditionElement) ) {
-				ConditionMeta meta = ((DServiceDefinition)originalToElement).getConditionMeta();
-				if ( meta != null ) {
-					for (GraphObject node : nodes) {
-						if ( node.getRouteElement() instanceof DConditionElement ) {
-							if (meta.equals(((DConditionElement)node.getRouteElement()).getConditionMeta())) {
-								return node.getRouteElement();
-							}
-						}
-					}
-				}
-			}
-		}*/
-		
-		return originalToElement;
-	}
-
 	private void connectNode(GraphObject from, GraphObject to) {
 
 		CubicCurve curve = new CubicCurve();
@@ -471,124 +389,6 @@ public class ServiceChainEditor extends BorderPane {
 		Platform.runLater(()->{
 			connectNodes();
 		});
-	}
-	
-	private void extractConditionNodes() {
-		double SPACING = 40;
-		List<DRouteElementI> routes = internal.getRoutesUnmodifyable();
-		DRouteElementI currentElement = internal;
-		DRouteElementI prevElement = currentElement;
-		double yOff = 0;
-		while(currentElement != null) {
-			currentElement = RouteHelper.getLinkedTo(routes, currentElement);
-			if ( currentElement == null )
-				break;
-			
-			System.err.println("Setting position of: " + currentElement + " to " + currentElement.getX() + ", " + currentElement.getY());
-			
-			if (currentElement instanceof DServiceDefinition) {
-				if (!StringUtils.isEmpty(((DServiceDefinition)currentElement).getCondition())) {
-					DConditionElement condition = newCondition();
-					condition.setPosition(currentElement.getX(), currentElement.getY());
-					condition.setCondition(((DServiceDefinition) currentElement).getCondition());
-					
-					
-					RouteHelper.linkRoutes(internal.getRoutesUnmodifyable(), prevElement, condition);
-					RouteHelper.linkRoutes(internal.getRoutesUnmodifyable(), condition, (DRouteElement) currentElement);
-					
-					((DServiceDefinition) currentElement).setCondition(null);
-					yOff += condition.getHeight() + SPACING;
-				}
-			}
-
-			currentElement.setPosition(currentElement.getX(), currentElement.getY() + yOff);
-			prevElement = currentElement;
-		}
-	}
-	
-	/*private void postFixNodes() {
-		// Properly re-link service definition condition nodes. SUPER hacky
-		for (DRouteElementI element : internal.getRoutesUnmodifyable()) {
-			if (element instanceof DServiceDefinition) {
-				for (GraphObject node : nodes) {
-					DRouteElementI element2 = node.getRouteElement();
-					if ( element2 instanceof DConditionElement ) {
-						if ( element.getSourceId().equals(element2.getDestinationId() ) ) {
-							((DServiceDefinition) element).setSourceId(element2.getSourceId());
-							System.err.println("OVERRIDING SOURCEID OF: " + element + " TO: " + element2.getSourceId());
-						}
-					}
-				}
-			}
-		}
-	}*/
-
-	private GraphObjectCondition newConditionNode_temp(DServiceDefinition source) {
-		DConditionElement condition = new DConditionElement();
-		
-		// Setup new condition element
-		processConditionNode_temp(source, condition);
-		
-		// Update on change
-		condition.getOnChangedEvent().connect((args)->{
-			condition.getConditionMeta().setPosition(condition.getX(), condition.getY());
-			condition.getConditionMeta().setSize(condition.getWidth(), condition.getHeight());
-			condition.getConditionMeta().setColor(condition.getColor());
-			condition.getConditionMeta().setName(condition.getName());
-		});
-		
-		// Create graph object
-		GraphObjectCondition g = new GraphObjectCondition(this, this.internal, condition);
-		g.setCornerRadius(0); 
-		this.editPane.getChildren().add(g);
-		
-		// Update / Display
-		updateRouteElement(condition, g);
-		nodes.add(g);
-		return g;
-	}
-
-	private void processConditionNode_temp(DServiceDefinition source, DConditionElement condition) {
-		if ( source == null ) { // USER CLICKED NEW
-			condition.setSize(ServiceChainHelper.getDefaultServiceChainElementWidth(), ServiceChainHelper.getDefaultServiceChainElementWidth());
-			condition.setPosition(ServiceChainHelper.getDefaultServiceChainElementX(), ServiceChainHelper.getDefaultServiceChainElementY());
-			condition.setColor(ServiceChainHelper.getDefaultConditionColor());
-			condition.setName("Condition");
-		} else { // Create one based off service def
-			condition.setCondition(source.getCondition());
-			
-			// HACKY. Must be RESET upon saving...
-			DRouteElementI parentElement = getRouteElement(source.getSourceId());
-			source.setSourceId(condition.getDestinationId());
-			if ( parentElement != null ) {
-				// Mark that condition comes FROM parent
-				condition.setSourceId(parentElement.getDestinationId());
-				
-				// Force source element to come from condition
-				source.setSourceId(condition.getDestinationId());
-				/*for (GraphObject node : nodes) {
-					DRouteElementI element = node.getRouteElement();
-					if ( element instanceof DRouteElement && StringUtils.equalsIgnoreCase(element.getSourceId(), parentElement.getDestinationId())) {
-						((DRouteElement)element).setSourceId(condition.getDestinationId());
-					}
-				}*/
-			}
-			
-			// Setup meta
-			if ( source.getConditionMeta() != null ) {
-				source.getConditionMeta().setLinkedToId(source.getDestinationId());
-				condition.setConditionMeta(source.getConditionMeta());
-				condition.setPosition(source.getConditionMeta().getX(), source.getConditionMeta().getY());
-				condition.setSize(source.getConditionMeta().getWidth(), source.getConditionMeta().getHeight());
-				condition.setColor(source.getConditionMeta().getColor());
-				condition.setName(source.getConditionMeta().getName());
-			} else {
-				condition.setSize(ServiceChainHelper.getDefaultServiceChainElementWidth(), ServiceChainHelper.getDefaultServiceChainElementWidth());
-				condition.setPosition(ServiceChainHelper.getDefaultServiceChainElementX(), ServiceChainHelper.getDefaultServiceChainElementY());
-				condition.setColor(ServiceChainHelper.getDefaultConditionColor());
-				condition.setName("Condition");
-			}
-		}
 	}
 
 	private GraphObject newRouteElementNode(DServiceChain parent, DRouteElementI routeElement) {

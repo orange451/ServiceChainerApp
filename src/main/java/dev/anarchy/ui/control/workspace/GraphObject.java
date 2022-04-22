@@ -45,6 +45,8 @@ public class GraphObject extends StackPane {
 	private DServiceChain serviceChain;
 	
 	private ContextMenu context;
+	
+	protected int maxLinks = 1;
 
 	private double clickOffsetX;
 	private double clickOffsetY;
@@ -103,8 +105,13 @@ public class GraphObject extends StackPane {
 			if ( event.getGestureSource() instanceof LinkNode ) {
 				LinkNode droppedFrom = (LinkNode)event.getGestureSource();
 				if ( this.getRouteElement() instanceof DRouteElement ) {
-					RouteHelper.linkRoutes(editor.getGraphObjectRoutesUnmodifyable(), droppedFrom.getRouteElement(), (DRouteElement) this.getRouteElement());
-					droppedFrom.setLinkTo(this.linkerNode);
+					if ( droppedFrom.getLinkToNodes().size() < droppedFrom.getGraphObject().maxLinks ) {
+						RouteHelper.linkRoutes(droppedFrom.getRouteElement(), (DRouteElement) this.getRouteElement());
+					} else {
+						droppedFrom.clearLinkTo();
+						RouteHelper.linkRoutes(editor.getGraphObjectRoutesUnmodifyable(), droppedFrom.getRouteElement(), (DRouteElement) this.getRouteElement());
+					}
+					droppedFrom.addLinkTo(this.linkerNode);
 					this.onConnectFrom(droppedFrom.getRouteElement());
 					
 					getEditor().connectNodes();
@@ -233,6 +240,17 @@ public class GraphObject extends StackPane {
 	}
 	
 	protected void onConnectFrom(DRouteElementI routeElement) {
+		
+		if ( routeElement instanceof DConditionElement ) {
+			GraphObject fromGO = editor.getGraphObjectFromRoute(routeElement);
+			LinkNode linkNode = fromGO.getLinkNode();
+			System.err.println(routeElement + " / " + linkNode.getLinkToNodes().size());
+			
+			if ( linkNode.getLinkToNodes().size() <= 1 )
+				((DConditionElement) routeElement).setPassRouteId(this.routeElement.getDestinationId());
+			else
+				((DConditionElement) routeElement).setFailRouteId(this.routeElement.getDestinationId());
+		}
 		/*// Attach Condition nodes to child
 		if (this.routeElement instanceof DServiceDefinition && routeElement instanceof DConditionElement) {
 			DConditionElement condition = (DConditionElement)routeElement;

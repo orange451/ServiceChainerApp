@@ -1,5 +1,8 @@
 package dev.anarchy.ui.control.workspace;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import dev.anarchy.common.DConditionElement;
 import dev.anarchy.common.DRouteElementI;
 import dev.anarchy.common.DServiceChain;
@@ -19,7 +22,7 @@ public class LinkNode extends StackPane {
 	private static final int WIDTH = 32;
 	private static final int HEIGHT = 32;
 	
-	private Node linkTo;
+	private List<Node> linkToNodes = new ArrayList<>();
 	
 	private Node icon;
 	
@@ -55,8 +58,8 @@ public class LinkNode extends StackPane {
 		
 		this.setOnMouseClicked((event)->{
 			// Find Graph node we are connected to
-			DRouteElementI connectedToElement = RouteHelper.getLinkedTo(parent.getEditor().getGraphObjectRoutesUnmodifyable(), this.routeElement);
-			if ( connectedToElement != null ) {
+			List<DRouteElementI> connectedToElements = RouteHelper.getLinkedTo(parent.getEditor().getGraphObjectRoutesUnmodifyable(), this.routeElement);
+			for (DRouteElementI connectedToElement : connectedToElements) {
 				GraphObject connectedToNode = parent.getEditor().getGraphObjectFromRoute(connectedToElement);
 				connectedToNode.onDisconnectFrom(routeElement);
 			}
@@ -71,40 +74,54 @@ public class LinkNode extends StackPane {
 			
 			// unlink this route element
 			RouteHelper.linkRoutes(parent.getEditor().getGraphObjectRoutesUnmodifyable(), this.routeElement, null);
-			this.setLinkTo(null);
+			if ( this.routeElement instanceof DConditionElement )
+				RouteHelper.disconnectCondition(parent.getEditor().getGraphObjectRoutesUnmodifyable(), (DConditionElement) this.routeElement);
+			this.clearLinkTo();
 			
 			// Redraw path
 			parent.getEditor().connectNodes();
 		});
 
+		// Establish initial connection
 		Platform.runLater(()->{
-			DRouteElementI routeElementTo = RouteHelper.getLinkedTo(parent.getEditor().getGraphObjectRoutesUnmodifyable(), this.routeElement);
-			this.linkTo = parent.getEditor().getGraphObjectFromRoute(routeElementTo);
-			this.setLinkTo(this.linkTo);
+			List<DRouteElementI> routeElementTo = RouteHelper.getLinkedTo(parent.getEditor().getGraphObjectRoutesUnmodifyable(), this.routeElement);
+			for (DRouteElementI element : routeElementTo)
+				addLinkTo(parent.getEditor().getGraphObjectFromRoute(element));
+			update();
 		});
 		
 		this.setCursor(Cursor.HAND);
+	}
+	
+	public GraphObject getGraphObject() {
+		return this.parent;
 	}
 	
 	public DRouteElementI getRouteElement() {
 		return this.routeElement;
 	}
 	
-	public void setLinkTo(Node newLink) {
-		if ( newLink != linkTo )
-			linkTo = newLink;
+	public void addLinkTo(Node newLink) {
+		if ( linkToNodes.contains(newLink) )
+			return;
 		
+		linkToNodes.add(newLink);
 		update();
 	}
 	
-	public Node getLinkTo() {
-		return this.linkTo;
+	public List<Node> getLinkToNodes() {
+		return this.linkToNodes;
+	}
+	
+	public void clearLinkTo() {
+		this.linkToNodes.clear();
+		update();
 	}
 
 	public void update() {
 		this.getChildren().clear();
 		
-		if ( linkTo != null ) {
+		if ( linkToNodes != null && linkToNodes.size() > 0 ) {
 			icon = IconHelper.CHAIN.create();
 			this.getChildren().add(icon);
 		} else {
