@@ -20,6 +20,7 @@ public enum IconHelper {
 	EXPORT(FontAwesomeIcon.DOWNLOAD),
 	IMPORT(FontAwesomeIcon.UPLOAD),
 	QUESTION(FontAwesomeIcon.QUESTION_CIRCLE),
+	GIT(FontAwesomeIcon.GIT_SQUARE),
 	;
 	
 	IconHelper(FontAwesomeIcon icon) {

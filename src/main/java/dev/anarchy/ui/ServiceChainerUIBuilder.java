@@ -1,5 +1,6 @@
 package dev.anarchy.ui;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -8,6 +9,7 @@ import dev.anarchy.common.DCollection;
 import dev.anarchy.ui.control.filter.Collection;
 import dev.anarchy.ui.control.filter.SearchBar;
 import dev.anarchy.ui.control.workspace.Workspace;
+import dev.anarchy.ui.util.IconHelper;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -259,6 +261,11 @@ public class ServiceChainerUIBuilder {
 		elements.getChildren().add(collection);
 		if ( !building )
 			collection.rename();
+		
+		checkGit(dcoll, collection);
+		dcoll.getOnNameChangeEvent().connect((args) -> checkGit(dcoll, collection));
+		dcoll.getOnChildAddedEvent().connect((args) -> checkGit(dcoll, collection));
+		dcoll.getOnChildRemovedEvent().connect((args) -> checkGit(dcoll, collection));
 
 		// Why does JavaFX not want people to use it...
 		// Platform runlater doesn't wait for next frame...
@@ -282,6 +289,16 @@ public class ServiceChainerUIBuilder {
 		});
 	}
 	
+	private static void checkGit(DCollection collectionData, Collection collectionNode) {
+		File collectionDirectory = ServiceChainerApp.get().getData().getDirectory(collectionData);
+		File git = new File(collectionDirectory, ".git");
+		if ( git.exists() ) {
+			collectionNode.setGraphic(IconHelper.GIT.create());
+		} else {
+			collectionNode.setGraphic(null);
+		}
+	}
+
 	private static void ensureVisible(ScrollPane scrollPane, Node node) {
 	    double h = scrollPane.getContent().getBoundsInLocal().getHeight();
 	    double y = (node.getBoundsInParent().getMaxY() + 
