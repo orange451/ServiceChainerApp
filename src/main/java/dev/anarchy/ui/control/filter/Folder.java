@@ -1,13 +1,12 @@
 package dev.anarchy.ui.control.filter;
 
-import java.io.File;
+import org.apache.commons.lang3.StringUtils;
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import dev.anarchy.common.DFolder;
 import dev.anarchy.common.DFolderElement;
 import dev.anarchy.common.DServiceChain;
-import dev.anarchy.common.util.RouteHelper;
 import dev.anarchy.ui.ServiceChainerApp;
 import dev.anarchy.ui.control.ExportWindow;
 import dev.anarchy.ui.util.IconHelper;
@@ -52,6 +51,8 @@ public class Folder extends VBox implements FolderElement {
 
 	public Folder(DFolder internal) {
 		this.internal = internal;
+		
+		this.managedProperty().bind(this.visibleProperty());
 
 		ContextMenu context = new ContextMenu();
 		context.setAutoHide(true);
@@ -343,6 +344,32 @@ public class Folder extends VBox implements FolderElement {
 		}
 
 		rebuildIconHolder();
+	}
+	
+	@Override
+	public boolean computeVisible(String searchTerm) {
+		this.setVisible(false);
+		for (Node node : childrenBox.getChildren()) {
+			if ( node instanceof FolderElement ) {
+				boolean descendantVisible = ((FolderElement) node).computeVisible(searchTerm);
+				if ( descendantVisible ) {
+					this.setVisible(true);
+				}
+			}
+		}
+		
+		if ( this.isVisible() ) {
+			return true;
+		}
+		
+		if ( StringUtils.isEmpty(searchTerm) ) {
+			this.setVisible(true);
+			return true;
+		}
+		
+		boolean visible = internal.getName().toLowerCase().replace(" ", "").contains(searchTerm.toLowerCase().replace(" ", ""));
+		this.setVisible(visible);
+		return visible;
 	}
 
 	public void setOpen(boolean open) {

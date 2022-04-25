@@ -1,5 +1,7 @@
 package dev.anarchy.ui.control.filter;
 
+import org.apache.commons.lang3.StringUtils;
+
 import dev.anarchy.common.DFolder;
 import dev.anarchy.common.DFolderElement;
 import dev.anarchy.common.DServiceChain;
@@ -32,6 +34,8 @@ public class ServiceChain extends Label implements FolderElement {
 		});
 
 		this.setGraphicTextGap(0);
+		
+		this.managedProperty().bind(this.visibleProperty());
 
 		this.setCursor(Cursor.HAND);
 		this.setPadding(new Insets(height/2f, 8, height/2f, 24));
@@ -138,5 +142,17 @@ public class ServiceChain extends Label implements FolderElement {
 	@Override
 	public DFolderElement getFolderElement() {
 		return this.internal;
+	}
+
+	@Override
+	public boolean computeVisible(String searchTerm) {
+		if ( StringUtils.isEmpty(searchTerm) ) {
+			this.setVisible(true);
+			return true;
+		}
+		
+		boolean visible = internal.getName().toLowerCase().replace(" ", "").contains(searchTerm.toLowerCase().replace(" ", ""));
+		this.setVisible(visible);
+		return visible;
 	}
 }

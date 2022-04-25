@@ -20,5 +20,6 @@ public interface FolderElement {
 	DoubleProperty prefWidthProperty();
 
 	DFolderElement getFolderElement();
-
+	
+	boolean computeVisible(String searchTerm);
 }

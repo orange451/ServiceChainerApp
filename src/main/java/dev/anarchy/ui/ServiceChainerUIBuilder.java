@@ -7,10 +7,12 @@ import java.util.List;
 
 import dev.anarchy.common.DCollection;
 import dev.anarchy.ui.control.filter.Collection;
+import dev.anarchy.ui.control.filter.FolderElement;
 import dev.anarchy.ui.control.filter.SearchBar;
 import dev.anarchy.ui.control.workspace.Workspace;
 import dev.anarchy.ui.util.IconHelper;
 import javafx.application.Platform;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -179,7 +181,6 @@ public class ServiceChainerUIBuilder {
 	private static Pane filter() {
 		VBox pane = new VBox();
 		pane.setPrefHeight(Double.MAX_VALUE);
-		//pane.setStyle("-fx-background-color:white;");
 		pane.getStyleClass().add("Filter-Base");
 		pane.setSpacing(8);
 		pane.setMinWidth(200);
@@ -188,13 +189,14 @@ public class ServiceChainerUIBuilder {
 		// Top bar
 		VBox v = new VBox();
 		v.getStyleClass().add("Filter-Topbar");
-		//v.setStyle("-fx-background-color: rgb(245,245,245);");
 		v.setSpacing(8);
 		
 		pane.getChildren().add(v);
 		
+		SearchBar search = new SearchBar();
+		
 		v.setPadding(new Insets(8,8,8,8));
-		v.getChildren().add(new SearchBar());
+		v.getChildren().add(search);
 		
 		Label newCollection = new Label("+ New Collection");
 		newCollection.setStyle("-fx-text-fill: #F5823A");
@@ -247,6 +249,16 @@ public class ServiceChainerUIBuilder {
         		}
     		}
 		});
+		
+		// Search implementation
+	    search.textProperty().addListener((ObservableValue<? extends String> observable, String oldValue, String newValue) -> {
+    		for (Node node : elements.getChildren()) {
+    			if ( node instanceof FolderElement ) {
+    				FolderElement element = (FolderElement)node;
+    				element.computeVisible(newValue);
+    			}
+    		}
+	    });
 		
 		// Add new collections on click
 		newCollection.setOnMouseClicked((event)->{
