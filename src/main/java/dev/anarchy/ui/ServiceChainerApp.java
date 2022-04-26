@@ -242,6 +242,10 @@ public class ServiceChainerApp extends Application {
 		data.importFile(selectedFile, parentFolder);
 	}
 	
+	/**
+	 * Opens DirectoryChooser used to import collection. Takes resultant file and attempts to import.
+	 * The collection will be placed in root directory.
+	 */
 	public void importCollectionDirectory() {
 		File selectedFile = importDirectoryPicker();
 		if ( selectedFile == null )

@@ -76,6 +76,9 @@ public class ApplicationData {
 	@JsonIgnore
 	public static final String EXTENSION_HANDLER_FOLDER = "ExtensionHandlers";
 	
+	@JsonIgnore
+	public static final String RELETIVE_SEPERATOR = "." + File.separator;
+	
 	public ApplicationData() {
 		UNORGANIZED.setDeletable(false);
 		UNORGANIZED.setArchivable(false);
@@ -357,7 +360,7 @@ public class ApplicationData {
 					file = new File(collectionPath);
 				}
 				if ( file == null || !file.exists() ) {
-					file = new File(getAppDataPath() + collectionPath);
+					file = new File(getAppDataPath() + collectionPath.replace(RELETIVE_SEPERATOR, ""));
 				}
 				if ( file.exists() ) {
 					loadCollection(appData, newCollections, file);
@@ -394,6 +397,8 @@ public class ApplicationData {
 			readMetadata(appData, file, collectionMetadata, collection);
 		} catch(Exception e) {
 			e.printStackTrace();
+			ServiceChainerApp.get().alert(AlertType.ERROR, "Failed to import collection. Invalid file contents.\n" + file.getAbsolutePath());
+			return;
 		}
 
 		// Finalize
@@ -510,8 +515,8 @@ public class ApplicationData {
 				String reletivePath = filePath.replace(getAppDataPath(), "");
 
 				if ( !reletivePath.equals(filePath) ) {
-					reletivePath = reletivePath.replace("." + File.separator, "");
-					filePath = "." + File.separator + reletivePath;
+					reletivePath = reletivePath.replace(RELETIVE_SEPERATOR, "");
+					filePath = RELETIVE_SEPERATOR + reletivePath;
 				}
 				
 				meta.getCollections().add(filePath);
@@ -569,7 +574,8 @@ public class ApplicationData {
 		if ( collectionFolder == null || !collectionFolder.exists() ) {
 			String collectionPath = getAppDataFilePath(getFileName(collection.getName()));
 			File folder = new File(collectionPath);
-			folder.mkdirs();
+			if ( !folder.exists() )
+				folder.mkdirs();
 
 			collectionFileMap.put(collection, folder);
 		}
@@ -766,6 +772,11 @@ public class ApplicationData {
 
 	@JsonIgnore
 	public void importCollection(File selectedFile) {
+		if ( fileCollectionMap.containsKey(selectedFile) ) {
+			ServiceChainerApp.get().alert(AlertType.ERROR, "Failed to import collection. Collection is already imported.\n" + selectedFile.getAbsolutePath());
+			return;
+		}
+		
 		List<DCollection> collections = new ArrayList<>();
 		loadCollection(this, collections, selectedFile);
 		
@@ -857,6 +868,7 @@ public class ApplicationData {
 			} catch (Exception e) {
 				ServiceChainerApp.get().alert(AlertType.ERROR, "Could not import collection. Error: " + e.getMessage());
 				e.printStackTrace();
+				return;
 			}
 		}
 		
