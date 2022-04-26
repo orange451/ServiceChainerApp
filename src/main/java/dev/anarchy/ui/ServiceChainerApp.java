@@ -9,6 +9,7 @@ import dev.anarchy.common.DCollection;
 import dev.anarchy.common.DFolder;
 import dev.anarchy.common.DFolderElement;
 import dev.anarchy.common.DServiceChain;
+import dev.anarchy.translate.util.FileUtils;
 import dev.anarchy.ui.control.workspace.Workspace;
 import dev.anarchy.ui.util.LaunchHelper;
 import javafx.application.Application;
@@ -21,6 +22,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.Tab;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -36,7 +38,7 @@ public class ServiceChainerApp extends Application {
 	
 	private Stage stage;
 	
-	private boolean cancelDeletes;
+	private boolean ignoreDeleteRequests;
 	
 	@Override
 	public void start(Stage stage) {
@@ -64,35 +66,50 @@ public class ServiceChainerApp extends Application {
 		
 		// Delete event. TODO clean this up.
 		DApp.get().getOnDeleteEvent().connect((args) -> {
-			if ( cancelDeletes )
+			if ( ignoreDeleteRequests )
 				return;
 			
 			DCollection collection = getData().getCollection((DFolderElement) args[0]);
 			
 			if ( args[0] instanceof DCollection ) {
 				
+				// Close open service chains
+				boolean allClosed = closeChildren((DCollection) args[0]);
+				if ( !allClosed ) {
+					cancelDelete();
+					return;
+				}
+				
 				// Check how we want to remove
 				AtomicBoolean deleteFromDisk = new AtomicBoolean(false);
 				ButtonType remove = requestRemoveFile(((DCollection) args[0]).getName(), deleteFromDisk);
 				if ( remove == ButtonType.CANCEL ) {
-					cancelCelete();
+					cancelDelete();
 					return;
 				}
-				
-				// Remove it from list
-				data.removeCollection(((DCollection)args[0]));
 				
 				// Delete it from disk maybe
 				if ( deleteFromDisk.get() ) {
 					this.getData().deleteCollection((DCollection) args[0]);
+				} else {
+					data.removeCollection(((DCollection)args[0]));
 				}
 			}else if ( args[0] instanceof DFolderElement ) { 
+
+				// Close open childrne
+				if ( args[0] instanceof DFolder ) {
+					boolean allClosed = closeChildren((DFolder) args[0]);
+					if ( !allClosed ) {
+						cancelDelete();
+						return;
+					}
+				}
 				
 				// Check how we want to remove
 				AtomicBoolean deleteFromDisk = new AtomicBoolean(false);
 				ButtonType remove = requestRemoveFile(((DFolderElement) args[0]).getName(), deleteFromDisk);
 				if ( remove == ButtonType.CANCEL ) {
-					cancelCelete();
+					cancelDelete();
 					return;
 				}
 
@@ -125,10 +142,32 @@ public class ServiceChainerApp extends Application {
 		});
 	}
 	
-	private void cancelCelete() {
-		cancelDeletes = true;
+	/**
+	 * Attempt to close all children of the specified folder element.
+	 * @param element
+	 * @return true if all children were closed
+	 */
+	private boolean closeChildren(DFolderElement element) {
+		if ( element instanceof DFolder ) {
+			for (DFolderElement child : ((DFolder) element).getChildrenUnmodifyable()) {
+				boolean didClose = closeChildren(child);
+				if ( !didClose )
+					return false;
+			}
+			return true;
+		}
+		
+		if ( element instanceof DServiceChain )
+			if ( workspace.findTab((DServiceChain) element) != null )
+				return workspace.close(workspace.findTab((DServiceChain) element));
+						
+		return true;
+	}
+
+	private void cancelDelete() {
+		ignoreDeleteRequests = true;
 		Platform.runLater(()->{
-			cancelDeletes = false;
+			ignoreDeleteRequests = false;
 		});
 	}
 
@@ -192,7 +231,23 @@ public class ServiceChainerApp extends Application {
 	 */
 	public void importCollection(DFolder parentFolder) {
 		File selectedFile = importFilePicker();
+		if ( selectedFile == null )
+			return;
+		
+		if (FileUtils.getFileNameFromPath(selectedFile.getAbsolutePath()).equals(ApplicationData.APPLICATION_METADATA)) {
+			data.importCollection(selectedFile.getParentFile());
+			return;
+		}
+		
 		data.importFile(selectedFile, parentFolder);
+	}
+	
+	public void importCollectionDirectory() {
+		File selectedFile = importDirectoryPicker();
+		if ( selectedFile == null )
+			return;
+		
+		data.importCollection(selectedFile);
 	}
 	
 	/**
@@ -206,6 +261,22 @@ public class ServiceChainerApp extends Application {
 		File file = fileChooser.showOpenDialog(stage);
 		
 		return file;
+	}
+	
+	/**
+	 * Opens DirectoryChooser used to import collection.
+	 * @return The File selected to import.
+	 */
+	public File importDirectoryPicker() {
+		DirectoryChooser chooser = new DirectoryChooser();
+		chooser.setTitle("Select Directory");
+
+		File defaultDirectory = new File(ApplicationData.getAppDataPath());
+		chooser.setInitialDirectory(defaultDirectory);
+
+		File selectedDirectory = chooser.showDialog(stage);
+		
+		return selectedDirectory;
 	}
 
 	/**

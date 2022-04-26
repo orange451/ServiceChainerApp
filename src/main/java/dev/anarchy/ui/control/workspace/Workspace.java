@@ -1,6 +1,5 @@
 package dev.anarchy.ui.control.workspace;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -10,18 +9,13 @@ import dev.anarchy.common.DServiceChain;
 import dev.anarchy.translate.util.ServiceChainHelper;
 import dev.anarchy.ui.ApplicationData;
 import dev.anarchy.ui.ServiceChainerApp;
-import dev.anarchy.ui.ServiceChainerUIBuilder;
 import dev.anarchy.ui.control.workspace.servicechain.ServiceChainEditor;
-import dev.anarchy.ui.control.workspace.servicechain.ServiceChainRunner;
-import dev.anarchy.ui.util.IconHelper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
 import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContextMenu;

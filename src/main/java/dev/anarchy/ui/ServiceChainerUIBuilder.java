@@ -149,6 +149,12 @@ public class ServiceChainerUIBuilder {
 		{
 			file.getItems().add(new SeparatorMenuItem());
 			
+			MenuItem impCol = new MenuItem("Import Collection");
+			file.getItems().add(impCol);
+			impCol.setOnAction((event)->{
+				ServiceChainerApp.get().importCollectionDirectory();
+			});
+			
 			MenuItem imp = new MenuItem("Import");
 			file.getItems().add(imp);
 			imp.setOnAction((event)->{

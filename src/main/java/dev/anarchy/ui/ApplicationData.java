@@ -62,19 +62,19 @@ public class ApplicationData {
 	private Event onCollectionRemovedEvent = new Event();
 
 	@JsonIgnore
-	private static final String APPLICATION_NAME = "ServiceChainer";
+	public static final String APPLICATION_NAME = "ServiceChainer";
 
 	@JsonIgnore
-	private static final String APPLICATION_FILENAME = "AppData.json";
+	public static final String APPLICATION_FILENAME = "AppData.json";
 	
 	@JsonIgnore
-	private static final String APPLICATION_METADATA = "metadata.json";
+	public static final String APPLICATION_METADATA = "metadata.json";
 	
 	@JsonIgnore
-	private static final String EXTENSION_HANDLER_FILENAME = "ExtensionHandler.json";
+	public static final String EXTENSION_HANDLER_FILENAME = "ExtensionHandler.json";
 	
 	@JsonIgnore
-	private static final String EXTENSION_HANDLER_FOLDER = "ExtensionHandlers";
+	public static final String EXTENSION_HANDLER_FOLDER = "ExtensionHandlers";
 	
 	public ApplicationData() {
 		UNORGANIZED.setDeletable(false);
@@ -215,6 +215,7 @@ public class ApplicationData {
 				}
 				
 				save(collection);
+				saveAppMetadata();
 			});
 		}
 	}
@@ -240,6 +241,11 @@ public class ApplicationData {
 		}
 		
 		saveAppMetadata();
+		
+		// Remove links
+		File file = collectionFileMap.remove(collection);
+		if ( file != null )
+			fileCollectionMap.remove(file);
 	}
 
 	@JsonIgnore
@@ -257,8 +263,9 @@ public class ApplicationData {
 	@JsonIgnore
 	public void deleteCollection(DCollection collection) {
 		try {
-			removeCollection(collection);
 			File file = collectionFileMap.remove(collection);
+			removeCollection(collection);
+			
 			if ( file != null && file.exists() ) {
 				deleteDirectory(file);
 			}
@@ -337,46 +344,24 @@ public class ApplicationData {
 		try {
 			appMeta = readObject(getAppDataFilePath(APPLICATION_METADATA), DApplicationMetadata.class);
 		} catch (IOException e1) {
-			//
+			e1.printStackTrace();
 		}
 		
 		// Check all collections
 		List<DCollection> newCollections = new ArrayList<>();
 		if ( directories != null ) {
-			for (File file : directories) {
-				
-				// Make sure this collection CAN be loaded
-				if ( appMeta != null && !appMeta.getCollections().contains(file.getName()) ) {
-					continue;
+			for (String collectionPath : appMeta.getCollections()) {
+				collectionPath = FileUtils.fixPath(collectionPath);
+				File file = null;
+				if ( collectionPath.contains(File.separator) && !collectionPath.startsWith(".") ) {
+					file = new File(collectionPath);
 				}
-				
-				DCollection collection = new DCollection();
-				ObjectMapper objectMapper = new ObjectMapper();
-				
-				// Load Metadata
-				try {
-					byte[] data = Files.readAllBytes(Paths.get(file.getAbsolutePath() + File.separator + APPLICATION_METADATA));
-					String json = new String(data, StandardCharsets.UTF_8);
-					System.out.println(json);
-					DCollectionMetadata metadata = objectMapper.readValue(json, DCollectionMetadata.class);
-					
-					// Import Metadata
-					readMetadata(appData, file, metadata, collection);
-				} catch(Exception e) {
-					e.printStackTrace();
+				if ( file == null || !file.exists() ) {
+					file = new File(getAppDataPath() + collectionPath);
 				}
-
-				// Finalize
-				if ( collection.getName().equals("Unorganized") ) {
-					collection.setDeletable(false);
-					appData.UNORGANIZED = collection;
-					newCollections.add(0, collection);
-				} else {
-					newCollections.add(collection);
+				if ( file.exists() ) {
+					loadCollection(appData, newCollections, file);
 				}
-				
-				collectionFileMap.put(collection, file);
-				fileCollectionMap.put(file, collection);
 			}
 		}
 		
@@ -387,6 +372,43 @@ public class ApplicationData {
 		
 		appData.onLoad();
 		return appData;
+	}
+
+	private static void loadCollection(ApplicationData appData, List<DCollection> newCollections, File file) {
+		if ( fileCollectionMap.containsKey(file) ) {
+			ServiceChainerApp.get().alert(AlertType.ERROR, "Failed to import collection. Collection is already imported. " + file.getAbsolutePath());
+			return;
+		}
+		
+		DCollection collection = new DCollection();
+		ObjectMapper objectMapper = new ObjectMapper();
+		
+		// Load Metadata
+		try {
+			byte[] data = Files.readAllBytes(Paths.get(file.getAbsolutePath() + File.separator + APPLICATION_METADATA));
+			String json = new String(data, StandardCharsets.UTF_8);
+			System.out.println(json);
+			DCollectionMetadata collectionMetadata = objectMapper.readValue(json, DCollectionMetadata.class);
+			
+			// Import Metadata
+			readMetadata(appData, file, collectionMetadata, collection);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+
+		// Finalize
+		if ( newCollections != null ) {
+			if ( collection.getName().equals("Unorganized") ) {
+				collection.setDeletable(false);
+				appData.UNORGANIZED = collection;
+				newCollections.add(0, collection);
+			} else {
+				newCollections.add(collection);
+			}
+		}
+		
+		collectionFileMap.put(collection, file);
+		fileCollectionMap.put(file, collection);
 	}
 
 	private static void readMetadata(ApplicationData appData, File collectionFile, DCollectionMetadata metadata, DFolder folder) {
@@ -482,10 +504,19 @@ public class ApplicationData {
 	protected File saveAppMetadata() {
 		DApplicationMetadata meta = new DApplicationMetadata();
 		for (DCollection collection : collections) {
-			String collectionPath = getAppDataFilePath(getFileName(collection.getName()));
-			File file = new File(collectionPath);
-			if ( file.exists() ) {
-				meta.getCollections().add(file.getName());
+			File collectionFile = collectionFileMap.get(collection);
+			if ( collectionFile.exists() ) {
+				String filePath = FileUtils.fixPath(collectionFile.getAbsolutePath());
+				String reletivePath = filePath.replace(getAppDataPath(), "");
+
+				if ( !reletivePath.equals(filePath) ) {
+					reletivePath = reletivePath.replace("." + File.separator, "");
+					filePath = "." + File.separator + reletivePath;
+				}
+				
+				meta.getCollections().add(filePath);
+			} else {
+				System.err.println("--saveAppMetadata. Missing Collection: " + collection.getName());
 			}
 		}
 		
@@ -506,7 +537,8 @@ public class ApplicationData {
 			return null;
 		
 		// Path info
-		String collectionPath = getAppDataFilePath(getFileName(collection.getName()));
+		//String collectionPath = getAppDataFilePath(getFileName(collection.getName()));
+		String collectionPath = collectionFileMap.get(collection).getAbsolutePath();
 		String extensionsPath = collectionPath + File.separator + EXTENSION_HANDLER_FOLDER;
 		
 		// mkdir Service Chains Folder
@@ -529,21 +561,23 @@ public class ApplicationData {
 	}
 
 	public File save(DCollection collection) {
-		String collectionPath = getAppDataFilePath(getFileName(collection.getName()));
-		String metadataPath = collectionPath + File.separator + APPLICATION_METADATA;
 		List<DServiceChain> serviceChains = RouteHelper.getServiceChains(collection);
 		Map<DServiceChain, String> serviceChainFileNames = new HashMap<>();
 		
-		File folder = new File(collectionPath);
-		if ( !folder.exists() )
+		// If somehow collection folder does not exist, store it RELETIVE to app path
+		File collectionFolder = collectionFileMap.get(collection);
+		if ( collectionFolder == null || !collectionFolder.exists() ) {
+			String collectionPath = getAppDataFilePath(getFileName(collection.getName()));
+			File folder = new File(collectionPath);
 			folder.mkdirs();
 
-		// Make sure the collection has a map to file
-		collectionFileMap.put(collection, folder);
+			collectionFileMap.put(collection, folder);
+		}
 		
 		// Output metadata
 		try {
 			DCollectionMetadata meta = fetchMeta(collection, serviceChainFileNames);
+			String metadataPath = collectionFileMap.get(collection).getAbsolutePath() + File.separator + APPLICATION_METADATA;
 			writeObject(meta, metadataPath, false);
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -558,7 +592,7 @@ public class ApplicationData {
 			}
 		}
 		
-		return folder;
+		return collectionFileMap.get(collection);
 	}
 	
 	private File writeObject(Object object, String filepath, boolean pretty) throws IOException {
@@ -589,6 +623,7 @@ public class ApplicationData {
 				DCollectionMetadata child = fetchMeta((DFolder) element, serviceChainFileNames);
 				meta.getChildren().add(child);
 			}
+			
 			if ( element instanceof DServiceChain ) {
 				String potentialFileName = getFileName(element.getName());
 				String newFileName = potentialFileName;
@@ -727,6 +762,16 @@ public class ApplicationData {
 		
 		this.saveAll();
 		return newObject;
+	}
+
+	@JsonIgnore
+	public void importCollection(File selectedFile) {
+		List<DCollection> collections = new ArrayList<>();
+		loadCollection(this, collections, selectedFile);
+		
+		for ( DCollection collection : collections ) {
+			this.addCollection(collection);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
