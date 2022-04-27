@@ -22,11 +22,11 @@ import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 
@@ -268,15 +268,13 @@ public class Folder extends VBox implements FolderElement {
 
 	private void onChildAdded(DFolderElement maybeServiceChain) {
 		if ( maybeServiceChain instanceof DServiceChain ) {
-			FolderElement label = new ServiceChain(internal, (DServiceChain) maybeServiceChain);
+			ServiceChain label = new ServiceChain(internal, (DServiceChain) maybeServiceChain);
 			label.prefWidthProperty().bind(childrenBox.widthProperty());
 			childrenBox.getChildren().add((Node)label);
 		} else if ( maybeServiceChain instanceof DFolder ) {
-			FolderElement label = new Folder((DFolder)maybeServiceChain);
+			Pane label = new Folder((DFolder)maybeServiceChain);
 			label.prefWidthProperty().bind(childrenBox.widthProperty());
 			childrenBox.getChildren().add((Node)label);
-			
-			//((DFolder)maybeServiceChain).setParent(this.internal);
 		}
 		
 		updateChildrenLabel();
@@ -391,36 +389,6 @@ public class Folder extends VBox implements FolderElement {
 	
 	public void setGraphic(Node node) {
 		this.label.setGraphic(node);
-	}
-
-	@Override
-	public void setTextFill(Paint color) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public String getText() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setText(String name) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public Font getFont() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setFont(Font font) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
