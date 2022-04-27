@@ -62,6 +62,10 @@ public class Workspace extends BorderPane {
 		return null;
 	}
 	
+	public boolean isEditing(DServiceChain chain) {
+		return findTab(chain) != null;
+	}
+	
 	public Tab findTab(DServiceChain chain) {
 		for (Entry<DServiceChain, Tab> entry : openTabs.entrySet()) {
 			if ( entry.getKey() == chain ) {

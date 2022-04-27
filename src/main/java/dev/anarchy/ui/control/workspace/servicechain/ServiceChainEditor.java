@@ -9,7 +9,6 @@ import dev.anarchy.common.DRouteElement;
 import dev.anarchy.common.DRouteElementI;
 import dev.anarchy.common.DServiceChain;
 import dev.anarchy.common.DServiceDefinition;
-import dev.anarchy.common.util.RouteHelper;
 import dev.anarchy.translate.util.ServiceChainHelper;
 import dev.anarchy.ui.ServiceChainerApp;
 import dev.anarchy.ui.control.workspace.GraphObject;
@@ -48,11 +47,34 @@ public class ServiceChainEditor extends BorderPane {
 	private DServiceChain internal;
 	
 	private boolean ignoreChangeEvents;
+	
+	private DServiceChain originalServiceChain;
 
 	public ServiceChainEditor(DServiceChain oldServiceChain) {
+		this.originalServiceChain = oldServiceChain;
+		rebuild();
+	}
+	
+	private void clearNodes() {
+		if ( editPane != null )
+			editPane.getChildren().clear();
+		
+		if ( scroll != null )
+			scroll.setContent(null);
+		
+		selectedNode = null;
+		
+		curves.clear();
+		
+		nodes.clear();
+	}
+	
+	public void rebuild() {
+		clearNodes();
+		
 		ignoreChangeEvents = true;
 		
-		DServiceChain internal = oldServiceChain.clone();
+		DServiceChain internal = this.originalServiceChain.clone();
 		this.internal = internal;
 		
 		BorderPane topBar = new BorderPane();
@@ -97,7 +119,7 @@ public class ServiceChainEditor extends BorderPane {
 			});
 			
 			Platform.runLater(() -> {
-				SimpleBooleanProperty modifiedProperty = ServiceChainerApp.get().getWorkspace().getModifiedStatusProperty(oldServiceChain);
+				SimpleBooleanProperty modifiedProperty = ServiceChainerApp.get().getWorkspace().getModifiedStatusProperty(this.originalServiceChain);
 				button.visibleProperty().bind(modifiedProperty);
 			});
 			
@@ -165,7 +187,7 @@ public class ServiceChainEditor extends BorderPane {
 		});
 
 		// oldServiceChain rename
-		oldServiceChain.getOnNameChangeEvent().connect((args)->{
+		this.originalServiceChain.getOnNameChangeEvent().connect((args)->{
 			internal.setName(args[0].toString());
 		});
 		

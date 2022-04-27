@@ -34,7 +34,11 @@ import dev.anarchy.event.Event;
 import dev.anarchy.translate.util.FileUtils;
 import dev.anarchy.translate.util.JSONUtils;
 import dev.anarchy.translate.util.ServiceChainHelper;
+import dev.anarchy.ui.control.workspace.servicechain.ServiceChainEditor;
+import dev.anarchy.ui.util.FileWatcher;
+import javafx.application.Platform;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 
 public class ApplicationData {
 	@JsonIgnore
@@ -79,12 +83,57 @@ public class ApplicationData {
 	@JsonIgnore
 	public static final String RELETIVE_SEPERATOR = "." + File.separator;
 	
+	@JsonIgnore
+	private FileWatcher fileWatcher;
+	
 	public ApplicationData() {
 		UNORGANIZED.setDeletable(false);
 		UNORGANIZED.setArchivable(false);
 		UNORGANIZED.setName("Unorganized");
+		
+		fileWatcher = new FileWatcher() {
+			@Override
+			protected void onFileChanged(File file) {
+				Platform.runLater(()->{
+					DServiceChain serviceChain = fileServiceChainMap.get(file);
+					if ( serviceChain == null )
+						return;
+					
+					onServiceChainFileChange(file, serviceChain);
+				});
+			}
+		};
 	}
 	
+	protected void onServiceChainFileChange(File file, DServiceChain serviceChain) {
+		// Get new Service Chain
+		DServiceChain newServiceChain = null;
+		try {
+			Path path = Paths.get(file.getAbsolutePath());
+			byte[] data = Files.readAllBytes(path);
+			String json = new String(data, StandardCharsets.UTF_8);
+			newServiceChain = new ObjectMapper().readValue(json, DServiceChain.class);
+		} catch(Exception e) {
+			ServiceChainerApp.get().alert(AlertType.ERROR, "Error processing updated service chain on file-system\n" + file.getAbsolutePath() + "\n" + e.getMessage());
+		}
+		
+		// If service chain is currently being modified, ask user
+		if (ServiceChainerApp.get().getWorkspace().isEditing(serviceChain)) {
+			ButtonType option = ServiceChainerApp.get().requestReplace(file);
+			if ( option != ButtonType.NO ) {
+				serviceChain.copyFrom(newServiceChain);
+				
+				ServiceChainEditor editor = (ServiceChainEditor) ServiceChainerApp.get().getWorkspace().findTab(serviceChain).getContent();
+				editor.rebuild();
+				// TODO tell Workspace what the new "internal" service chain is to track modified changes!
+				
+				ServiceChainerApp.get().getWorkspace().getModifiedStatusProperty(serviceChain).set(false);
+			}
+		} else {
+			serviceChain.copyFrom(newServiceChain);
+		}
+	}
+
 	private void onLoad() {
 		if ( UNORGANIZED != null && !this.collections.contains(UNORGANIZED) )
 			this.addCollection(UNORGANIZED);
@@ -455,6 +504,7 @@ public class ApplicationData {
 				serviceChainFileMap.put(serviceChain, newFile);
 				
 				appData.save(appData.getCollection(serviceChain));
+				appData.fileWatcher.track(newFile);
 			}
 		});
 	}
@@ -541,6 +591,10 @@ public class ApplicationData {
 		if ( collection == null )
 			return null;
 		
+		File oldFile = serviceChainFileMap.get(serviceChain);
+		if ( oldFile != null )
+			fileWatcher.untrack(oldFile);
+		
 		// Path info
 		//String collectionPath = getAppDataFilePath(getFileName(collection.getName()));
 		String collectionPath = collectionFileMap.get(collection).getAbsolutePath();
@@ -560,6 +614,7 @@ public class ApplicationData {
 		File file = writeObject(serviceChain, extensionsPath + File.separator + name + ".json", true);
 		fileServiceChainMap.put(file, serviceChain);
 		serviceChainFileMap.put(serviceChain, file);
+		fileWatcher.track(file);
 		
 		// TODO connect to parent node and track deletion OF this service chain. We need to clean up the file
 		return file;

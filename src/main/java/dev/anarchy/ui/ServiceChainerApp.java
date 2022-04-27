@@ -308,6 +308,24 @@ public class ServiceChainerApp extends Application {
 		
 		return result;
 	}
+
+	/**
+	 * Prompts the user to save changes.
+	 * @return ButtonType representing what the user selected. {@link ButtonType#YES}, {@link ButtonType#NO}, or {@link ButtonType#CANCEL}
+	 */
+	public ButtonType requestReplace(File file) {
+		String ask = "The file " + file.getAbsolutePath() + " has changed on the file-system. Do you wish to replace the editor contents?";
+		Alert alert = new Alert(Alert.AlertType.CONFIRMATION, ask, ButtonType.YES, ButtonType.NO);
+		ServiceChainerUIBuilder.setTheme(alert.getDialogPane());
+		alert.getDialogPane().getStylesheets().addAll(ServiceChainerUIBuilder.getStylesheet());
+		
+		Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+		stage.setAlwaysOnTop(true);
+		stage.toFront(); // not sure if necessary
+		
+		ButtonType result = alert.showAndWait().orElse(ButtonType.NO);
+		return result;
+	}
 	
 	private ButtonType requestRemoveFile(String name, AtomicBoolean deleteFromDisk) {		
 		// Create alert
