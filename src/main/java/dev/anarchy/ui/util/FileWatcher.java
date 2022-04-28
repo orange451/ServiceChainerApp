@@ -43,6 +43,8 @@ public abstract class FileWatcher {
 		while(true) {
 			sleep(pollRateMillis);
 			
+			List<File> toRemove = new ArrayList<>();
+			
 			synchronized(files) {
 				for (int i = 0; i < files.size(); i++) {
 					if ( i >= files.size() )
@@ -60,8 +62,11 @@ public abstract class FileWatcher {
 						}
 					} catch(Exception e) {
 						e.printStackTrace();
+						toRemove.add(file);
 					}
 				}
+				
+				files.removeAll(toRemove);
 			}
 		}
 	}

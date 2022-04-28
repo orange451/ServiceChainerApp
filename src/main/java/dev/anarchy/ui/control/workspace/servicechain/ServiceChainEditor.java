@@ -133,7 +133,7 @@ public class ServiceChainEditor extends BorderPane {
 			
 			// Center
 			{
-				Button edit = new Button("x");
+				Button edit = new Button("", IconHelper.CENTER.create());
 				edit.setOnMouseClicked((event)->{
 					centerView();
 				});
@@ -253,8 +253,8 @@ public class ServiceChainEditor extends BorderPane {
 		GraphObject entryNode = newRouteElementNode(internal, internal);
 		if (internal.getX() == 0 && internal.getY() == 0) {
 			internal.setSize(140, 80);
-			double x = round(editPane.getPrefWidth() / 2) - round(entryNode.getPrefWidth() / 2);
-			double y = round(editPane.getPrefWidth() / 2 * 0.9125) - round(entryNode.getPrefHeight() / 2);
+			double x = ServiceChainHelper.round(editPane.getPrefWidth() / 2) - ServiceChainHelper.round(entryNode.getPrefWidth() / 2);
+			double y = ServiceChainHelper.round(editPane.getPrefWidth() / 2 * 0.9125) - ServiceChainHelper.round(entryNode.getPrefHeight() / 2);
 			internal.setPosition(x, y);
 		}
 	}
@@ -453,10 +453,6 @@ public class ServiceChainEditor extends BorderPane {
 		if (routeElement instanceof DServiceChain) {
 			g.setName(((DServiceChain) routeElement).getHandlerId());
 		}
-	}
-
-	private double round(double x) {
-		return Math.floor(x / 20d) * 20d;
 	}
 	
 	/**

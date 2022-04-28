@@ -117,6 +117,10 @@ public class ApplicationData {
 			ServiceChainerApp.get().alert(AlertType.ERROR, "Error processing updated service chain on file-system\n" + file.getAbsolutePath() + "\n" + e.getMessage());
 		}
 		
+		// Must exist
+		if ( newServiceChain == null )
+			return;
+		
 		// If service chain is currently being modified, ask user
 		if (ServiceChainerApp.get().getWorkspace().isEditing(serviceChain)) {
 			ButtonType option = ServiceChainerApp.get().requestReplace(file);
