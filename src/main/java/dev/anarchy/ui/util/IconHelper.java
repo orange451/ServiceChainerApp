@@ -21,6 +21,7 @@ public enum IconHelper {
 	IMPORT(FontAwesomeIcon.UPLOAD),
 	QUESTION(FontAwesomeIcon.QUESTION_CIRCLE),
 	GIT(FontAwesomeIcon.SITEMAP),
+	CENTER(FontAwesomeIcon.EXPAND),
 	;
 	
 	IconHelper(FontAwesomeIcon icon) {
