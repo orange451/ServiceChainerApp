@@ -68,6 +68,10 @@ public class TemplateEditor extends PopupWindow {
 		
 		AceEditor code = new AceEditor(serviceDefinition.getTemplateContent());
 		code.setOption("scrollPastEnd", 0.5d);
+		code.setOption("enableBasicAutocompletion", true);
+		code.setOption("enableLiveAutocompletion", true);
+		code.setOption("enableSnippets", true);
+		code.setOption("enableCodeLens", true);
 		updateMode(code);
 		
 		// Update transformation type
