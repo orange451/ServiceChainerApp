@@ -4,6 +4,7 @@ import dev.anarchy.ace.AceEditor;
 import dev.anarchy.ace.AceEvents;
 import dev.anarchy.ace.Modes;
 import dev.anarchy.common.DServiceDefinition;
+import dev.anarchy.translate.util.TranslateType;
 import dev.anarchy.ui.ServiceChainerUIBuilder;
 import dev.anarchy.ui.control.PopupWindow;
 import dev.anarchy.ui.util.IconHelper;
@@ -55,11 +56,10 @@ public class TemplateEditor extends PopupWindow {
 		topLayout.setLeft(test);
 		
 		ComboBox<String> comboBox = new ComboBox<>();
-		comboBox.getItems().addAll(
-		    "None",
-		    "Velocity",
-		    "Freemarker"
-		);
+		comboBox.getItems().add("None");
+		for (TranslateType translateType : TranslateType.values()) {
+			comboBox.getItems().add(translateType.getName());
+		}
 		
 		comboBox.setValue(comboBox.getItems().get(0));
 		for (String item : comboBox.getItems())
