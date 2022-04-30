@@ -402,6 +402,9 @@ public class ServiceChainerApp extends Application {
 		});
 	}
 
+	/**
+	 * JavaFX Application Entry Point
+	 */
 	public static void main(String[] args) {
 		launch(args);
 	}
