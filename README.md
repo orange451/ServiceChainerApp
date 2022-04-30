@@ -2,9 +2,9 @@
 Quickly and easily chain multiple service calls together with the ability to manipulate each input payload using templates.
 Uses: https://github.com/orange451/ServiceChainer
 
-# Building
-mvn package (Generate Fat Jar)
-mvn clean javafx:run (Test Application)
+# Building/Testing
+- $ mvn clean package
+- $ java -jar target/ServiceChainingApp-1.0-SNAPSHOT-jar-with-dependencies.jar
 
 # Currently Supports
 - [Freemarker Template Engine](https://freemarker.apache.org/)
