@@ -1,22 +1,22 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-
-	<groupId>ServiceChainingApp</groupId>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.openjfx</groupId>
 	<artifactId>ServiceChainingApp</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	
-	<name>ServiceChainingApp</name>
+	<version>1.0-SNAPSHOT</version>
+	<name>demo</name>
 	<url>http://maven.apache.org</url>
-	
+
 	<properties>
-	  <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	  <maven.compiler.source>1.8</maven.compiler.source>
-	  <maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.source>14</maven.compiler.source>
+		<maven.compiler.target>14</maven.compiler.target>
+		<javafx.version>14</javafx.version>
+		<javafx.maven.plugin.version>0.0.8</javafx.maven.plugin.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	
+	<!-- Add JitPack Repository -->
 	<repositories>
 		<repository>
 			<id>jitpack.io</id>
@@ -24,67 +24,107 @@
 		</repository>
 	</repositories>
 
+	<!-- Dependencies required to run -->
 	<dependencies>
+		<!-- OpenJFX -->
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-controls</artifactId>
+			<version>${javafx.version}</version>
+		</dependency>
+		
+		<!-- OpenJFX : WebView -->
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-web</artifactId>
+			<version>${javafx.version}</version>
+		</dependency>
+		
+		<!-- Jackson -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-core</artifactId>
 			<version>2.12.4</version>
 		</dependency>
 		
+		<!-- Jackson : Databind -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 			<version>2.12.4</version>
 		</dependency>
 
+		<!-- Freemarker -->
 		<dependency>
 			<groupId>org.freemarker</groupId>
 			<artifactId>freemarker</artifactId>
 			<version>2.3.31</version>
 		</dependency>
 		
+		<!-- Velocity -->
 		<dependency>
 			<groupId>org.apache.velocity</groupId>
 			<artifactId>velocity</artifactId>
 			<version>1.7</version>
 		</dependency>
 		
+		<!-- Apache Commons -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>3.12.0</version>
 		</dependency>
-				
+		
+		<!-- ControlsFX -->	
 		<dependency>
 			<groupId>org.controlsfx</groupId>
 			<artifactId>controlsfx</artifactId>
-			<version>8.40.18</version>
+			<version>11.1.1</version>
 		</dependency>
 		
+		<!-- FontAwesome -->
 		<dependency>
-			<groupId>de.jensd</groupId>
-			<artifactId>fontawesomefx</artifactId>
-			<version>8.9</version>
+		  <groupId>de.jensd</groupId>
+		  <artifactId>fontawesomefx-commons</artifactId>
+		  <version>9.1.2</version>
 		</dependency>
 		
+		<!-- FontAwesome -->
+		<dependency>
+		  <groupId>de.jensd</groupId>
+		  <artifactId>fontawesomefx-fontawesome</artifactId>
+		  <version>4.7.0-9.1.2</version>
+		</dependency>
+		
+		<!-- FontAwesome -->
+		<dependency>
+		  <groupId>de.jensd</groupId>
+		  <artifactId>fontawesomefx-materialdesignfont</artifactId>
+		  <version>2.0.26-9.1.2</version>
+		</dependency>
+		
+		<!-- AceFX -->
 		<dependency>
 			<groupId>com.github.orange451</groupId>
 			<artifactId>AceFX</artifactId>
 			<version>main-SNAPSHOT</version>
 		</dependency>
 		
+		<!-- JREST -->
 		<dependency>
 			<groupId>com.github.orange451</groupId>
 			<artifactId>JRest</artifactId>
 			<version>master-SNAPSHOT</version>
 		</dependency>
-			
+		
+		<!-- ServiceChainer -->
 		<dependency>
 			<groupId>com.github.orange451</groupId>
 			<artifactId>ServiceChainerBase</artifactId>
 			<version>master-SNAPSHOT</version>
 		</dependency>
 		
+		<!-- JUNIT -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -92,4 +132,51 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	
+	<build>
+		<plugins>
+			<!-- Some plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.0</version>
+				<configuration>
+					<release>${maven.compiler.source}</release>
+				</configuration>
+			</plugin>
+			
+			<!-- OpenJFX plugin -->
+			<plugin>
+				<groupId>org.openjfx</groupId>
+				<artifactId>javafx-maven-plugin</artifactId>
+				<version>0.0.3</version>
+				<configuration>
+					<mainClass>dev.anarchy.ui.ServiceChainerApp</mainClass>
+					<includePathExceptionsInClasspath>true</includePathExceptionsInClasspath>
+				</configuration>
+			</plugin>
+			
+			<!-- Shade FAT Jar -->
+			<plugin>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>3.2.1</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<transformers>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>dev.anarchy.ui.ServiceChainerApp</mainClass>
+								</transformer>
+							</transformers>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	
 </project>
