@@ -16,6 +16,142 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	
+	<!-- Profiles -->
+	<profiles>
+		<profile>
+			<id>lwjgl-natives-linux-amd64</id>
+			<activation>
+				<os>
+					<family>unix</family>
+					<arch>amd64</arch>
+				</os>
+			</activation>
+			<properties>
+				<javafx.platform>linux</javafx.platform>
+			</properties>
+		</profile>
+		<profile>
+			<id>lwjgl-natives-linux-aarch64</id>
+			<activation>
+				<os>
+					<family>unix</family>
+					<arch>aarch64</arch>
+				</os>
+			</activation>
+			<properties>
+				<javafx.platform>linux</javafx.platform>
+			</properties>
+		</profile>
+		<profile>
+			<id>lwjgl-natives-linux-arm</id>
+			<activation>
+				<os>
+					<family>unix</family>
+					<arch>arm</arch>
+				</os>
+			</activation>
+			<properties>
+				<javafx.platform>linux</javafx.platform>
+			</properties>
+		</profile>
+		<profile>
+			<id>lwjgl-natives-linux-arm32</id>
+			<activation>
+				<os>
+					<family>unix</family>
+					<arch>arm32</arch>
+				</os>
+			</activation>
+			<properties>
+				<javafx.platform>linux</javafx.platform>
+			</properties>
+		</profile>	
+		<profile>
+			<id>lwjgl-natives-macos-amd64</id>
+			<activation>
+				<os>
+					<family>mac</family>
+					<arch>amd64</arch>
+				</os>
+			</activation>
+			<properties>
+				<javafx.platform>natives-macos</javafx.platform>
+			</properties>
+		</profile>
+		<profile>
+			<id>lwjgl-natives-macos-intel64</id>
+			<activation>
+				<os>
+					<family>mac</family>
+					<arch>x86_64</arch>
+				</os>
+			</activation>
+			<properties>
+				<javafx.platform>mac</javafx.platform>
+			</properties>
+		</profile>
+		<profile>
+			<id>lwjgl-natives-macos-aarch64</id>
+			<activation>
+				<os>
+					<family>mac</family>
+					<arch>aarch64</arch>
+				</os>
+			</activation>
+			<properties>
+				<javafx.platform>mac</javafx.platform>
+			</properties>
+		</profile>
+		<profile>
+			<id>lwjgl-natives-windows-amd64</id>
+			<activation>
+				<os>
+					<family>windows</family>
+					<arch>amd64</arch>
+				</os>
+			</activation>
+			<properties>
+				<javafx.platform>win</javafx.platform>
+			</properties>
+		</profile>
+		<profile>
+			<id>lwjgl-natives-windows-intelx86</id>
+			<activation>
+				<os>
+					<family>windows</family>
+					<arch>x86_64</arch>
+				</os>
+			</activation>
+			<properties>
+				<javafx.platform>win</javafx.platform>
+			</properties>
+		</profile>
+		<profile>
+			<id>lwjgl-natives-windows-x86</id>
+			<activation>
+				<os>
+					<family>windows</family>
+					<arch>x86</arch>
+				</os>
+			</activation>
+			<properties>
+				<javafx.platform>win</javafx.platform>
+			</properties>
+		</profile>
+		<profile>
+			<id>lwjgl-natives-windows-aarch64</id>
+			<activation>
+				<os>
+					<family>windows</family>
+					<arch>aarch64</arch>
+				</os>
+			</activation>
+			<properties>
+				<javafx.platform>win</javafx.platform>
+			</properties>
+		</profile>
+	</profiles>
+	
 	<!-- Add JitPack Repository -->
 	<repositories>
 		<repository>
@@ -26,190 +162,44 @@
 
 	<!-- Dependencies required to run -->
 	<dependencies>
-		<!-- All windows dependencies -->
+		<!-- Open JFX Base -->
 		<dependency>
 			<groupId>org.openjfx</groupId>
 			<artifactId>javafx-base</artifactId>
 			<version>${javafx.version}</version>
-			<classifier>win</classifier>
-			<exclusions>
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
+			<classifier>${javafx.platform}</classifier>
 		</dependency>
+		
+		<!-- Open JFX Controls -->
 		<dependency>
 			<groupId>org.openjfx</groupId>
 			<artifactId>javafx-controls</artifactId>
 			<version>${javafx.version}</version>
-			<classifier>win</classifier>
-			<exclusions>
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
+			<classifier>${javafx.platform}</classifier>
 		</dependency>
+		
+		<!-- Open JFX WebView -->
 		<dependency>
 			<groupId>org.openjfx</groupId>
 			<artifactId>javafx-web</artifactId>
 			<version>${javafx.version}</version>
-			<classifier>win</classifier>
-			<exclusions>
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
+			<classifier>${javafx.platform}</classifier>
 		</dependency>
+		
+		<!-- Open JFX Media -->
 		<dependency>
 			<groupId>org.openjfx</groupId>
 			<artifactId>javafx-media</artifactId>
 			<version>${javafx.version}</version>
-			<classifier>win</classifier>
-			<exclusions>
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
+			<classifier>${javafx.platform}</classifier>
 		</dependency>
+		
+		<!-- Open JFX Graphics -->
 		<dependency>
 			<groupId>org.openjfx</groupId>
 			<artifactId>javafx-graphics</artifactId>
 			<version>${javafx.version}</version>
-			<classifier>win</classifier>
-			<exclusions>
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<!-- All linux dependencies -->
-		<dependency>
-			<groupId>org.openjfx</groupId>
-			<artifactId>javafx-base</artifactId>
-			<version>${javafx.version}</version>
-			<classifier>linux</classifier>
-			<exclusions>
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.openjfx</groupId>
-			<artifactId>javafx-controls</artifactId>
-			<version>${javafx.version}</version>
-			<classifier>linux</classifier>
-			<exclusions>
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.openjfx</groupId>
-			<artifactId>javafx-web</artifactId>
-			<version>${javafx.version}</version>
-			<classifier>linux</classifier>
-			<exclusions>
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.openjfx</groupId>
-			<artifactId>javafx-media</artifactId>
-			<version>${javafx.version}</version>
-			<classifier>linux</classifier>
-			<exclusions>
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.openjfx</groupId>
-			<artifactId>javafx-graphics</artifactId>
-			<version>${javafx.version}</version>
-			<classifier>linux</classifier>
-			<exclusions>
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<!-- All mac dependencies -->
-		<dependency>
-			<groupId>org.openjfx</groupId>
-			<artifactId>javafx-base</artifactId>
-			<version>${javafx.version}</version>
-			<classifier>mac</classifier>
-			<exclusions>
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.openjfx</groupId>
-			<artifactId>javafx-controls</artifactId>
-			<version>${javafx.version}</version>
-			<classifier>mac</classifier>
-			<exclusions>
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.openjfx</groupId>
-			<artifactId>javafx-web</artifactId>
-			<version>${javafx.version}</version>
-			<classifier>mac</classifier>
-			<exclusions>
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.openjfx</groupId>
-			<artifactId>javafx-media</artifactId>
-			<version>${javafx.version}</version>
-			<classifier>mac</classifier>
-			<exclusions>
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.openjfx</groupId>
-			<artifactId>javafx-graphics</artifactId>
-			<version>${javafx.version}</version>
-			<classifier>mac</classifier>
-			<exclusions>
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
+			<classifier>${javafx.platform}</classifier>
 		</dependency>
 		
 		<!-- Jackson -->
@@ -318,7 +308,18 @@
 				</configuration>
 			</plugin>
 			
-			<!-- FAT Jar -->
+			<!-- OpenJFX plugin (mvn javafx:run) -->
+			<plugin>
+				<groupId>org.openjfx</groupId>
+				<artifactId>javafx-maven-plugin</artifactId>
+				<version>0.0.3</version>
+				<configuration>
+					<mainClass>dev.anarchy.ui.ServiceChainerApp</mainClass>
+					<includePathExceptionsInClasspath>true</includePathExceptionsInClasspath>
+				</configuration>
+			</plugin>
+			
+			<!-- FAT Jar (mvn clean package) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
