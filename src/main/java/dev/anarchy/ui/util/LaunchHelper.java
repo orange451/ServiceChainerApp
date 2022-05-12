@@ -30,12 +30,15 @@ public class LaunchHelper {
 		
 		String userHome = ApplicationData.getAppDataPath();
 		File file = new File(userHome + ".ServiceChainerUI.lock");
+		boolean lockFileExists = file.exists();
+		
 		try {
 		    FileChannel fc = FileChannel.open(file.toPath(),
 		            StandardOpenOption.CREATE,
 		            StandardOpenOption.WRITE);
 		    FileLock lock = fc.tryLock();
-		    if (lock == null) {
+			System.err.println("Searching for file: " + file.getAbsolutePath() + " / " + file.exists() + " / " + lock);
+		    if (lockFileExists || lock == null) {
 		    	onApplicationAlreadyRunning();
 		    } else {
 				file.deleteOnExit();
@@ -44,6 +47,7 @@ public class LaunchHelper {
 		    
 	    	setHiddenAttrib(file);
 		} catch (IOException e) {
+			System.exit(1);
 		    throw new Error(e);
 		}
 	}
@@ -73,6 +77,8 @@ public class LaunchHelper {
 	 * Called when another instance of this application is already running.
 	 */
 	private static void onApplicationAlreadyRunning() {
+		System.err.println("Application already running. Attempting to wake up.");
+		
 		try {
 			// Call wakeup API for other application
 			RequestEntity<String> request = new RequestEntity<>(HttpMethod.GET);
@@ -80,7 +86,7 @@ public class LaunchHelper {
 			
 			// Quit
 			System.exit(0);
-		} catch(Exception e) {
+		} catch(Exception | NoClassDefFoundError e) {
 			e.printStackTrace();
 			
 			Alert alert = new Alert(AlertType.ERROR);
