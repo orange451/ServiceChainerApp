@@ -27,6 +27,8 @@ public class ServiceChainConfigurator extends ModalWindow {
 
 	private TextField pointField;
 	
+	private TextField componentField;
+	
 	public ServiceChainConfigurator(DServiceChain serviceChain) {
 		this.serviceChain = serviceChain;
 		
@@ -35,6 +37,7 @@ public class ServiceChainConfigurator extends ModalWindow {
 		
 		nameField.setText(serviceChain.getHandlerId());
 		pointField.setText(serviceChain.getRegisteredExtensionPoints().get(0).getExtensionPointId());
+		componentField.setText(serviceChain.getComponentId());
 	}
 
 	@Override
@@ -88,6 +91,21 @@ public class ServiceChainConfigurator extends ModalWindow {
 		    pointField = new TextField();
 		    gridPane.add(pointField, 1, y++);
 	    }
+
+	    // ComponentId
+	    {
+		    
+		    HBox hLayout = new HBox();
+		    hLayout.setSpacing(8);
+		    hLayout.setAlignment(Pos.CENTER_RIGHT);
+		    Label nameLabel = new Label("Component Id:");
+		    hLayout.getChildren().add(nameLabel);
+		    hLayout.getChildren().add(TooltipHelper.buildTooltip("Comoonent Id field is used to map on which component this service chain will exist on."));
+		    gridPane.add(hLayout, 0, y);
+		    
+		    componentField = new TextField();
+		    gridPane.add(componentField, 1, y++);
+	    }
 	    
 	    layout.setCenter(gridPane);
 	    
@@ -116,5 +134,6 @@ public class ServiceChainConfigurator extends ModalWindow {
 	private void close() {
 		serviceChain.setHandlerId(nameField.getText());
 		serviceChain.getRegisteredExtensionPoints().get(0).setExtensionPointId(pointField.getText());
+		serviceChain.setComponentId(componentField.getText());
 	}
 }
