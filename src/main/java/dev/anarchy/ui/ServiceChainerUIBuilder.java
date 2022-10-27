@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import de.jangassen.MenuToolkit;
 import dev.anarchy.common.DCollection;
 import dev.anarchy.ui.control.filter.Collection;
 import dev.anarchy.ui.control.filter.FolderElement;
@@ -132,6 +133,15 @@ public class ServiceChainerUIBuilder {
 	}
 
 	private static void menu(Stage stage) {
+		// MAC Menu bar
+		{
+	    	MenuToolkit tk = MenuToolkit.toolkit();
+	    	Menu defaultApplicationMenu = tk.createDefaultApplicationMenu("Service Chainer");
+	    	tk.setApplicationMenu(defaultApplicationMenu);
+	    	//defaultApplicationMenu.
+	    	//defaultApplicationMenu.getItems().get(1).setText("Hide all the otters");
+		}
+		
 		MenuBar menuBar = new MenuBar();
 		final String os = System.getProperty("os.name");
 		if (os != null && os.startsWith("Mac"))

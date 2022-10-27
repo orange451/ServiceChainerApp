@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
+import de.jangassen.MenuToolkit;
 import dev.anarchy.common.DApp;
 import dev.anarchy.common.DCollection;
 import dev.anarchy.common.DFolder;
@@ -21,6 +22,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.DialogPane;
+import javafx.scene.control.Menu;
 import javafx.scene.control.Tab;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
